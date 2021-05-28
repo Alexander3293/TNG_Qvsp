@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/arrowrigth.jpg</file>
+        <file>resources/GRP.png</file>
+        <file>resources/Service.png</file>
+        <file>resources/SettingsLogo.ico</file>
+        <file>resources/TNG.ico</file>
+        <file>resources/VSP.png</file>
+        <file>resources/VSP_press.png</file>
+        <file>resources/elements/arrow.png</file>
+        <file>resources/elements/arrow-down.png</file>
+        <file>resources/elements/checkBox_empty.png</file>
+        <file>resources/elements/checkBox_full.png</file>
+        <file>resources/elements/create-8.png</file>
+        <file>resources/elements/create-8_press.png</file>
+        <file>resources/elements/file.png</file>
+        <file>resources/elements/file_press.png</file>
+        <file>resources/elements/off.png</file>
+        <file>resources/elements/on.png</file>
+        <file>resources/elements/open-8.png</file>
+        <file>resources/elements/open-8_press.png</file>
+        <file>resources/elements/powerSupply_off.png</file>
+        <file>resources/elements/powerSupply_on.png</file>
+        <file>resources/elements/record.png</file>
+        <file>resources/elements/record_press.png</file>
+        <file>resources/elements/save-8.png</file>
+        <file>resources/elements/save-8_press.png</file>
+        <file>resources/elements/send.png</file>
+        <file>resources/elements/send_press.png</file>
+        <file>resources/elements/settings.png</file>
+        <file>resources/elements/settings_press.png</file>
+        <file>resources/elements/start-8.png</file>
+        <file>resources/elements/stop.png</file>
+        <file>resources/elements/stop_press.png</file>
+    </qresource>
+</RCC>

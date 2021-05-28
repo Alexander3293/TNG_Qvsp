@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PowerDevices</class>
+ <widget class="QWidget" name="PowerDevices">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>573</width>
+    <height>703</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>573</width>
+    <height>703</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>650</width>
+    <height>800</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::NoContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Управление питанием связки приборов</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../resources.qrc">
+    <normaloff>:/resources/TNG.ico</normaloff>:/resources/TNG.ico</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">font-size: 11px;
+font-family: Arial;
+color: rgb(50,50,50);
+background-color: #ffffff;
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+</string>
+  </property>
+  <widget class="QRadioButton" name="radioButton_On_Off">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>168</y>
+     <width>241</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>OUT on/off</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_Volt_Limit">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>83</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="maximum">
+    <double>360.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Command_Error_Message">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>640</y>
+     <width>382</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>193</y>
+     <width>126</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Измерение</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_13">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>547</y>
+     <width>126</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ERROR</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>51</y>
+     <width>184</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Напряжение</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Curr_Meas">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>310</y>
+     <width>101</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Volt_Limit">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>82</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>110</y>
+     <width>68</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ток</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_Volt_Meas">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>260</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="maximum">
+    <double>299.990000000000009</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_11">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>458</y>
+     <width>456</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Идентификация устройства TDK-LAMBDA</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Error">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>580</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_14">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>550</y>
+     <width>209</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>ERROR MESSAGE</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_On_Off">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>166</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Get_CC_CV">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>372</y>
+     <width>126</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Volt_Meas">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>260</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Set_Volt_Limit">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>84</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #18799b;
+color: #ffffff;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Установить</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>283</y>
+     <width>68</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ток</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_Curr_Limit">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>141</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="maximum">
+    <double>7.000000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>224</y>
+     <width>184</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Напряжение</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>341</y>
+     <width>349</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Измерение CV или CC</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Curr_Limit">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>140</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Set_Curr_Limit">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>140</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #18799b;
+color: #ffffff;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Установить</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Get_System_Error">
+   <property name="geometry">
+    <rect>
+     <x>102</x>
+     <y>579</y>
+     <width>310</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="doubleSpinBox_Curr_Meas">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>310</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="maximum">
+    <double>4.990000000000000</double>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="lineEdit_Get_Idntity_Query">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>489</y>
+     <width>382</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Cv_Cc">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>370</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBox_Set_LRM">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>430</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="maximum">
+    <number>3</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_LRM">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>430</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>20</y>
+     <width>241</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ограничение</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_10">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>399</y>
+     <width>456</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>System local or Remote Modes</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_12">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>516</y>
+     <width>241</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Чтение ошибок</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinBox_Error">
+   <property name="geometry">
+    <rect>
+     <x>28</x>
+     <y>579</y>
+     <width>68</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: #ffffff;
+color: #18799b; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;</string>
+   </property>
+   <property name="minimum">
+    <number>-400</number>
+   </property>
+   <property name="maximum">
+    <number>400</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Set_LRM">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>430</y>
+     <width>101</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Установить</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_15">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>600</y>
+     <width>209</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>COMMAND ERROR MESSAGE</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_Get_Idntity_Query">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>490</y>
+     <width>101</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+background-color: #18799b;
+color: #ffffff; border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+QPushButton:pressed{
+background-color: #ffffff;
+color: #18799b;
+border-width: 1px; 
+border-style: solid; 
+border-color: rgb(181,181,181); 
+font-family: Arial;
+font-size: 11pt; font-weight: 450; border-radius: 1;
+}
+
+</string>
+   </property>
+   <property name="text">
+    <string>Читать</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelState">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>680</y>
+     <width>381</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>...</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>
