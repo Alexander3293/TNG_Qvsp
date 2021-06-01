@@ -261,6 +261,7 @@ void Transceiver_class::on_udp_data_rx(void)
 //    qWarning() << "udp_socket->bytesAvailable() after"  << udp_socket->bytesAvailable();
 }
 
+/* Add to the Test Write File */
 void Transceiver_class::WriteToFile(pointFromDownHoles &point)
 {
     QByteArray tmpByte;

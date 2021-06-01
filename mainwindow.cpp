@@ -13,6 +13,9 @@ MainWindow::MainWindow(QWidget *parent)
     numDnMod_ = 0;
     numWellsMod_ = 0;
 
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+
     transceiver_ = new Transceiver_class();
     transceiver_->initialize(ADDRESS_, PORT_);
     transceiverThread_ = new QThread();
@@ -398,13 +401,14 @@ void MainWindow::sendOffOnPwr()
     transceiver_->on_panel_pwr_off();
 }
 
+
 void MainWindow::on_pushButton_clicked()
 {
 
      QString file_name_Gr =QString("D:/Test/Gr.txt");
      QFile fileGr(file_name_Gr);
 
-      if(!fileGr.open(QFile::ReadOnly|QFile::Text)) //Открываем для чтения, если нельзя открыть: переходим к следующему
+      if(!fileGr.open(QFile::ReadOnly|QFile::Text)) //Открываем для чтения, если нельзя открыть, return
       {
          return;
       }
@@ -536,8 +540,18 @@ void MainWindow::on_pushButton_clicked()
 
        ui->plotFromFile->replot();
 
+}
 
+/* Устновить глобальное смещение для наземных датчиков (при закрытии приложения, чтобы все норм было)*/
+void MainWindow::setGlobalOffset(const int blk_cnt, const pointFromDownHoles &point)
+{
+    Q_UNUSED(blk_cnt);
+   disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
 
-
+   for(int i=0; i<listGraphGround.count(); i++)
+   {
+       listGraphGround.at(i)->setOffset(point.n_pocket);    //or use blk_cnt???
+   }
 
 }

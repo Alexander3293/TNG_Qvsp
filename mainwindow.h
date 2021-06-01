@@ -51,6 +51,8 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void setGlobalOffset(const int blk_cnt, const pointFromDownHoles &point);
+
 signals:
    void updateSettings();
    void inversChannels(const QMap<int,QVector<bool>>&);

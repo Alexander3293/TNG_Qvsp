@@ -10,6 +10,7 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     deviceCount = 0;
     transceiver_ground_ = transceiver;
     width_ = 500;
+    globalOffset = -1;
 }
 
 graphGround::~graphGround()
@@ -19,6 +20,7 @@ graphGround::~graphGround()
 
 void graphGround::plotData(pointsFromWGrounds *dataPckt)
 {
+    /* plot without offset
     if(dataPckt->numModule == deviceCount)  {
 
     timeMes_ = dataPckt->time;
@@ -35,11 +37,50 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
     //ui->customPlot->yAxis->setRange(0, 1);
 
     ui->customPlot->replot();
-
         //x.clear();
+    }                   */
 
+    if(dataPckt->numModule == deviceCount)  {
 
+        timeMes_ = dataPckt->time;
+        dataSize_ = dataPckt->data.size();
 
+        //y.resize(width_);
+        for(int i=0; i< dataSize_; i++){
+            y.append(dataPckt->data[i]);
+            if(y.size() >= width_) {
+                ui->customPlot->graph()->setData(x, y);
+                ui->customPlot->rescaleAxes();
+                ui->customPlot->replot();
+                y.clear();
+            }
+        }
+    }
+}
+
+/* ЧТобы 1 раз установить offset и все, дальше стандартно */
+void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
+{
+    if(dataPckt->numModule == deviceCount)  {
+        while(globalOffset == -1);
+        connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+        disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
+
+        timeMes_ = dataPckt->time;
+        dataSize_ = dataPckt->data.size();
+        y.clear();
+        //y.resize(width_);
+        for(int i=globalOffset; i< dataSize_; i++){
+            y.append(dataPckt->data[i]);
+
+        }
+
+        if(y.size() >= width_) {
+            ui->customPlot->graph()->setData(x, y);
+            ui->customPlot->rescaleAxes();
+            ui->customPlot->replot();
+            y.clear();
+        }
     }
 }
 
@@ -56,6 +97,12 @@ void graphGround::setWidth(int val)
     width_ = val;
    // y.resize(width_);
     for(int i=0; i < width_; i++) x.append(i);
+}
+
+/* задать смещение */
+void graphGround::setOffset(int offset)
+{
+    globalOffset = offset;
 }
 
 void graphGround::initGraphGround()
@@ -79,5 +126,6 @@ void graphGround::initGraphGround()
 
     ui->customPlot->graph()->setName(QString("Наземный %1").arg(deviceCount));
     /* every 1/4 sec ploting */
-    connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+   // connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+    connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
 }

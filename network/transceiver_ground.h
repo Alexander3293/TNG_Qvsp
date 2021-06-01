@@ -50,6 +50,14 @@ private:
     volatile int device_id = -1;
     int nowTime_;
 
+    QString handPackage = "ed00ff";
+    int32_t tmpMSB;
+    int32_t tmpLSB;
+    int32_t valuePckt;
+    uint32_t counterDatagram;
+    uint32_t dataDatagramlen;
+    bool ok;
+
     QString logFileName;
     QFile file_global;      // for the correct close fil
 

@@ -20,9 +20,11 @@ public:
     quint8 getDevNum();
     void initGraphGround();
     void setWidth(int val);
+    void setOffset(int);
 
 public slots:
     void plotData(pointsFromWGrounds *dataPckt);
+    void frstPlotData(pointsFromWGrounds *dataPckt);
 
 private:
     Ui::graphGround     *ui;
@@ -32,6 +34,7 @@ private:
     Transceiver_ground *transceiver_ground_;
     int timeMes_;
     int width_;
+    int globalOffset;
     double frequnce = 998.5;
 
 };

@@ -160,70 +160,49 @@ void Transceiver_ground::send_Settings_KU(int value)
 /* Здесь будет обработка всех данных от коммутаторов ~0.5 сек*/
 void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 {
-    QString hand_package_str_1 = "ed00ff";
-
     QString  tmp_str_iVal;  //Считываемое String
     QString  str_iVal;
-    int32_t value = 0;
-    int32_t tmp1 =0;
-    int32_t tmp2 = 0;
-    uint32_t data_len = data.length()*2;
-    QString str_data = data.toHex();
-    uint32_t counter_datagram = 0;
-    device_id = 0;
 
-    for(int i=0; i < 8; i++)
-    {
+    dataDatagramlen = data.length()*2;
+    QString str_data = data.toHex();
+    counterDatagram = 0;
+    device_id = -1;
+
+    for(int i=0; i < 8; i++)    {
         listGroundModules.at(i)->data.clear();
     }
 
+    while(counterDatagram < dataDatagramlen) {              // Length Files
+       tmp_str_iVal = str_data.mid(counterDatagram,8);      //read 2 bytes + 2 bytes
+       counterDatagram += 8;
 
-    while(counter_datagram < data_len ) // Length Files
-    {
-       bool ok;
+       if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package
 
-       tmp_str_iVal = str_data.mid(counter_datagram,8);     //read 2 bytes + 2 bytes
-       counter_datagram += 8;
+           if(device_id> -1) emit dataGroundUpdate(listGroundModules.at(device_id));
 
-       if(tmp_str_iVal.startsWith(hand_package_str_1,Qt::CaseInsensitive))  //Start of the package
-       {
-           //Device ID
-            device_id = tmp_str_iVal.right(2).toInt();
-
-            nowTime_ = QTime(0,0,0).secsTo(QTime::currentTime());
-            //listGroundModules.at(device_id)->time = nowTime_;
-
+           device_id = tmp_str_iVal.right(2).toInt();
+           //nowTime_ = QTime(0,0,0).secsTo(QTime::currentTime());
+           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get number packet
+           counterDatagram += 2;
+           listGroundModules.at(device_id)->numPckt = tmp_str_iVal.toInt(&ok,16);
+           //listGroundModules.at(device_id)->numModule = device_id;    //передаю в конструкторе
        }
 
-       else
-       {
-           tmp1 = tmp_str_iVal.left(4).toInt(&ok,16);
-           tmp2 = tmp_str_iVal.right(4).toInt(&ok,16);
+       else {
+           tmpMSB = tmp_str_iVal.left(4).toInt(&ok,16);
+           tmpLSB = tmp_str_iVal.right(4).toInt(&ok,16);
+
            //value = (tmp1 << 16) | (tmp2);// & 0x00ffffff;   //24-bit ADC
-           value = (tmp1 << 8) | (tmp2 >> 8);// & 0x00ffffff;   //24-bit ADC
-           if(value & 0x800000)
-           {
-               value |= 0xff000000;
+           valuePckt = (tmpMSB << 8) | (tmpLSB >> 8);// & 0x00ffffff;   //24-bit ADC
+           if(valuePckt & 0x800000){
+               valuePckt |= 0xff000000;
            }
-           //value = value & 0x00ffffff;
-           //if ((value & 0x00800000) > 0) value |= (0xFF << 24U);    //старшие биты
 
-           //listGroundModules.at(device_id)->numPckt +=1;
-           listVector.at(device_id)->append(value);
+           listGroundModules.at(device_id)->data.append(valuePckt);
        }
     }
 
-    for(int i=0; i < 8; i++)
-    {
-      if(listVector.at(i)->size() >= 500)
-      {
-          listGroundModules.at(i)->data = *listVector.at(i);
-          emit dataGroundUpdate(listGroundModules.at(i));
-          listVector.at(i)->clear();
-      }
-    }
-
-    device_id = 0;
+    emit dataGroundUpdate(listGroundModules.at(device_id));
 }
 
 void Transceiver_ground::AddToLog(QString strLog)
