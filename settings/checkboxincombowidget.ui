@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CheckBoxInComboWidget</class>
+ <widget class="QWidget" name="CheckBoxInComboWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>167</width>
+    <height>22</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QComboBox" name="comboBox">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>11</pointsize>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QComboBox {
+    border: 1px solid rgb(178,178,178);
+    border-radius: 2px;
+	font-style: Arial;
+	font-size: 11pt;
+	color: #18799b;
+	background-color: #ffffff;
+}
+
+QComboBox:editable {
+    background: #ffffff;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: #ffffff;
+}
+
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #ffffff, stop: 0.4 #D8D8D8,
+                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}
+/*QComboBox:on { /* shift the text when the popup opens */
+/*    padding-top: 3px;
+    padding-left: 6px;
+}*/
+
+QComboBox::drop-down:button{
+	background-color: #18799b;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 18px;
+
+    border-left-width: 2px;
+    border-left-color:rgb(178,178,178);
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 1px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 1px;
+}
+
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+    top: 1px;
+    left: 1px;
+}
+
+QComboBox QAbstractItemView {
+    selection-background-color: #18799b;
+    selection-color: #ffffff;
+	color: #18799b;
+ 	background-color: #ffffff;
+    border: 1px solid rgb(178,178,178);
+	margin-top: 0px;
+    padding-bottom: 0px;
+}</string>
+     </property>
+     <property name="maxCount">
+      <number>20</number>
+     </property>
+     <property name="duplicatesEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
