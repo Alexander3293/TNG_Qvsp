@@ -19,6 +19,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
@@ -78,10 +79,13 @@ public:
     QHBoxLayout *horizontalLayout_8;
     QPushButton *motorOnOffButton;
     QSpacerItem *horizontalSpacer_10;
-    QPushButton *pushButton_2;
     QPushButton *StartButton;
     QPushButton *StopButton;
     QPushButton *pbSaveSGD;
+    QWidget *gridLayoutWidget_2;
+    QGridLayout *gridLayout_Descrip;
+    QSlider *sliderDownHole;
+    QSlider *sliderUpHole;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -89,12 +93,12 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1701, 888);
+        MainWindow->resize(2102, 1038);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         gridLayoutWidget = new QWidget(centralwidget);
         gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
-        gridLayoutWidget->setGeometry(QRect(30, 10, 721, 831));
+        gridLayoutWidget->setGeometry(QRect(30, 150, 1631, 841));
         gridLayout = new QGridLayout(gridLayoutWidget);
         gridLayout->setSpacing(0);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
@@ -102,16 +106,16 @@ public:
         gridLayout->setContentsMargins(0, 0, 0, 0);
         pushButtonSupplyModules = new QPushButton(centralwidget);
         pushButtonSupplyModules->setObjectName(QString::fromUtf8("pushButtonSupplyModules"));
-        pushButtonSupplyModules->setGeometry(QRect(760, 80, 111, 23));
+        pushButtonSupplyModules->setGeometry(QRect(600, 0, 111, 23));
         settingsButton = new QPushButton(centralwidget);
         settingsButton->setObjectName(QString::fromUtf8("settingsButton"));
-        settingsButton->setGeometry(QRect(1010, 80, 75, 23));
+        settingsButton->setGeometry(QRect(600, 30, 111, 23));
         textPlainEditInfrom = new QPlainTextEdit(centralwidget);
         textPlainEditInfrom->setObjectName(QString::fromUtf8("textPlainEditInfrom"));
-        textPlainEditInfrom->setGeometry(QRect(900, 0, 461, 51));
+        textPlainEditInfrom->setGeometry(QRect(10, 0, 491, 51));
         layoutWidget_2 = new QWidget(centralwidget);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
-        layoutWidget_2->setGeometry(QRect(770, 120, 219, 147));
+        layoutWidget_2->setGeometry(QRect(720, 0, 219, 147));
         verticalLayout_14 = new QVBoxLayout(layoutWidget_2);
         verticalLayout_14->setObjectName(QString::fromUtf8("verticalLayout_14"));
         verticalLayout_14->setContentsMargins(0, 0, 0, 0);
@@ -290,7 +294,7 @@ public:
         verticalLayout_14->setStretch(3, 3);
         powerSupplyButton = new QPushButton(centralwidget);
         powerSupplyButton->setObjectName(QString::fromUtf8("powerSupplyButton"));
-        powerSupplyButton->setGeometry(QRect(1020, 150, 161, 31));
+        powerSupplyButton->setGeometry(QRect(960, 70, 161, 31));
         powerSupplyButton->setStyleSheet(QString::fromUtf8("#powerSupplyButton{\n"
 "background-color: #18799b;\n"
 "color: #ffffff; border-width: 1px; \n"
@@ -311,7 +315,7 @@ public:
 ""));
         autoPowerSupplyButton = new QPushButton(centralwidget);
         autoPowerSupplyButton->setObjectName(QString::fromUtf8("autoPowerSupplyButton"));
-        autoPowerSupplyButton->setGeometry(QRect(1020, 226, 162, 30));
+        autoPowerSupplyButton->setGeometry(QRect(1150, 10, 162, 30));
         autoPowerSupplyButton->setMinimumSize(QSize(160, 30));
         autoPowerSupplyButton->setMaximumSize(QSize(162, 30));
         autoPowerSupplyButton->setStyleSheet(QString::fromUtf8("#autoPowerSupplyButton{\n"
@@ -335,7 +339,7 @@ public:
 ""));
         settingsLimitsButton = new QPushButton(centralwidget);
         settingsLimitsButton->setObjectName(QString::fromUtf8("settingsLimitsButton"));
-        settingsLimitsButton->setGeometry(QRect(1020, 190, 162, 30));
+        settingsLimitsButton->setGeometry(QRect(960, 100, 162, 30));
         settingsLimitsButton->setMinimumSize(QSize(162, 30));
         settingsLimitsButton->setMaximumSize(QSize(162, 30));
         settingsLimitsButton->setStyleSheet(QString::fromUtf8("#settingsLimitsButton{\n"
@@ -359,7 +363,7 @@ public:
 ""));
         layoutWidget_3 = new QWidget(centralwidget);
         layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
-        layoutWidget_3->setGeometry(QRect(1190, 120, 163, 28));
+        layoutWidget_3->setGeometry(QRect(970, 30, 163, 28));
         horizontalLayout_6 = new QHBoxLayout(layoutWidget_3);
         horizontalLayout_6->setSpacing(2);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
@@ -398,7 +402,7 @@ public:
 
         layoutWidget_4 = new QWidget(centralwidget);
         layoutWidget_4->setObjectName(QString::fromUtf8("layoutWidget_4"));
-        layoutWidget_4->setGeometry(QRect(1200, 160, 152, 32));
+        layoutWidget_4->setGeometry(QRect(1150, 40, 152, 32));
         horizontalLayout_7 = new QHBoxLayout(layoutWidget_4);
         horizontalLayout_7->setSpacing(0);
         horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
@@ -433,13 +437,13 @@ public:
 
         label_3 = new QLabel(centralwidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(1180, 90, 180, 36));
+        label_3->setGeometry(QRect(960, 0, 180, 36));
         label_3->setFont(font);
         label_3->setStyleSheet(QString::fromUtf8("color: rgb(50, 50, 50);"));
         label_3->setAlignment(Qt::AlignCenter);
         layoutWidget_5 = new QWidget(centralwidget);
         layoutWidget_5->setObjectName(QString::fromUtf8("layoutWidget_5"));
-        layoutWidget_5->setGeometry(QRect(1200, 210, 152, 32));
+        layoutWidget_5->setGeometry(QRect(1150, 90, 152, 32));
         horizontalLayout_8 = new QHBoxLayout(layoutWidget_5);
         horizontalLayout_8->setSpacing(0);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
@@ -471,22 +475,110 @@ public:
 
         horizontalLayout_8->addItem(horizontalSpacer_10);
 
-        pushButton_2 = new QPushButton(centralwidget);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setGeometry(QRect(1100, 290, 131, 31));
         StartButton = new QPushButton(centralwidget);
         StartButton->setObjectName(QString::fromUtf8("StartButton"));
-        StartButton->setGeometry(QRect(834, 290, 101, 31));
+        StartButton->setGeometry(QRect(10, 60, 101, 31));
         StopButton = new QPushButton(centralwidget);
         StopButton->setObjectName(QString::fromUtf8("StopButton"));
-        StopButton->setGeometry(QRect(950, 290, 111, 31));
+        StopButton->setGeometry(QRect(120, 60, 111, 31));
         pbSaveSGD = new QPushButton(centralwidget);
         pbSaveSGD->setObjectName(QString::fromUtf8("pbSaveSGD"));
-        pbSaveSGD->setGeometry(QRect(1250, 290, 131, 31));
+        pbSaveSGD->setGeometry(QRect(270, 60, 131, 31));
+        gridLayoutWidget_2 = new QWidget(centralwidget);
+        gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
+        gridLayoutWidget_2->setGeometry(QRect(1670, 150, 421, 841));
+        gridLayout_Descrip = new QGridLayout(gridLayoutWidget_2);
+        gridLayout_Descrip->setObjectName(QString::fromUtf8("gridLayout_Descrip"));
+        gridLayout_Descrip->setContentsMargins(0, 0, 0, 0);
+        sliderDownHole = new QSlider(centralwidget);
+        sliderDownHole->setObjectName(QString::fromUtf8("sliderDownHole"));
+        sliderDownHole->setGeometry(QRect(50, 110, 181, 22));
+        sliderDownHole->setStyleSheet(QString::fromUtf8("QSlider::groove:horizontal {\n"
+"    border: 1px solid #999999;\n"
+"    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);\n"
+"    margin: 2px 0;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);\n"
+"    border: 1px solid #5c5c5c;\n"
+"    width: 18px;\n"
+"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
+"    border-radius: 3px;\n"
+"}\n"
+"\n"
+"QSlider::groove:horizontal {\n"
+"    background: red;\n"
+"    position: absolute; /* absolutely position 4px from the left and right of the widget. setting margins on the widget should work too... */\n"
+"    left: 4px; right: 4px;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"    height: 10px;\n"
+"    background: gray;\n"
+"    margin: 0 px; /* expand outside"
+                        " the groove */\n"
+"}\n"
+"\n"
+"QSlider::add-page:horizontal {\n"
+"    background: white;\n"
+"}\n"
+"\n"
+"QSlider::sub-page:horizontal {\n"
+"    background: blue;\n"
+"}"));
+        sliderDownHole->setMinimum(10);
+        sliderDownHole->setSingleStep(10);
+        sliderDownHole->setSliderPosition(50);
+        sliderDownHole->setTracking(true);
+        sliderDownHole->setOrientation(Qt::Horizontal);
+        sliderDownHole->setTickPosition(QSlider::TicksAbove);
+        sliderUpHole = new QSlider(centralwidget);
+        sliderUpHole->setObjectName(QString::fromUtf8("sliderUpHole"));
+        sliderUpHole->setGeometry(QRect(270, 110, 181, 22));
+        sliderUpHole->setStyleSheet(QString::fromUtf8("QSlider::groove:horizontal {\n"
+"    border: 1px solid #999999;\n"
+"    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */\n"
+"    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);\n"
+"    margin: 2px 0;\n"
+"}\n"
+"\n"
+"QSlider::handle:horizontal {\n"
+"    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);\n"
+"    border: 1px solid #5c5c5c;\n"
+"    width: 18px;\n"
+"    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */\n"
+"    border-radius: 3px;\n"
+"}"));
+        sliderUpHole->setMinimum(10);
+        sliderUpHole->setMaximum(100);
+        sliderUpHole->setSingleStep(10);
+        sliderUpHole->setValue(50);
+        sliderUpHole->setOrientation(Qt::Horizontal);
+        sliderUpHole->setTickPosition(QSlider::TicksAbove);
         MainWindow->setCentralWidget(centralwidget);
+        sliderDownHole->raise();
+        gridLayoutWidget->raise();
+        pushButtonSupplyModules->raise();
+        settingsButton->raise();
+        textPlainEditInfrom->raise();
+        layoutWidget_2->raise();
+        powerSupplyButton->raise();
+        autoPowerSupplyButton->raise();
+        settingsLimitsButton->raise();
+        layoutWidget_3->raise();
+        layoutWidget_4->raise();
+        label_3->raise();
+        layoutWidget_5->raise();
+        StartButton->raise();
+        StopButton->raise();
+        pbSaveSGD->raise();
+        gridLayoutWidget_2->raise();
+        sliderUpHole->raise();
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1701, 21));
+        menubar->setGeometry(QRect(0, 0, 2102, 21));
         MainWindow->setMenuBar(menubar);
         statusbar = new QStatusBar(MainWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
@@ -524,7 +616,6 @@ public:
         relayModeButton->setText(QCoreApplication::translate("MainWindow", "\320\222\320\272\320\273 \320\240\320\265\320\273\320\265", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "\320\224\320\273\321\217 \320\262\321\201\320\265\321\205 \320\274\320\276\320\264\321\203\320\273\320\265\320\271", nullptr));
         motorOnOffButton->setText(QCoreApplication::translate("MainWindow", "\320\222\320\272\320\273 \320\234\320\276\321\202\320\276\321\200", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("MainWindow", "Save SGD", nullptr));
         StartButton->setText(QCoreApplication::translate("MainWindow", "Start", nullptr));
         StopButton->setText(QCoreApplication::translate("MainWindow", "Stop", nullptr));
         pbSaveSGD->setText(QCoreApplication::translate("MainWindow", "Save SGD v2", nullptr));

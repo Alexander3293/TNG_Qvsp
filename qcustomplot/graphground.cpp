@@ -38,6 +38,12 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
     }
 }
 
+void graphGround::rangeChanged(double axisY)
+{
+    ui->customPlot->yAxis->setRange(-axisY, axisY);
+    ui->customPlot->replot();
+}
+
 /* ЧТобы 1 раз установить offset и все, дальше стандартно */
 void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
 {

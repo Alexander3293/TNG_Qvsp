@@ -41,10 +41,12 @@ public:
     void initGraphXYZ();
     void initGraphXYZ(init_graph_DownHoles axis);
     void stopPlot();
+    void rangeChanged(double axisY);
 
 public slots:
     void plotData();
     void slot_data_update (const int blk_cnt, const pointFromDownHoles &point);
+
 signals:
     void updateSceneWidth();
 private slots:

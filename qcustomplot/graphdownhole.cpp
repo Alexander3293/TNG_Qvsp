@@ -136,6 +136,12 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
 
 }
 
+void graphDownHole::rangeChanged(double axisY)
+{
+    ui->customPlot->yAxis->setRange(-axisY, axisY);
+    ui->customPlot->replot();
+}
+
 void graphDownHole::clearData()
 {
     data_vector_XYZ.clear();

@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QList>
-
+#include <QStyleOptionSlider>
+#include <QSlider>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -53,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent)
     syncPlot_->setWidth(width_);
     syncPlot_->initGraphSync();
     syncPlot_->clearData();
+
+    /* SLIDER */
+    initSliders();
 
     /* Совместное построение наземного и подземного */
 //    testPlot_ = new plotDoubleGraph(transceiver_ground_, transceiver_);
@@ -1184,10 +1188,121 @@ void MainWindow::on_pbSaveSGD_clicked()
 
 }
 
-/* save SGD ver 3*/
-void MainWindow::on_pushButton_2_clicked()
+/* Init Sliders */
+void MainWindow::initSliders()
 {
+    ui->sliderDownHole->setValue(50);
+    ui->sliderDownHole->setRange(10,100);                       /* range scale graph 10%-100% */
+    ui->sliderDownHole->setTickInterval(10);
+    ui->sliderDownHole->setSingleStep(10);
 
+    ui->sliderDownHole->setFocusPolicy(Qt::StrongFocus);
+    ui->sliderDownHole->setTickPosition(QSlider::TicksBothSides);
+    ui->sliderDownHole->installEventFilter(this);               /* Filter need to set tick 10 count */
+
+    //connect(ui->sliderDownHole, SIGNAL(valueChanged(int)), this, SLOT(setGraphRangeDownHoles(int)));
+
+    ui->sliderUpHole->setValue(50);
+    ui->sliderUpHole->setRange(10,100);
+    ui->sliderUpHole->setTickInterval(5);
+
+    ui->sliderUpHole->setFocusPolicy(Qt::StrongFocus);
+    ui->sliderUpHole->setTickPosition(QSlider::TicksBothSides);
+    ui->sliderUpHole->setTickInterval(10);
+    ui->sliderUpHole->setSingleStep(10);
+    ui->sliderUpHole->installEventFilter(this);
+
+    //connect(ui->sliderUpHole, SIGNAL(valueChanged(int)), this, SLOT(setGraphRangeDownHoles(int)));
+}
+
+/* If range slider changed, change range Down hole graphics */
+void MainWindow::rangeGraphDownHoleChanged(int val)
+{
+    double tmp = (val*0.01) * max_range_size_24bit;
+
+    for (auto it : listGraphDnHole)
+        it->rangeChanged(tmp);
+}
+
+/* If range slider changed, change range Up hole graphics */
+void MainWindow::rangeGraphUpHoleChanged(int val)
+{
+    double tmp = (val*0.01) * max_range_size_24bit;
+
+    for (auto it : listGraphGround)
+        it->rangeChanged(tmp);
+
+
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
+{
+    if((object == ui->sliderDownHole || object == ui->sliderUpHole) && ui->sliderDownHole->isEnabled())
+    {
+        QSlider* slider = qobject_cast<QSlider*>(object);
+        int change_value = 0;
+        if (event->type() == QEvent::MouseButtonPress){
+            auto mevent = static_cast<QMouseEvent *>(event);
+            int value = slider->minimum() + (slider->maximum() - slider->minimum()) * mevent->localPos().x() / slider->width();
+            if (mevent->button() == Qt::LeftButton)
+            {
+                if (value % 10 >= 5){
+                    change_value = value + (10 - (value % 10));
+                    slider->setValue(change_value);
+                }
+                else{
+                    change_value = value - (value % 10);
+                    slider->setValue(change_value);
+                }
+
+                if(object == ui->sliderDownHole){
+                    this->rangeGraphDownHoleChanged(change_value);
+                }
+                else if(object == ui->sliderUpHole){
+                    this->rangeGraphUpHoleChanged(change_value);
+                }
+            }
+            event->accept();
+            return true;
+        }
+        if (event->type() == QEvent::MouseMove){
+            auto mevent = static_cast<QMouseEvent *>(event);
+            int value = slider->minimum() + (slider->maximum() - slider->minimum()) * mevent->localPos().x() / slider->width();
+            if (mevent->buttons() & Qt::LeftButton)
+            {
+                if (value % 10 >= 5){
+                    change_value = value + (10 - (value % 10));
+                    slider->setValue(change_value);
+                }
+                else{
+                    change_value = value - (value % 10);
+                    slider->setValue(change_value);
+                }
+
+                if(object == ui->sliderDownHole){
+                    this->rangeGraphDownHoleChanged(change_value);
+                }
+                else if(object == ui->sliderUpHole){
+                    this->rangeGraphUpHoleChanged(change_value);
+                }
+
+            }
+            event->accept();
+            return true;
+        }
+        if (event->type() == QEvent::MouseButtonDblClick)
+        {
+            event->accept();
+            return true;
+        }
+        if(object == ui->sliderDownHole){
+
+        }
+        else if(object == ui->sliderUpHole){
+
+        }
+    }
+    return QMainWindow::eventFilter(object, event);
 }
 
 /* Start Measure */

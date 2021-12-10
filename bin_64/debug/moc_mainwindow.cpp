@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[42];
-    char stringdata0[718];
+    QByteArrayData data[41];
+    char stringdata0[694];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -70,11 +70,10 @@ QT_MOC_LITERAL(33, 524, 28), // "on_prigimOtgimButton_clicked"
 QT_MOC_LITERAL(34, 553, 26), // "on_relayModeButton_clicked"
 QT_MOC_LITERAL(35, 580, 27), // "on_motorOnOffButton_clicked"
 QT_MOC_LITERAL(36, 608, 11), // "setFileName"
-QT_MOC_LITERAL(37, 620, 23), // "on_pushButton_2_clicked"
-QT_MOC_LITERAL(38, 644, 22), // "on_StartButton_clicked"
-QT_MOC_LITERAL(39, 667, 21), // "on_StopButton_clicked"
-QT_MOC_LITERAL(40, 689, 7), // "newProj"
-QT_MOC_LITERAL(41, 697, 20) // "on_pbSaveSGD_clicked"
+QT_MOC_LITERAL(37, 620, 22), // "on_StartButton_clicked"
+QT_MOC_LITERAL(38, 643, 21), // "on_StopButton_clicked"
+QT_MOC_LITERAL(39, 665, 7), // "newProj"
+QT_MOC_LITERAL(40, 673, 20) // "on_pbSaveSGD_clicked"
 
     },
     "MainWindow\0updateSettings\0\0inversChannels\0"
@@ -94,9 +93,8 @@ QT_MOC_LITERAL(41, 697, 20) // "on_pbSaveSGD_clicked"
     "on_prigimOtgimButton_clicked\0"
     "on_relayModeButton_clicked\0"
     "on_motorOnOffButton_clicked\0setFileName\0"
-    "on_pushButton_2_clicked\0on_StartButton_clicked\0"
-    "on_StopButton_clicked\0newProj\0"
-    "on_pbSaveSGD_clicked"
+    "on_StartButton_clicked\0on_StopButton_clicked\0"
+    "newProj\0on_pbSaveSGD_clicked"
 };
 #undef QT_MOC_LITERAL
 
@@ -106,7 +104,7 @@ static const uint qt_meta_data_MainWindow[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      27,   14, // methods
+      26,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -114,35 +112,34 @@ static const uint qt_meta_data_MainWindow[] = {
        4,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,  149,    2, 0x06 /* Public */,
-       3,    1,  150,    2, 0x06 /* Public */,
-       5,    1,  153,    2, 0x06 /* Public */,
-       8,    1,  156,    2, 0x06 /* Public */,
+       1,    0,  144,    2, 0x06 /* Public */,
+       3,    1,  145,    2, 0x06 /* Public */,
+       5,    1,  148,    2, 0x06 /* Public */,
+       8,    1,  151,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       9,    2,  159,    2, 0x08 /* Private */,
-      11,    0,  164,    2, 0x08 /* Private */,
-      12,    0,  165,    2, 0x08 /* Private */,
-      13,    0,  166,    2, 0x08 /* Private */,
-      14,    1,  167,    2, 0x08 /* Private */,
-      16,    1,  170,    2, 0x08 /* Private */,
-      18,    1,  173,    2, 0x08 /* Private */,
-      21,    2,  176,    2, 0x08 /* Private */,
-      24,    1,  181,    2, 0x08 /* Private */,
-      27,    1,  184,    2, 0x08 /* Private */,
-      28,    0,  187,    2, 0x08 /* Private */,
-      29,    1,  188,    2, 0x08 /* Private */,
-      31,    2,  191,    2, 0x08 /* Private */,
-      32,    0,  196,    2, 0x08 /* Private */,
-      33,    1,  197,    2, 0x08 /* Private */,
-      34,    1,  200,    2, 0x08 /* Private */,
-      35,    1,  203,    2, 0x08 /* Private */,
-      36,    2,  206,    2, 0x08 /* Private */,
-      37,    0,  211,    2, 0x08 /* Private */,
-      38,    0,  212,    2, 0x08 /* Private */,
-      39,    0,  213,    2, 0x08 /* Private */,
-      40,    2,  214,    2, 0x08 /* Private */,
-      41,    0,  219,    2, 0x08 /* Private */,
+       9,    2,  154,    2, 0x08 /* Private */,
+      11,    0,  159,    2, 0x08 /* Private */,
+      12,    0,  160,    2, 0x08 /* Private */,
+      13,    0,  161,    2, 0x08 /* Private */,
+      14,    1,  162,    2, 0x08 /* Private */,
+      16,    1,  165,    2, 0x08 /* Private */,
+      18,    1,  168,    2, 0x08 /* Private */,
+      21,    2,  171,    2, 0x08 /* Private */,
+      24,    1,  176,    2, 0x08 /* Private */,
+      27,    1,  179,    2, 0x08 /* Private */,
+      28,    0,  182,    2, 0x08 /* Private */,
+      29,    1,  183,    2, 0x08 /* Private */,
+      31,    2,  186,    2, 0x08 /* Private */,
+      32,    0,  191,    2, 0x08 /* Private */,
+      33,    1,  192,    2, 0x08 /* Private */,
+      34,    1,  195,    2, 0x08 /* Private */,
+      35,    1,  198,    2, 0x08 /* Private */,
+      36,    2,  201,    2, 0x08 /* Private */,
+      37,    0,  206,    2, 0x08 /* Private */,
+      38,    0,  207,    2, 0x08 /* Private */,
+      39,    2,  208,    2, 0x08 /* Private */,
+      40,    0,  213,    2, 0x08 /* Private */,
 
  // signals: parameters
     QMetaType::Void,
@@ -169,7 +166,6 @@ static const uint qt_meta_data_MainWindow[] = {
     QMetaType::Void, QMetaType::Bool,   30,
     QMetaType::Void, QMetaType::Bool,   30,
     QMetaType::Void, QMetaType::Int, QMetaType::QString,    2,    2,
-    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString, QMetaType::QString,    2,    2,
@@ -206,11 +202,10 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 19: _t->on_relayModeButton_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 20: _t->on_motorOnOffButton_clicked((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 21: _t->setFileName((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 22: _t->on_pushButton_2_clicked(); break;
-        case 23: _t->on_StartButton_clicked(); break;
-        case 24: _t->on_StopButton_clicked(); break;
-        case 25: _t->newProj((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
-        case 26: _t->on_pbSaveSGD_clicked(); break;
+        case 22: _t->on_StartButton_clicked(); break;
+        case 23: _t->on_StopButton_clicked(); break;
+        case 24: _t->newProj((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2]))); break;
+        case 25: _t->on_pbSaveSGD_clicked(); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -300,13 +295,13 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 27)
+        if (_id < 26)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 27;
+        _id -= 26;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 27)
+        if (_id < 26)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 27;
+        _id -= 26;
     }
     return _id;
 }

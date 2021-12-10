@@ -63,7 +63,6 @@ private slots:
     void on_motorOnOffButton_clicked(bool checked);
     void setFileName(int, QString);
 
-    void on_pushButton_2_clicked();
     void on_StartButton_clicked();
     void on_StopButton_clicked();
 
@@ -80,8 +79,9 @@ private:
    void setGainDnHole(int value);
    void setGainGroundHole(int value, quint8 numDev);
    void writeFiles(QString fileName);
-
-
+   void initSliders();
+   void rangeGraphUpHoleChanged(int);
+   void rangeGraphDownHoleChanged(int);
 private:
     Ui::MainWindow *ui;
     graphSync *syncPlot_;
@@ -140,6 +140,10 @@ private:
     single_segd_files* segd_;
     QList<single_segd_rev2_files*> lFileNameRev2;
 
+    const qint32 max_range_size_24bit = 8388607;
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *ev) override;
 };
 
 #endif // MAINWINDOW_H

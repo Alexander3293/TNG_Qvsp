@@ -21,6 +21,7 @@ public:
     void initGraphGround();
     void setWidth(int val);
     void setOffset(uint8_t , uint8_t, const int );
+    void rangeChanged(double axisY);
 
 public slots:
     void plotData(pointsFromWGrounds *dataPckt);
