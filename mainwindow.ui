@@ -557,94 +557,6 @@ font-size: 12pt; font-weight: 450; border-radius: 1;
      <string>ВКЛ питание</string>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>1000</x>
-      <y>360</y>
-      <width>251</width>
-      <height>77</height>
-     </rect>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEditBeginPlot">
-       <property name="text">
-        <string>0</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="text">
-        <string>Количестов отсчетов</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEditMaxCount">
-       <property name="text">
-        <string>256</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="2">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>График</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Начало</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QCustomPlot" name="plotFromFile" native="true">
-    <property name="geometry">
-     <rect>
-      <x>810</x>
-      <y>450</y>
-      <width>831</width>
-      <height>321</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pb_openFile">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>360</y>
-      <width>131</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Open File</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="autoPowerSupplyButton">
     <property name="geometry">
      <rect>
@@ -1045,14 +957,6 @@ font-size: 11pt; font-weight: 450; border-radius: 1;
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QCustomPlot</class>
-   <extends>QWidget</extends>
-   <header location="global">qcustomplot/qcustomplot.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

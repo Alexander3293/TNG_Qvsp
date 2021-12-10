@@ -177,7 +177,7 @@ void MainWindow::plotWidgetLayout()
 {
     shiftGridLayout_ = 2;
     /* График real-time для подземных модулей */
-    for(int i=0; i < numDnMod_; i++)
+    for(int i=0; i < numDnMod_*3; i++)
         listGraphDnHole.append(new graphDownHole(transceiver_));
 
     //ui->gridLayout->setSpacing(0);
@@ -189,12 +189,25 @@ void MainWindow::plotWidgetLayout()
         /* ширина построения */
         listGraphDnHole.at(i)->setWidth(width_);
         /* Передача номера модуля */
-        listGraphDnHole.at(i)->setModNum(i);
+        listGraphDnHole.at(i)->setModNum(i/3);
         /*Стираем старые данные */
         listGraphDnHole.at(i)->clearData();
         /*Выбираем необходимый модуль для данных */
         listGraphDnHole.at(i)->setTraceDnHole();
-        listGraphDnHole.at(i)->initGraphXYZ();
+
+        switch (i%3) {
+        case init_graph_DownHoles::graph_axis_X:
+            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_X);
+            break;
+        case init_graph_DownHoles::graph_axis_Y:
+            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Y);
+            break;
+        case init_graph_DownHoles::graph_axis_Z:
+            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
+            break;
+        }
+
+
     }
 //-------------------------------------------//
     /* Widget real-time наземных модулей - геофонов */
@@ -311,14 +324,14 @@ void MainWindow::resizeNumModules(int numDownHoleModules, int numWeelsModules)
     Q_UNUSED(numWeelsModules);
     Q_UNUSED(numDownHoleModules);
 
-    sizeList_ = listGraphGround.size();
+    sizeList_ = listGraphGround.size()*3;
     for(int i=0; i < sizeList_; i++)
     {
         ui->gridLayout->removeWidget(listGraphGround.at(0));
         delete  listGraphGround.at(0);
         listGraphGround.removeAt(0);
     }
-    sizeList_ = listGraphDnHole.size();
+    sizeList_ = listGraphDnHole.size()*3;
     for(int i=0; i < sizeList_; i++)
     {
         ui->gridLayout->removeWidget(listGraphDnHole.at(0));
@@ -484,15 +497,6 @@ void MainWindow::setGlobalOffset(const int blk_cnt, const pointFromDownHoles &po
                     SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
         offset = true;
     }
-}
-
-void MainWindow::on_pb_openFile_clicked()
-{
-    QString filter = "Txt File(*Ground.txt)";
-    QString path_file = "D:/Test";
-    file_nameGN = QFileDialog::getOpenFileName(this, "Open a File", path_file, filter);
-
-    writeFiles(file_nameGN);
 }
 
 void MainWindow::on_settingsLimitsButton_clicked()
@@ -917,249 +921,6 @@ void MainWindow::writeFiles(QString fileName)
 
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
-
-    QVector<double> yGround0, yGround1, yDwnHoleX, yDwnHoleY, yDwnHoleZ;
-    int32_t value = 0;
-    /*----------------------------------------------------------*/
-    /* Read Down Holes */
-    /*----------------------------------------------------------*/
-    if(file_nameGN.isEmpty()) qDebug() << "Файл задай ";
-    QFile fileGr(file_nameGN);
-    QString file_name_Dn = file_nameGN;
-    file_name_Dn =file_name_Dn.remove("Ground.txt") + "DownHole.txt";
-    QFile fileDn(file_name_Dn);
-
-    int begin = ui->lineEditBeginPlot->text().toInt();          //Начало графика
-    int count = ui->lineEditMaxCount->text().toInt();           //Количество точек
-    int sum_cnt_begin = begin + count;
-
-
-     if(!fileDn.open(QFile::ReadOnly|QFile::Text)) //Открываем для чтения, если нельзя открыть: переходим к следующему
-     {
-        return;
-     }
-
-     bool ok;
-     QString tmp_dev_num = fileDn.readLine();
-     int numDev_dnHoles = tmp_dev_num.right(2).toInt(&ok, 16);  //Количество подземных модулей
-     int sizePckt = 32 * numDev_dnHoles + 4;                    //Размер пакета исходя из количества подземных
-     int shiftDevice = 0;                                       //номер устройства, для построения (сдвигать на каждые 32 байта (помнить про шапку 4 байта)
-     shiftDevice*= 32;
-     shiftDevice+= 4;
-
-     union {
-         struct {
-             quint8 x7_0;
-             quint8 x15_8;
-             quint8 x23_16;
-             quint8 x31_24;
-         };
-         qint32 x31_0;
-     } point;
-
-     fileDn.read(sizePckt*11);                                  //Сделать сдвиг для пакетов
-
-/* Структура пакета */
-//     x23_16	байт        0
-//     status	байт        1
-//     x15_8	байт        2
-//     x7_0	байт            3
-//     y23_16	байт        4
-//     y15_8	байт        5
-//     y7_0	байт            6
-//     z23_16	байт        7
-//     z15_8	байт        8
-//     z7_0	байт            9
-//     cmd[0]	байт
-//     cmd[1]	байт
-//     cmd[2]	байт
-//     cmd[3]	байт
-//     KU	байт
-//     CRC	байт
-     uint16_t startPcktDwnHoles = 0;
-
-     QString tmp;
-     tmp = fileDn.read(sizePckt);
-     startPcktDwnHoles = tmp.mid(shiftDevice-4, 4).toInt(&ok, 16);
-
-     point.x23_16 = tmp.mid(shiftDevice+0, 2).toInt(&ok, 16);
-     point.x15_8 = tmp.mid(shiftDevice+2*2, 2).toInt(&ok, 16);
-     point.x7_0 = tmp.mid(shiftDevice+3*2, 2).toInt(&ok, 16);
-     if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-     else point.x31_24 = 0;
-     yDwnHoleX.append(point.x31_0);
-
-     point.x23_16 = tmp.mid(shiftDevice+4*2, 2).toInt(&ok, 16);
-     point.x15_8 = tmp.mid(shiftDevice+5*2, 2).toInt(&ok, 16);
-     point.x7_0 = tmp.mid(shiftDevice+6*2, 2).toInt(&ok, 16);
-     if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-     else point.x31_24 = 0;
-     yDwnHoleY.append(point.x31_0);
-
-     point.x23_16 = tmp.mid(shiftDevice+7*2, 2).toInt(&ok, 16);
-     point.x15_8 = tmp.mid(shiftDevice+8*2, 2).toInt(&ok, 16);
-     point.x7_0 = tmp.mid(shiftDevice+9*2, 2).toInt(&ok, 16);
-
-     if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-     else point.x31_24 = 0;
-     yDwnHoleZ.append(point.x31_0);
-
-     while(!fileDn.atEnd()) //Считываем файл, пока не считаем весь файл
-     {
-         tmp = fileDn.read(sizePckt);
-
-         point.x23_16 = tmp.mid(shiftDevice+0, 2).toInt(&ok, 16);
-         point.x15_8 = tmp.mid(shiftDevice+2*2, 2).toInt(&ok, 16);
-         point.x7_0 = tmp.mid(shiftDevice+3*2, 2).toInt(&ok, 16);
-         if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-         else point.x31_24 = 0;
-         yDwnHoleX.append(point.x31_0);
-
-         point.x23_16 = tmp.mid(shiftDevice+4*2, 2).toInt(&ok, 16);
-         point.x15_8 = tmp.mid(shiftDevice+5*2, 2).toInt(&ok, 16);
-         point.x7_0 = tmp.mid(shiftDevice+6*2, 2).toInt(&ok, 16);
-         if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-         else point.x31_24 = 0;
-         yDwnHoleY.append(point.x31_0);
-
-         point.x23_16 = tmp.mid(shiftDevice+7*2, 2).toInt(&ok, 16);
-         point.x15_8 = tmp.mid(shiftDevice+8*2, 2).toInt(&ok, 16);
-         point.x7_0 = tmp.mid(shiftDevice+9*2, 2).toInt(&ok, 16);
-
-         if ((point.x31_0 & 0x00800000) > 0) point.x31_24 = 0xFF;
-         else point.x31_24 = 0;
-         yDwnHoleZ.append(point.x31_0);
-
-         if(yDwnHoleX.size() >= sum_cnt_begin)
-             break;
-     }
-
-     fileDn.close();
-
-      /*----------------------------------------------------------*/
-      /*Read Ground Holes */
-      /*----------------------------------------------------------*/
-     if(!fileGr.open(QFile::ReadOnly|QFile::Text)) //Открываем для чтения, если нельзя открыть, return
-     {
-        return;
-     }
-     QString tmp_dev_numGr = fileGr.readLine();
-     //int numDev_Ground= tmp_dev_numGr.right(2).toInt(&ok, 16);  //Количество наземных модулей
-
-      volatile int device_id = -1;
-      QString  tmp_str_iVal;  //Считываемое String
-      QString  str_iVal;
-
-      int32_t tmp1 =0;
-      int32_t tmp2 = 0;
-      QString hand_package_Ground = "ed00ff";
-      uint8_t number_packet_ground = 0;
-      uint8_t startMeas = startPcktDwnHoles % 256;  //сдвиг Down Holes
-      startPcktDwnHoles /= 256;                         //Пакет отностильеон Down Holes
-      if(startMeas < 11) {
-          startPcktDwnHoles--;
-          startMeas-=11;
-      }
-      else
-          startMeas -= 11;
-      bool flagOffset[8] = {false,};    //чтобы первый  раз проверить нумерацию пакета
-      uint16_t counter_offset = 0;  //Счетчик сдвига
-      while(!fileGr.atEnd()){
-         bool ok;
-         tmp_str_iVal = fileGr.read(6);        //read 2 bytes + 2 bytes
-         if(tmp_str_iVal.startsWith(hand_package_Ground,Qt::CaseInsensitive)){  //Start of the package
-
-             //Device ID
-              tmp_str_iVal = fileGr.read(2);
-              device_id = tmp_str_iVal.right(2).toInt();
-              tmp_str_iVal = fileGr.read(2);
-              number_packet_ground = tmp_str_iVal.toInt(&ok, 16);
-              if(flagOffset[device_id] == false){
-                  if(number_packet_ground == startPcktDwnHoles){
-
-                      counter_offset = 0;
-                      while(counter_offset < startMeas){        //Добиться необходимого смещения
-                          tmp_str_iVal = fileGr.read(6);
-                          counter_offset++;
-                      }
-                      flagOffset[device_id] = true;
-                  }
-              }
-         }
-         else {
-
-             tmp1 = tmp_str_iVal.left(4).toInt(&ok,16);
-             tmp2 = tmp_str_iVal.right(2).toInt(&ok,16);
-             value = (tmp1 << 8) | (tmp2 >>8);
-             if(value & 0x800000){
-                 value |= 0xff000000;
-             }
-
-             switch(device_id)
-             {
-             case 0:
-                 yGround0.append(value);
-                 break;
-             case 1:
-                 yGround1.append(value);
-                 break;
-             }
-             if(yGround0.size() >= sum_cnt_begin || yGround1.size() >= sum_cnt_begin)
-                 break;
-         }
-      }
-
-      fileGr.close();
-      /*----------------------------------------------------------*/
-
-       int32_t maxGr=0, maxDnHoles=0;
-       maxGr = yGround0.size();
-       maxDnHoles = yDwnHoleX.size();
-
-       if(maxGr > maxDnHoles)   maxGr = maxDnHoles;
-       if(maxGr > count) maxGr = count;
-
-
-       QVector <double> newYGround, newYDnHoles;
-       QVector<double> xModules_;
-
-       for(int i=0; i < begin; i++){
-           yGround0.removeFirst();
-           yDwnHoleY.removeFirst();
-       }
-
-       for(int i=begin; i < (maxGr+begin); i++)
-           xModules_.append(i);
-
-
-       ui->plotFromFile->clearGraphs();
-       ui->plotFromFile->addGraph(); // blue line
-       ui->plotFromFile->graph(0)->setPen(QPen(QColor(40, 110, 255)));
-       ui->plotFromFile->addGraph(); // red line
-       ui->plotFromFile->graph(1)->setPen(QPen(QColor(255, 110, 40)));
-
-
-       ui->plotFromFile->yAxis->setTicks(0);
-
-       ui->plotFromFile->legend->setVisible(true);
-       QFont legendFont = font();
-       legendFont.setPointSize(10);
-       ui->plotFromFile->legend->setFont(legendFont);
-       ui->plotFromFile->legend->setSelectedFont(legendFont);
-       ui->plotFromFile->legend->setSelectableParts(QCPLegend::spNone);
-
-       ui->plotFromFile->graph(0)->setName(QString("Наземный"));
-       ui->plotFromFile->graph(1)->setName(QString("Скважин"));
-
-       ui->plotFromFile->graph(0)->setData(xModules_, yGround0);
-       ui->plotFromFile->graph(1)->setData(xModules_, yDwnHoleY);
-
-       ui->plotFromFile->rescaleAxes();
-       ui->plotFromFile->replot();
-}
 /* save SGD version 2 */
 void MainWindow::on_pbSaveSGD_clicked()
 {

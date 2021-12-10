@@ -52,11 +52,7 @@ private slots:
     void sendOffOnPwr();
     void on_powerSupplyButton_clicked(bool checked);
 
-    void on_pushButton_clicked();
-
     void setGlobalOffset(const int blk_cnt, const pointFromDownHoles &point);
-
-    void on_pb_openFile_clicked();
 
     void on_settingsLimitsButton_clicked();
 

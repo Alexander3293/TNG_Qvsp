@@ -23,7 +23,6 @@
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include <qcustomplot/qcustomplot.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -63,15 +62,6 @@ public:
     QLabel *measurVoltLabel;
     QSpacerItem *horizontalSpacer_22;
     QPushButton *powerSupplyButton;
-    QWidget *layoutWidget;
-    QGridLayout *gridLayout_2;
-    QLineEdit *lineEditBeginPlot;
-    QLabel *label;
-    QLineEdit *lineEditMaxCount;
-    QPushButton *pushButton;
-    QLabel *label_2;
-    QCustomPlot *plotFromFile;
-    QPushButton *pb_openFile;
     QPushButton *autoPowerSupplyButton;
     QPushButton *settingsLimitsButton;
     QWidget *layoutWidget_3;
@@ -319,52 +309,6 @@ public:
 "font-size: 12pt; font-weight: 450; border-radius: 1;\n"
 "}\n"
 ""));
-        layoutWidget = new QWidget(centralwidget);
-        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(1000, 360, 251, 77));
-        gridLayout_2 = new QGridLayout(layoutWidget);
-        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        gridLayout_2->setContentsMargins(0, 0, 0, 0);
-        lineEditBeginPlot = new QLineEdit(layoutWidget);
-        lineEditBeginPlot->setObjectName(QString::fromUtf8("lineEditBeginPlot"));
-        lineEditBeginPlot->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(lineEditBeginPlot, 2, 1, 1, 1);
-
-        label = new QLabel(layoutWidget);
-        label->setObjectName(QString::fromUtf8("label"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
-        label->setSizePolicy(sizePolicy);
-        label->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label, 1, 0, 1, 1);
-
-        lineEditMaxCount = new QLineEdit(layoutWidget);
-        lineEditMaxCount->setObjectName(QString::fromUtf8("lineEditMaxCount"));
-        lineEditMaxCount->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(lineEditMaxCount, 1, 1, 1, 1);
-
-        pushButton = new QPushButton(layoutWidget);
-        pushButton->setObjectName(QString::fromUtf8("pushButton"));
-
-        gridLayout_2->addWidget(pushButton, 0, 0, 1, 2);
-
-        label_2 = new QLabel(layoutWidget);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_2, 2, 0, 1, 1);
-
-        plotFromFile = new QCustomPlot(centralwidget);
-        plotFromFile->setObjectName(QString::fromUtf8("plotFromFile"));
-        plotFromFile->setGeometry(QRect(810, 450, 831, 321));
-        pb_openFile = new QPushButton(centralwidget);
-        pb_openFile->setObjectName(QString::fromUtf8("pb_openFile"));
-        pb_openFile->setGeometry(QRect(870, 360, 131, 31));
         autoPowerSupplyButton = new QPushButton(centralwidget);
         autoPowerSupplyButton->setObjectName(QString::fromUtf8("autoPowerSupplyButton"));
         autoPowerSupplyButton->setGeometry(QRect(1020, 226, 162, 30));
@@ -572,12 +516,6 @@ public:
         voltLabel->setText(QCoreApplication::translate("MainWindow", "0 ", nullptr));
         measurVoltLabel->setText(QCoreApplication::translate("MainWindow", "B", nullptr));
         powerSupplyButton->setText(QCoreApplication::translate("MainWindow", "\320\222\320\232\320\233 \320\277\320\270\321\202\320\260\320\275\320\270\320\265", nullptr));
-        lineEditBeginPlot->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
-        label->setText(QCoreApplication::translate("MainWindow", "\320\232\320\276\320\273\320\270\321\207\320\265\321\201\321\202\320\276\320\262 \320\276\321\202\321\201\321\207\320\265\321\202\320\276\320\262", nullptr));
-        lineEditMaxCount->setText(QCoreApplication::translate("MainWindow", "256", nullptr));
-        pushButton->setText(QCoreApplication::translate("MainWindow", "\320\223\321\200\320\260\321\204\320\270\320\272", nullptr));
-        label_2->setText(QCoreApplication::translate("MainWindow", "\320\235\320\260\321\207\320\260\320\273\320\276", nullptr));
-        pb_openFile->setText(QCoreApplication::translate("MainWindow", "Open File", nullptr));
         autoPowerSupplyButton->setText(QCoreApplication::translate("MainWindow", "\320\220\320\262\321\202\320\276 \321\203\320\277\321\200\320\260\320\262\320\273\320\265\320\275\320\270\320\265", nullptr));
         settingsLimitsButton->setText(QCoreApplication::translate("MainWindow", "\320\243\321\201\321\202. \320\276\320\263\321\200\320\260\320\275\320\270\321\207\320\265\320\275\320\270\320\271", nullptr));
         labelPrigimModul_1->setText(QCoreApplication::translate("MainWindow", "\320\237\321\200\320\270\320\266\320\270\320\274", nullptr));

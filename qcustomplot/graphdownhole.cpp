@@ -8,6 +8,7 @@ graphDownHole::graphDownHole(Transceiver_class *transceiver, QWidget *parent) :
     ui->setupUi(this);
     transceiver_ = transceiver;
     num_module = 0;
+    trace_XYZ = init_graph_DownHoles::graph_axis_X;
 
     connect(this, SIGNAL(updateSceneWidth()), this, SLOT(plotData()));
     for(int i =0; i< 500; i++)
@@ -21,9 +22,10 @@ graphDownHole::~graphDownHole()
 
 void graphDownHole::plotData()
 {
-    ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyX);
-    ui->customPlot->graph(1)->setData(xTimeCpy_, data_cpyY);
-    ui->customPlot->graph(2)->setData(xTimeCpy_, data_cpyZ);
+    ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyXYZ);
+//    ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyX);
+//    ui->customPlot->graph(1)->setData(xTimeCpy_, data_cpyY);
+//    ui->customPlot->graph(2)->setData(xTimeCpy_, data_cpyZ);
     // set axes ranges, so we see all data:
     ui->customPlot->rescaleAxes();
     //ui->customPlot->yAxis->setRange(0, 1);
@@ -43,19 +45,29 @@ quint8 graphDownHole::getModNum() {
 
 void graphDownHole::setTraceDnHole()
 {
-        //            trace_23_16 = tool_No * 10 + 0;
-        trace_23_16_X = num_module * 16 + 0;
-        trace_15_8_X  = num_module * 16 + 2;
-        trace_7_0_X   = num_module * 16 + 3;
+    switch (trace_XYZ) {
+    case init_graph_DownHoles::graph_axis_X:
 
-        trace_23_16_Y = num_module * 16 + 4;
-        trace_15_8_Y  = num_module * 16 + 5;
-        trace_7_0_Y   = num_module * 16 + 6;
+        trace_23_16 = num_module * 16 + 0;
+        trace_15_8  = num_module * 16 + 2;
+        trace_7_0   = num_module * 16 + 3;
 
-        trace_23_16_Z = num_module * 16 + 7;
-        trace_15_8_Z  = num_module * 16 + 8;
-        trace_7_0_Z   = num_module * 16 + 9;
+        break;
+    case init_graph_DownHoles::graph_axis_Y:
 
+        trace_23_16 = num_module * 16 + 4;
+        trace_15_8  = num_module * 16 + 5;
+        trace_7_0   = num_module * 16 + 6;
+
+        break;
+    case init_graph_DownHoles::graph_axis_Z:
+
+        trace_23_16 = num_module * 16 + 7;
+        trace_15_8  = num_module * 16 + 8;
+        trace_7_0   = num_module * 16 + 9;
+
+        break;
+    }
 }
 
 void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHoles &point)// прием и обработка данных
@@ -81,65 +93,43 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
             quint8 x31_24;
         };
         quint32 x31_0;
-    } x, y, z;
+    }x;
 
     if(crc_.checkCRC(pdata, num_module)){
-        x.x23_16 = *(pdata + trace_23_16_X);
-        x.x15_8  = *(pdata + trace_15_8_X );
-        x.x7_0   = *(pdata + trace_7_0_X);
 
-        y.x23_16 = *(pdata + trace_23_16_Y);
-        y.x15_8  = *(pdata + trace_15_8_Y );
-        y.x7_0   = *(pdata + trace_7_0_Y);
+        x.x23_16 = *(pdata + trace_23_16);
+        x.x15_8  = *(pdata + trace_15_8 );
+        x.x7_0   = *(pdata + trace_7_0);
 
-        z.x23_16 = *(pdata + trace_23_16_Z);
-        z.x15_8  = *(pdata + trace_15_8_Z );
-        z.x7_0   = *(pdata + trace_7_0_Z);
-    //    trace15_8ForKU_ = *(pdata + (tool_No * 16 + 14));;
-    //    trace23_16ForKU_ = *(pdata + (tool_No * 16 + 14) );
         if ((x.x31_0 & 0x00800000) > 0) x.x31_24 = 0xFF;
         else x.x31_24 = 0;
-
-        if ((y.x31_0 & 0x00800000) > 0) y.x31_24 = 0xFF;
-        else y.x31_24 = 0;
-
-        if ((z.x31_0 & 0x00800000) > 0) z.x31_24 = 0xFF;
-        else z.x31_24 = 0;
     }
     else{
         x.x31_0 = maxValMissPacket;
-        y.x31_0 = maxValMissPacket;
-        z.x31_0 = maxValMissPacket;
     }
 
     mesX = x.x31_0;
-    data_vectorX.append(mesX);
-
-    mesY = y.x31_0;
-    data_vectorY.append(mesY);
-
-    mesZ = z.x31_0;
-    data_vectorZ.append(mesZ);
+    data_vector_XYZ.append(mesX);
 
 //    nowTime_ = QTime(0,0,0).secsTo(QTime::currentTime());
 //    xTime_.append(nowTime_);
 
-    if ((data_vectorX.count() >= width_) ||
-           (data_vectorY.count() >= width_) ||
-            (data_vectorZ.count() >= width_) )  //Данные для построения, если есть:
+    if ((data_vector_XYZ.count() >= width_))
     {
-        data_cpyX = data_vectorX;
-        data_cpyY = data_vectorY;
-        data_cpyZ = data_vectorZ;
+        data_cpyXYZ = data_vector_XYZ;
+//        data_cpyX = data_vectorX;
+//        data_cpyY = data_vectorY;
+//        data_cpyZ = data_vectorZ;
 
         //xTimeCpy_ = xTime_;
 //        memcpy(&data_cpyX, &data_vectorX, width_);    //Вдруг придут новые данные, а старые не ушли
 //        memcpy(&data_cpyY, &data_vectorY, width_);    //Вдруг придут новые данные, а старые не ушли
 //        memcpy(&data_cpyZ, &data_vectorZ, width_);    //Вдруг придут новые данные, а старые не ушли
 //        xTime_.clear();
-        data_vectorX.clear();
-        data_vectorY.clear();
-        data_vectorZ.clear();
+//        data_vectorX.clear();
+//        data_vectorY.clear();
+//        data_vectorZ.clear();
+        data_vector_XYZ.clear();
 
         emit updateSceneWidth();
     }
@@ -148,17 +138,19 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
 
 void graphDownHole::clearData()
 {
-    data_vectorX.clear();
-    data_vectorY.clear();
-    data_vectorZ.clear();
+    data_vector_XYZ.clear();
+//    data_vectorX.clear();
+//    data_vectorY.clear();
+//    data_vectorZ.clear();
 }
 
 void graphDownHole::setWidth(int width)
 {
     width_ = width;
-    data_cpyX.resize(width_);
-    data_cpyY.resize(width_);
-    data_cpyZ.resize(width_);
+    data_cpyXYZ.resize(width_);
+//    data_cpyX.resize(width_);
+//    data_cpyY.resize(width_);
+//    data_cpyZ.resize(width_);
 }
 
 void graphDownHole::initGraphXYZ()
@@ -190,12 +182,49 @@ void graphDownHole::initGraphXYZ()
     ui->customPlot->graph(1)->setName(QString("Модуль %1 Y").arg(num_module+1));
     ui->customPlot->graph(2)->setName(QString("Модуль %1 Z").arg(num_module+1));
 
-    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int, pointFromDownHoles)));
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int,pointFromDownHoles)));
+}
+
+void graphDownHole::initGraphXYZ(init_graph_DownHoles axis)
+{
+    trace_XYZ = axis;
+    ui->customPlot->addGraph(); // blue line
+    ui->customPlot->graph(0)->setPen(QPen(QColor(40, 110, 255)));
+
+    ui->customPlot->xAxis->setTicks(0); //off ticks
+    ui->customPlot->yAxis->setTicks(0);
+
+    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+    timeTicker->setTimeFormat("%h:%m:%s");
+    ui->customPlot->xAxis->setTicker(timeTicker);
+
+    ui->customPlot->legend->setVisible(true);
+    QFont legendFont = font();
+    legendFont.setPointSize(8);
+    ui->customPlot->legend->setFont(legendFont);
+    ui->customPlot->legend->setSelectedFont(legendFont);
+    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
+
+    ui->customPlot->axisRect()->setMinimumMargins(QMargins(0,0,0,0));   // на весь экран расстянуть
+
+    switch (trace_XYZ) {
+    case init_graph_DownHoles::graph_axis_X:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 X").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Y:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 Y").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Z:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 Z").arg(num_module+1));
+        break;
+    }
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int,pointFromDownHoles)));
 }
 
 void graphDownHole::stopPlot()
 {
-    disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int, pointFromDownHoles)));
+    this->clearData();
+    disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int,pointFromDownHoles)));
 }
 
 void graphDownHole::on_relayModeButton_clicked(bool checked)
@@ -203,14 +232,12 @@ void graphDownHole::on_relayModeButton_clicked(bool checked)
 
     if(checked)
     {
-
         transceiver_->on_tool_rele_on(num_module);   //num_module
         ui->relayModeButton->setText("Выкл Реле");
         ui->relayModeButton->setCheckable(false); //invert checked
     }
     else
     {
-
         transceiver_->on_tool_rele_off(num_module);  //num module
         ui->relayModeButton->setText("Вкл Реле");
         ui->relayModeButton->setCheckable(true); //invert checked
