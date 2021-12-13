@@ -12,7 +12,7 @@
 #include "network/transceiver_class.h"
 
 /*--------- CMD ground modules -----------------*/
-#define NUMBER_DEVICES			0xa9
+#define SEARCH_NUMBER_DEVICES	0xa9
 #define READY_DEVICE            0xaf
 
 #define ADC_START               0xc1
@@ -22,6 +22,8 @@
 #define ADC_ENABLE              0xdedea0
 #define ADC_DISABLE             0xdedea5
 #define SEARCH_DEV              0xdedeaf
+
+
 /*-----------------------------------------------*/
 
 typedef struct
@@ -47,6 +49,7 @@ public:
     void setNumModule(int numModule);
     void setRecord(bool isRecording);
     bool getRecord();
+    void send_search_devices();
 private:
     QUdpSocket              *udp_socket;
     QHostAddress            host_;

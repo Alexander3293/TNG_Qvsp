@@ -79,11 +79,11 @@ void Transceiver_ground::on_udp_data_rx(void)
         {
             qDebug() << "Команда ВКЛ устройств:" << tmp_str;
             int devNum = tmp_str.mid(6,2).toInt();
-            AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum+1));
+            AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
             tmp_str.remove(0, 8);
             while(tmp_str.length()){
                 devNum = tmp_str.mid(6,2).toInt();
-                AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum+1));
+                AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
                 tmp_str.remove(0, 8);
             }
             return;
@@ -110,7 +110,8 @@ void Transceiver_ground::on_udp_data_rx(void)
            // ui->lineEdit->setText(QString::number(CounterDevicesReady));
 
             for(uint i=0; i < tmp_counter; i++ ) {
-             //   AddToLog("Device " + message_str.mid(2*i,3 2) + " is ready", Qt::red);
+                //AddToLog("Device " + message_str.mid(2*i,2) + " is ready", Qt::red);
+                qDebug() << "DEvice " << message_str.mid(0,2).toInt();
             }
             return;
         }
@@ -195,12 +196,27 @@ void Transceiver_ground::send_Settings_KU(int value, uint8_t numDev)
         break;
     }
 
+    //this->send_search_devices();
+
     out <<(quint8)ADC_SETTING;
-    out <<(quint8)numDev;  //all
+    out <<(quint8)0xF;  //all
 
     /* Передача нескольким устройствам коэф-та усилиения и ослабления */
     out <<(quint8)tmp; // резерв
     out <<(quint8)tmp; // настройки АЦП
+
+    udp_socket->writeDatagram(block, host_, portDst_ );
+}
+
+void Transceiver_ground::send_search_devices()
+{
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+
+    out <<(quint8)SEARCH_NUMBER_DEVICES;
+    out <<(quint8)0;
+
+    /* Передача нескольким устройствам коэф-та усилиения и ослабления */
 
     udp_socket->writeDatagram(block, host_, portDst_ );
 }
@@ -267,6 +283,11 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
 
            device_id = str_data.mid(counterDatagram,2).toUInt();
+           for(uint8_t i=0; i < 4; i++){
+               if(device_id & (0x01 << i)){
+                   device_id = i;
+               }
+           }
            counterDatagram += 2;
            if(device_id >= 9)   qDebug() << "Error, data";
            else if(device_id < 0)   qDebug() << "Error, data";

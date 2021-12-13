@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>2102</width>
-    <height>1038</height>
+    <height>787</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>30</x>
       <y>150</y>
       <width>1631</width>
-      <height>841</height>
+      <height>581</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0">
