@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(settingsWidget_, SIGNAL(startGround()), transceiver_ground_, SLOT(send_Start()));
     connect(settingsWidget_, SIGNAL(startSync(const QString, const QString )), transceiver_sync_, SLOT(send_Start(const QString, const QString )));
     connect(settingsWidget_, SIGNAL(stopGround()), transceiver_ground_, SLOT(send_Stop()));
+    connect(settingsWidget_, SIGNAL(searchGround()), transceiver_ground_, SLOT(send_search_devices()));
     // connect(settingsWidget_, SIGNAL(stopSync()), this, SLOT(stopSync()));
 
     /* Виджет легенды real-time модуля синхронизации */

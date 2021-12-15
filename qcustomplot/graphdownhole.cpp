@@ -37,6 +37,17 @@ void graphDownHole::plotData()
 
 void graphDownHole::setModNum(quint8 devCon) {
     num_module = devCon;
+    switch (trace_XYZ) {
+    case init_graph_DownHoles::graph_axis_X:
+        ui->label_num_device->setText(QString("Модуль %1 X").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Y:
+        ui->label_num_device->setText(QString("Модуль %1 Y").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Z:
+        ui->label_num_device->setText(QString("Модуль %1 Z").arg(num_module+1));
+        break;
+    }
 }
 
 quint8 graphDownHole::getModNum() {
@@ -200,30 +211,30 @@ void graphDownHole::initGraphXYZ(init_graph_DownHoles axis)
     ui->customPlot->xAxis->setTicks(0); //off ticks
     ui->customPlot->yAxis->setTicks(0);
 
-    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-    timeTicker->setTimeFormat("%h:%m:%s");
-    ui->customPlot->xAxis->setTicker(timeTicker);
+//    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+//    timeTicker->setTimeFormat("%h:%m:%s");
+//    ui->customPlot->xAxis->setTicker(timeTicker);
 
-    ui->customPlot->legend->setVisible(true);
-    QFont legendFont = font();
-    legendFont.setPointSize(8);
-    ui->customPlot->legend->setFont(legendFont);
-    ui->customPlot->legend->setSelectedFont(legendFont);
-    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
+//    ui->customPlot->legend->setVisible(true);
+//    QFont legendFont = font();
+//    legendFont.setPointSize(8);
+//    ui->customPlot->legend->setFont(legendFont);
+//    ui->customPlot->legend->setSelectedFont(legendFont);
+//    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
 
     ui->customPlot->axisRect()->setMinimumMargins(QMargins(0,0,0,0));   // на весь экран расстянуть
 
-    switch (trace_XYZ) {
-    case init_graph_DownHoles::graph_axis_X:
-        ui->customPlot->graph(0)->setName(QString("Модуль %1 X").arg(num_module+1));
-        break;
-    case init_graph_DownHoles::graph_axis_Y:
-        ui->customPlot->graph(0)->setName(QString("Модуль %1 Y").arg(num_module+1));
-        break;
-    case init_graph_DownHoles::graph_axis_Z:
-        ui->customPlot->graph(0)->setName(QString("Модуль %1 Z").arg(num_module+1));
-        break;
-    }
+//    switch (trace_XYZ) {
+//    case init_graph_DownHoles::graph_axis_X:
+//        ui->customPlot->graph(0)->setName(QString("Модуль %1 X").arg(num_module+1));
+//        break;
+//    case init_graph_DownHoles::graph_axis_Y:
+//        ui->customPlot->graph(0)->setName(QString("Модуль %1 Y").arg(num_module+1));
+//        break;
+//    case init_graph_DownHoles::graph_axis_Z:
+//        ui->customPlot->graph(0)->setName(QString("Модуль %1 Z").arg(num_module+1));
+//        break;
+//    }
     connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int,pointFromDownHoles)));
 }
 

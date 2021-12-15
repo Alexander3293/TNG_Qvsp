@@ -102,6 +102,8 @@ private slots:
     void on_lineEditNumDnMod_textEdited(const QString &arg1);
     void on_startSyncButton_clicked();
 
+    void on_pb_search_ground_clicked();
+
 private:
     Ui::Settings *ui;
     void setStyleTextSheet();
@@ -153,6 +155,7 @@ signals:
     void startGround();
     void startSync(const QString, const QString);
     void stopGround();
+    void searchGround();
     void inversAndGainChannels(const inversAndGainValue);
     void stopSync();
 };

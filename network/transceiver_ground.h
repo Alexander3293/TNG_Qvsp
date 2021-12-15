@@ -49,7 +49,7 @@ public:
     void setNumModule(int numModule);
     void setRecord(bool isRecording);
     bool getRecord();
-    void send_search_devices();
+
 private:
     QUdpSocket              *udp_socket;
     QHostAddress            host_;
@@ -98,6 +98,7 @@ public slots:
     void send_Stop(void);
     void send_Settings_KU(int value, uint8_t numDev);
     void getDataOffsetDownHoles(quint16 numPckt);
+    void send_search_devices();
 
 signals:
     void dataGroundUpdate(pointsFromWGrounds *data);

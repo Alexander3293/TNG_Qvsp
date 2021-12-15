@@ -26,6 +26,7 @@ public:
 public slots:
     void plotData(pointsFromWGrounds *dataPckt);
     void frstPlotData(pointsFromWGrounds *dataPckt);
+    void setGroundDevState(quint8 numDev, bool state);
 
 private:
     Ui::graphGround     *ui;

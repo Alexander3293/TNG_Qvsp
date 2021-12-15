@@ -898,3 +898,9 @@ void Settings::on_lineEditNumDnMod_textEdited(const QString &arg1)
         ui->lineEditNumDnMod->setText(QString::number(tmp));
 }
 
+/* Push button to find devices */
+void Settings::on_pb_search_ground_clicked()
+{
+    emit searchGround();
+}
+

@@ -275,19 +275,16 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                        listFileSgd.at(device_id)->append_data(data);
                    }
                }
-
-
 //               if(isRecording_)
 //                   listFileSgd.at(device_id)->append_data(listGroundModules.at(device_id)->data);
            }
 
-
            device_id = str_data.mid(counterDatagram,2).toUInt();
-           for(uint8_t i=0; i < 4; i++){
-               if(device_id & (0x01 << i)){
-                   device_id = i;
-               }
-           }
+//           for(uint8_t i=0; i < 4; i++){
+//               if(device_id & (0x01 << i)){
+//                   device_id = i;
+//               }
+//           }
            counterDatagram += 2;
            if(device_id >= 9)   qDebug() << "Error, data";
            else if(device_id < 0)   qDebug() << "Error, data";

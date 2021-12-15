@@ -12,6 +12,7 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     width_ = 500;
     numPckt_ = -1;
     numMeasure_ = -1;
+
 }
 
 graphGround::~graphGround()
@@ -70,8 +71,21 @@ void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
     }
 }
 
+void graphGround::setGroundDevState(quint8 numDev, bool state)
+{
+    if(numDev == deviceCount){
+        if(state){
+            ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");
+        }
+        else{
+            ui->label_state->setStyleSheet("QLabel { background-color : red; color : black; }");
+        }
+    }
+}
+
 void graphGround::setDevNum(quint8 devCon) {
     deviceCount = devCon;
+    ui->label_num_ground->setText(QString("Наземный %1").arg(deviceCount+1));  //нумерация с 1
 }
 
 quint8 graphGround::getDevNum() {
@@ -102,16 +116,16 @@ void graphGround::initGraphGround()
     ui->customPlot->xAxis->setTicks(0); //off ticks
     ui->customPlot->yAxis->setTicks(0);
 
-    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
-    timeTicker->setTimeFormat("%h:%m:%s");
-    ui->customPlot->xAxis->setTicker(timeTicker);
+//    QSharedPointer<QCPAxisTickerTime> timeTicker(new QCPAxisTickerTime);
+//    timeTicker->setTimeFormat("%h:%m:%s");
+//    ui->customPlot->xAxis->setTicker(timeTicker);
 
-    ui->customPlot->legend->setVisible(true);
-    QFont legendFont = font();
-    legendFont.setPointSize(8);
-    ui->customPlot->legend->setFont(legendFont);
-    ui->customPlot->legend->setSelectedFont(legendFont);
-    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
+//    ui->customPlot->legend->setVisible(true);
+//    QFont legendFont = font();
+//    legendFont.setPointSize(8);
+//    ui->customPlot->legend->setFont(legendFont);
+//    ui->customPlot->legend->setSelectedFont(legendFont);
+//    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
 
     ui->customPlot->axisRect()->setMinimumMargins(QMargins(0,0,0,0));   // на весь экран расстянуть
 
