@@ -51,7 +51,9 @@ signals:
     void updateSceneWidth();
 private slots:
     void on_relayModeButton_clicked(bool checked);
-
+private:
+    void set_state_KU(quint8);
+    void set_state_rele(quint8 rele);
 private:
     Ui::graphDownHole *ui;
     QVector <double> xTime_, xTimeCpy_;
@@ -59,10 +61,12 @@ private:
     uint                num_module;
     Transceiver_class* transceiver_;
     int     trace_23_16;
-    int     trace23_16ForKU_X_, trace23_16ForKU_Y_, trace23_16ForKU_Z_;
+    int     trace_KU;
+    int     trace_status;
     int     trace15_8ForKU_X_, trace15_8ForKU_Y_, trace15_8ForKU_Z_;
     int     trace_15_8;
     int     trace_7_0;
+
     //QVector<double> data_vectorX, data_cpyX, data_vectorY, data_cpyY, data_vectorZ, data_cpyZ;
     QVector<double> data_vector_XYZ, data_cpyXYZ;
     int    width_;
@@ -73,7 +77,8 @@ private:
     int maxValMissPacket = 0x7fffff;  //8 388 607 (int24)
     checksum crc_;
 
-    uint8_t trace_XYZ;
+    quint8  trace_XYZ;
+    quint8  KU_;
 
 };
 

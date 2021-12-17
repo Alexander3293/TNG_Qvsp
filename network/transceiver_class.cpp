@@ -392,29 +392,29 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
     QVector<float> data_tmp;
     data_tmp.append(0.0);
 
-    for(uint8_t i=0; i<numModule_; i++){
+    for(uint8_t numMod=0; numMod<numModule_; numMod++){
         /* Check CRC data */
-        if(!crc_.checkCRC(pdata,numModule_ )){
-
+        if(!crc_.checkCRC(pdata,numMod )){
+        //if(!1){
             data_tmp[0] = maxValMissPacket;
 
-            listFileSgd.at(3*i)->append_data(data_tmp);
-            listFileSgd.at(3*i+1)->append_data(data_tmp);
-            listFileSgd.at(3*i+2)->append_data(data_tmp);
+            listFileSgd.at(3*numMod)->append_data(data_tmp);
+            listFileSgd.at(3*numMod+1)->append_data(data_tmp);
+            listFileSgd.at(3*numMod+2)->append_data(data_tmp);
 
         }
         else{
-            x.x23_16 = *(pdata + 0 + i*16);
-            x.x15_8  = *(pdata + 2 + i*16);
-            x.x7_0   = *(pdata + 3 + i*16);
+            x.x23_16 = *(pdata + 0 + numMod*16);
+            x.x15_8  = *(pdata + 2 + numMod*16);
+            x.x7_0   = *(pdata + 3 + numMod*16);
 
-            y.x23_16 = *(pdata + 4 + i*16);
-            y.x15_8  = *(pdata + 5 + i*16);
-            y.x7_0   = *(pdata + 6 + i*16);
+            y.x23_16 = *(pdata + 4 + numMod*16);
+            y.x15_8  = *(pdata + 5 + numMod*16);
+            y.x7_0   = *(pdata + 6 + numMod*16);
 
-            z.x23_16 = *(pdata + 7 + i*16);
-            z.x15_8  = *(pdata + 8 + i*16);
-            z.x7_0   = *(pdata + 9 + i*16);
+            z.x23_16 = *(pdata + 7 + numMod*16);
+            z.x15_8  = *(pdata + 8 + numMod*16);
+            z.x7_0   = *(pdata + 9 + numMod*16);
 
             if ((x.x31_0 & 0x00800000) > 0) x.x31_24 = 0xFF;
             else x.x31_24 = 0;
@@ -426,13 +426,13 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
             else z.x31_24 = 0;
 
             data_tmp[0] = float(x.x31_0);
-            listFileSgd.at(3*i)->append_data(data_tmp);
+            listFileSgd.at(3*numMod)->append_data(data_tmp);
 
             data_tmp[0] = float(y.x31_0);
-            listFileSgd.at(3*i+1)->append_data(data_tmp);
+            listFileSgd.at(3*numMod+1)->append_data(data_tmp);
 
             data_tmp[0] = float(z.x31_0);
-            listFileSgd.at(3*i+2)->append_data(data_tmp);
+            listFileSgd.at(3*numMod+2)->append_data(data_tmp);
         }
     }
 

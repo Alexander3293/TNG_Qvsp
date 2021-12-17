@@ -26,8 +26,7 @@ bool checksum::checkCRC(quint8 *pdata, const uint8_t numModule)
         result = false;
         qDebug() << "error crc data" << "num module" << numModule;
     }
-
-    delete [] pdata;
+    //delete [] pdata;
     return result;
 }
 

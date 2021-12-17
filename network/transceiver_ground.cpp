@@ -109,9 +109,12 @@ void Transceiver_ground::on_udp_data_rx(void)
 
            // ui->lineEdit->setText(QString::number(CounterDevicesReady));
 
+            int dev_num_tmp = 0;
             for(uint i=0; i < tmp_counter; i++ ) {
                 //AddToLog("Device " + message_str.mid(2*i,2) + " is ready", Qt::red);
-                qDebug() << "DEvice " << message_str.mid(0,2).toInt();
+                dev_num_tmp = message_str.mid(0,2).toInt();
+                qDebug() << "DEvice " << dev_num_tmp;
+                emit devGroundState(dev_num_tmp, true);
             }
             return;
         }
@@ -196,8 +199,6 @@ void Transceiver_ground::send_Settings_KU(int value, uint8_t numDev)
         break;
     }
 
-    //this->send_search_devices();
-
     out <<(quint8)ADC_SETTING;
     out <<(quint8)0xF;  //all
 
@@ -238,6 +239,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
     QString  str_iVal = "";
 
     dataDatagramlen = data.length()*2;
+
     QString str_data = data.toHex();
     counterDatagram = 0;
     device_id = -1;
@@ -280,11 +282,6 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
            }
 
            device_id = str_data.mid(counterDatagram,2).toUInt();
-//           for(uint8_t i=0; i < 4; i++){
-//               if(device_id & (0x01 << i)){
-//                   device_id = i;
-//               }
-//           }
            counterDatagram += 2;
            if(device_id >= 9)   qDebug() << "Error, data";
            else if(device_id < 0)   qDebug() << "Error, data";
@@ -294,6 +291,14 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
            tmp_str_iVal = str_data.mid(counterDatagram,2);     //get number packet
            counterDatagram += 2;
            listGroundModules.at(device_id)->numPckt = tmp_str_iVal.toInt(&ok,16);
+
+           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc msb
+           counterDatagram += 2;
+           listGroundModules.at(device_id)->CRC_MSB = tmp_str_iVal.toInt(&ok,16);
+
+           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc lsb
+           counterDatagram += 2;
+           listGroundModules.at(device_id)->CRC_LSB = tmp_str_iVal.toInt(&ok,16);
 
            /* Начнем отсчет и сравнение пакетов */
            if(!checkBLKCount.at(device_id)){
@@ -308,6 +313,9 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                         << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
                    dataPointTmp->numPckt = blk_count[device_id];
                    dataPointTmp->numModule = device_id;
+                   if(device_id == 1){
+                      qDebug() << "here";
+                   }
                    emit dataGroundUpdate(dataPointTmp);
 
                    if(isRecording_){

@@ -12,6 +12,7 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     width_ = 500;
     numPckt_ = -1;
     numMeasure_ = -1;
+    connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
 
 }
 
@@ -31,7 +32,7 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
             y.append(dataPckt->data[i]);
             if(y.size() >= width_) {
                 ui->customPlot->graph(0)->setData(x, y);
-                ui->customPlot->rescaleAxes();
+                //ui->customPlot->rescaleAxes();
                 ui->customPlot->replot();
                 y.clear();
             }
@@ -64,7 +65,7 @@ void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
 
         if(y.size() >= width_) {
             ui->customPlot->graph(0)->setData(x, y);
-            ui->customPlot->rescaleAxes();
+            //ui->customPlot->rescaleAxes();
             ui->customPlot->replot();
             y.clear();
         }
@@ -84,6 +85,7 @@ void graphGround::setGroundDevState(quint8 numDev, bool state)
 }
 
 void graphGround::setDevNum(quint8 devCon) {
+
     deviceCount = devCon;
     ui->label_num_ground->setText(QString("Наземный %1").arg(deviceCount+1));  //нумерация с 1
 }
@@ -132,6 +134,9 @@ void graphGround::initGraphGround()
     ui->customPlot->graph(0)->setName(QString("Наземный %1").arg(deviceCount+1));
     y.resize(width_);
     y.clear();
+    double tmp = (50*0.01) * 8388607;
+    ui->customPlot->xAxis->setRange(0, width_);
+    ui->customPlot->yAxis->setRange(-tmp, tmp);
     /* every 1/4 sec ploting */
     //connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
     connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));

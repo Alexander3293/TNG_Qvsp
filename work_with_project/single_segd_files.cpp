@@ -1068,15 +1068,15 @@ void single_segd_files::read_and_write()
     int len = 4;
     char* buffer = new char[len];
     QVector<float> vecData;
-    float tmp_var = 0;
+    qint32 tmp_var = 0;
     uint32_t globalCount = 0;
     qDebug() << "numOfSamples" << numOfSamples_;
     while(globalCount < numOfSamples_)
     {
         streamData.readRawData(buffer, len);
-        tmp_var = static_cast<float>(((static_cast<quint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<quint32>(buffer[1])& 0x000000ff) << 16) +
-                    ((static_cast<quint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<quint32>(buffer[3])& 0x000000ff)));
-        vecData.append(tmp_var);
+        tmp_var = (((static_cast<qint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<qint32>(buffer[1])& 0x000000ff) << 16) +
+                    ((static_cast<qint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<qint32>(buffer[3])& 0x000000ff)));
+        vecData.append((float)tmp_var);
         globalCount++;
 
         if(vecData.size() >= 256){
@@ -1560,15 +1560,18 @@ QVector<float> single_segd_files::getDataRev3(uint32_t sizeData)
     int len = 4;
     char* buffer = new char[len];
     QVector<float> vecData;
-    float tmp_var = 0;
+    int32_t tmp_var = 0;
     uint32_t globalCount = 0;
-
+    float tmp_var_float = 0;
     while(globalCount < sizeData)
     {
         streamData.readRawData(buffer, len);
-        tmp_var = static_cast<float>(((static_cast<quint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<quint32>(buffer[1])& 0x000000ff) << 16) +
-                    ((static_cast<quint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<quint32>(buffer[3])& 0x000000ff)));
-        vecData.append(tmp_var);
+        tmp_var = (((static_cast<qint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<qint32>(buffer[1])& 0x000000ff) << 16) +
+                    ((static_cast<qint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<qint32>(buffer[3])& 0x000000ff)));
+
+        //memcpy(&tmp_var_float, &tmp_var, sizeof(float));
+        //qDebug() << "data read measure" << tmp_var_float;
+        vecData.append((float)tmp_var);
         globalCount++;
     }
     delete [] buffer;

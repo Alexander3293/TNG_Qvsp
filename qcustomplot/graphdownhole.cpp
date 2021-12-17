@@ -13,6 +13,8 @@ graphDownHole::graphDownHole(Transceiver_class *transceiver, QWidget *parent) :
     connect(this, SIGNAL(updateSceneWidth()), this, SLOT(plotData()));
     for(int i =0; i< 500; i++)
         xTimeCpy_.append(i);
+    KU_ = 0;
+
 }
 
 graphDownHole::~graphDownHole()
@@ -23,12 +25,6 @@ graphDownHole::~graphDownHole()
 void graphDownHole::plotData()
 {
     ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyXYZ);
-//    ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyX);
-//    ui->customPlot->graph(1)->setData(xTimeCpy_, data_cpyY);
-//    ui->customPlot->graph(2)->setData(xTimeCpy_, data_cpyZ);
-    // set axes ranges, so we see all data:
-    ui->customPlot->rescaleAxes();
-    //ui->customPlot->yAxis->setRange(0, 1);
     ui->customPlot->replot();
 
     xTime_.clear();
@@ -37,17 +33,6 @@ void graphDownHole::plotData()
 
 void graphDownHole::setModNum(quint8 devCon) {
     num_module = devCon;
-    switch (trace_XYZ) {
-    case init_graph_DownHoles::graph_axis_X:
-        ui->label_num_device->setText(QString("Модуль %1 X").arg(num_module+1));
-        break;
-    case init_graph_DownHoles::graph_axis_Y:
-        ui->label_num_device->setText(QString("Модуль %1 Y").arg(num_module+1));
-        break;
-    case init_graph_DownHoles::graph_axis_Z:
-        ui->label_num_device->setText(QString("Модуль %1 Z").arg(num_module+1));
-        break;
-    }
 }
 
 quint8 graphDownHole::getModNum() {
@@ -57,25 +42,34 @@ quint8 graphDownHole::getModNum() {
 void graphDownHole::setTraceDnHole()
 {
     switch (trace_XYZ) {
+
     case init_graph_DownHoles::graph_axis_X:
 
         trace_23_16 = num_module * 16 + 0;
         trace_15_8  = num_module * 16 + 2;
         trace_7_0   = num_module * 16 + 3;
+        trace_KU    = num_module * 16 + 14;
+        trace_status= num_module * 16 + 1;
 
         break;
+
     case init_graph_DownHoles::graph_axis_Y:
 
         trace_23_16 = num_module * 16 + 4;
         trace_15_8  = num_module * 16 + 5;
         trace_7_0   = num_module * 16 + 6;
+        trace_KU    = num_module * 16 + 14;
+        trace_status= num_module * 16 + 1;
 
         break;
+
     case init_graph_DownHoles::graph_axis_Z:
 
         trace_23_16 = num_module * 16 + 7;
         trace_15_8  = num_module * 16 + 8;
         trace_7_0   = num_module * 16 + 9;
+        trace_KU    = num_module * 16 + 14;
+        trace_status= num_module * 16 + 1;
 
         break;
     }
@@ -107,39 +101,27 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
     }x;
 
     if(crc_.checkCRC(pdata, num_module)){
-
         x.x23_16 = *(pdata + trace_23_16);
         x.x15_8  = *(pdata + trace_15_8 );
         x.x7_0   = *(pdata + trace_7_0);
 
         if ((x.x31_0 & 0x00800000) > 0) x.x31_24 = 0xFF;
         else x.x31_24 = 0;
+
+        set_state_KU(*(pdata + trace_KU));               //Установить KU в label
+        set_state_rele((*(pdata + trace_status)) & 0x40);
     }
     else{
         x.x31_0 = maxValMissPacket;
     }
-
     mesX = x.x31_0;
     data_vector_XYZ.append(mesX);
 
 //    nowTime_ = QTime(0,0,0).secsTo(QTime::currentTime());
 //    xTime_.append(nowTime_);
 
-    if ((data_vector_XYZ.count() >= width_))
-    {
+    if ((data_vector_XYZ.count() >= width_)){
         data_cpyXYZ = data_vector_XYZ;
-//        data_cpyX = data_vectorX;
-//        data_cpyY = data_vectorY;
-//        data_cpyZ = data_vectorZ;
-
-        //xTimeCpy_ = xTime_;
-//        memcpy(&data_cpyX, &data_vectorX, width_);    //Вдруг придут новые данные, а старые не ушли
-//        memcpy(&data_cpyY, &data_vectorY, width_);    //Вдруг придут новые данные, а старые не ушли
-//        memcpy(&data_cpyZ, &data_vectorZ, width_);    //Вдруг придут новые данные, а старые не ушли
-//        xTime_.clear();
-//        data_vectorX.clear();
-//        data_vectorY.clear();
-//        data_vectorZ.clear();
         data_vector_XYZ.clear();
 
         emit updateSceneWidth();
@@ -156,18 +138,12 @@ void graphDownHole::rangeChanged(double axisY)
 void graphDownHole::clearData()
 {
     data_vector_XYZ.clear();
-//    data_vectorX.clear();
-//    data_vectorY.clear();
-//    data_vectorZ.clear();
 }
 
 void graphDownHole::setWidth(int width)
 {
     width_ = width;
     data_cpyXYZ.resize(width_);
-//    data_cpyX.resize(width_);
-//    data_cpyY.resize(width_);
-//    data_cpyZ.resize(width_);
 }
 
 void graphDownHole::initGraphXYZ()
@@ -223,18 +199,25 @@ void graphDownHole::initGraphXYZ(init_graph_DownHoles axis)
 //    ui->customPlot->legend->setSelectableParts(QCPLegend::spNone);
 
     ui->customPlot->axisRect()->setMinimumMargins(QMargins(0,0,0,0));   // на весь экран расстянуть
+    double tmp = (50*0.01) * 8388607;
+    ui->customPlot->xAxis->setRange(0, width_);
+    ui->customPlot->yAxis->setRange(-tmp, tmp);
 
-//    switch (trace_XYZ) {
-//    case init_graph_DownHoles::graph_axis_X:
-//        ui->customPlot->graph(0)->setName(QString("Модуль %1 X").arg(num_module+1));
-//        break;
-//    case init_graph_DownHoles::graph_axis_Y:
-//        ui->customPlot->graph(0)->setName(QString("Модуль %1 Y").arg(num_module+1));
-//        break;
-//    case init_graph_DownHoles::graph_axis_Z:
-//        ui->customPlot->graph(0)->setName(QString("Модуль %1 Z").arg(num_module+1));
-//        break;
-//    }
+    switch (trace_XYZ) {
+    case init_graph_DownHoles::graph_axis_X:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 X").arg(num_module+1));
+        ui->label_num_device->setText(QString("Модуль %1 X").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Y:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 Y").arg(num_module+1));
+        ui->label_num_device->setText(QString("Модуль %1 Y").arg(num_module+1));
+        break;
+    case init_graph_DownHoles::graph_axis_Z:
+        ui->customPlot->graph(0)->setName(QString("Модуль %1 Z").arg(num_module+1));
+        ui->label_num_device->setText(QString("Модуль %1 Z").arg(num_module+1));
+        break;
+    }
+    ui->customPlot->replot();
     connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int,pointFromDownHoles)));
 }
 
@@ -260,3 +243,19 @@ void graphDownHole::on_relayModeButton_clicked(bool checked)
         ui->relayModeButton->setCheckable(true); //invert checked
     }
 }
+
+void graphDownHole::set_state_KU(quint8 ku)
+{
+    ui->label_state_ku->setText(QString::number(ku));
+}
+
+void graphDownHole::set_state_rele(quint8 rele)
+{
+    if(rele){
+        ui->label_state_rele->setText("ON");
+    }
+    else{
+        ui->label_state_rele->setText("OFF");
+    }
+}
+

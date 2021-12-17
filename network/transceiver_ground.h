@@ -33,6 +33,8 @@ typedef struct
     int16_t oldPckt;        //Отлавливать битый пакет
     uint8_t	numModule;
     QVector<double> data;
+    uint8_t	CRC_MSB;
+    uint8_t	CRC_LSB;
 
 } pointsFromWGrounds;
 
@@ -103,8 +105,7 @@ public slots:
 signals:
     void dataGroundUpdate(pointsFromWGrounds *data);
     void message(QString strLog);
-
-
+    void devGroundState(quint8 numDev, bool state);
 };
 
 Q_DECLARE_METATYPE(pointsFromWGrounds);

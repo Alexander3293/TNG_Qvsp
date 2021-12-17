@@ -197,8 +197,6 @@ void MainWindow::plotWidgetLayout()
         listGraphDnHole.at(i)->setModNum(i/3);
         /*Стираем старые данные */
         listGraphDnHole.at(i)->clearData();
-        /*Выбираем необходимый модуль для данных */
-        listGraphDnHole.at(i)->setTraceDnHole();
 
         switch (i%3) {
         case init_graph_DownHoles::graph_axis_X:
@@ -211,6 +209,9 @@ void MainWindow::plotWidgetLayout()
             listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
             break;
         }
+
+        /*Выбираем необходимый модуль для данных */
+        listGraphDnHole.at(i)->setTraceDnHole();
 
 
     }
@@ -1006,7 +1007,6 @@ void MainWindow::on_pbSaveSGD_clicked()
 
     }
     /* Определяем количество устройств по названию файлов */
-
     uint8_t cnt_chnl_sets = 0;
     if(device_downHoles) cnt_chnl_sets++;
     if(device_UpHoles) cnt_chnl_sets++;
@@ -1023,6 +1023,7 @@ void MainWindow::on_pbSaveSGD_clicked()
     segd_->write_general_header_blk2();
     segd_->write_general_header_blk3();
 
+    /* Заполняю Header конечного файла */
     if(device_downHoles){
         /* Down Holes */
         segd_->setChannelSetNumber(1);
@@ -1070,8 +1071,6 @@ void MainWindow::on_pbSaveSGD_clicked()
         segd_->setAliasFilterSlope((quint16)1);
         segd_->write_header();
     }
-
-
     /* test */
     for (int i=0; i<lis_file_tmp.count(); i++) {
       qDebug() << "2" << lis_file_tmp.at(i);
