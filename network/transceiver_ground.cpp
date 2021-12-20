@@ -1,4 +1,5 @@
 #include "transceiver_ground.h"
+#include "transceiver_ground.h"
 #include <QTime>
 #include <QDataStream>
 Transceiver_ground::Transceiver_ground(QObject *parent) :
@@ -18,13 +19,18 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
         checkBLKCount.append(false);
     }
 
-    cntFilesSgd = 0;
-
     numModule_ = 0;
     isRecording_ = false;
     dataPointTmp = new(pointsFromWGrounds);
+
     for(int i =0; i < 256; i++)
         dataPointTmp->data.append(maxValMissPacket);
+
+    for(auto i =0 ; i < 4; i++){
+        listCntFileSGD.append(0);
+        listCntMeasSGD.append(0);
+    }
+
 }
 
 Transceiver_ground::~Transceiver_ground()
@@ -67,7 +73,6 @@ void Transceiver_ground::on_udp_data_rx(void)
     datagram = datagram_d.data();
     //QDataStream in(&datagram, QIODevice::ReadOnly);
     quint64 Byt =  datagram.size() ;
-
     /* Если пришла команда настройки */
     if(Byt < 65){
 
@@ -106,7 +111,6 @@ void Transceiver_ground::on_udp_data_rx(void)
             uint8_t tmp_counter = message_str.count(hand_package, Qt::CaseInsensitive);
             //CounterDevicesReady += tmp_counter; //Подсчет количества девайсов
             message_str = message_str.remove(hand_package, Qt::CaseInsensitive); //Str without handler
-
            // ui->lineEdit->setText(QString::number(CounterDevicesReady));
 
             int dev_num_tmp = 0;
@@ -255,7 +259,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
        if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package
 
            if(device_id> -1) {
-               emit dataGroundUpdate(listGroundModules.at(device_id));
+                    emit dataGroundUpdate(listGroundModules.at(device_id));
                //listFileSgd.at(device_id)->append_data(*(QVector<float>*)(&listGroundModules.at(device_id)->data));
 
                if(isRecording_){
@@ -273,9 +277,9 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                                listFileSgd.at(device_id)->append_data(data);
                        } 
                    }
-                   else{
+                   else
                        listFileSgd.at(device_id)->append_data(data);
-                   }
+
                }
 //               if(isRecording_)
 //                   listFileSgd.at(device_id)->append_data(listGroundModules.at(device_id)->data);
@@ -313,9 +317,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                         << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
                    dataPointTmp->numPckt = blk_count[device_id];
                    dataPointTmp->numModule = device_id;
-                   if(device_id == 1){
-                      qDebug() << "here";
-                   }
+
                    emit dataGroundUpdate(dataPointTmp);
 
                    if(isRecording_){
@@ -323,6 +325,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                        for(int i=0; i < dataPointTmp->data.size(); i++)
                            data.append(dataPointTmp->data.at(i));
 
+                       /* Сделать смещение */
                        if(listOffset.at(device_id)){
                            if(dataPointTmp->numPckt ==numPckt_){
                                    for(int i=0; i < numMeasure_; i++)
@@ -330,11 +333,38 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                                    listOffset[device_id] = false;
                                    qDebug() << "смещение" << "device" << device_id+1;
-                                   listFileSgd.at(device_id)->append_data(data);
+                                   listCntMeasSGD[device_id] += data.size();
+
+                                   if(listCntMeasSGD[device_id] >= max_len_sgd){
+                                       uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                                       listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+                                       qDebug() << "ostatok" << ostatok;
+                                       listCntFileSGD[device_id]+=1;
+                                       this->update_sgd_files(device_id, "");
+
+                                       listCntMeasSGD[device_id] = ostatok;
+                                       listFileSgd.at(device_id)->append_data(data, ostatok);
+                                   }
+                                   else
+                                       listFileSgd.at(device_id)->append_data(data);
+
                            }
                        }
                        else{
-                           listFileSgd.at(device_id)->append_data(data);
+                           listCntMeasSGD[device_id] += data.size();
+                           if(listCntMeasSGD[device_id] >= max_len_sgd){
+                               uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                               listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+                               qDebug() << "ostatok" << ostatok;
+                               listCntFileSGD[device_id]+=1;
+                               this->update_sgd_files(device_id, "");
+                               listCntMeasSGD[device_id] = ostatok;
+                               listFileSgd.at(device_id)->append_data(data, ostatok);
+                           }
+                           else
+                               listFileSgd.at(device_id)->append_data(data);
+
+
                        }
                    }
                }
@@ -369,11 +399,37 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                     listOffset[device_id] = false;
                     qDebug() << "смещение" << "device" << device_id+1;
-                    listFileSgd.at(device_id)->append_data(data);
+
+                    listCntMeasSGD[device_id] += data.size();
+                    if(listCntMeasSGD[device_id] >= max_len_sgd){
+                        uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                        qDebug() << "ostatok" << ostatok;
+                        listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+
+                        listCntFileSGD[device_id]+=1;
+                        this->update_sgd_files(device_id, "");
+                        listCntMeasSGD[device_id] = ostatok;
+                        listFileSgd.at(device_id)->append_data(data, ostatok);
+                    }
+                    else
+                        listFileSgd.at(device_id)->append_data(data);
+
             }
         }
         else{
-            listFileSgd.at(device_id)->append_data(data);
+            listCntMeasSGD[device_id] += data.size();
+            if(listCntMeasSGD[device_id] >= max_len_sgd){
+
+                uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+qDebug() << "ostatok" << ostatok;
+                listCntFileSGD[device_id]+=1;
+                this->update_sgd_files(device_id, "");
+                listCntMeasSGD[device_id] = ostatok;
+                listFileSgd.at(device_id)->append_data(data, ostatok);
+            }
+            else
+                listFileSgd.at(device_id)->append_data(data);
         }
     }
 
@@ -406,47 +462,56 @@ void Transceiver_ground::setFileName(int idMeas, QString dirFile)
 //    }
 //    file_global.write(QString("Devices " + QString::number(numModule_) +'\n' ).toUtf8());
 //    file_global.flush();
-    if(listFileSgd.count() > 0){
-        for(auto cnt=0; cnt<listFileSgd.count(); cnt++){
-            if(listFileSgd.at(cnt)->getFileName()!="")
-                listFileSgd.at(cnt)->close_data();
-        }
+
+    for(auto i =0 ; i < 4; i++){
+        listCntFileSGD[i] = 0;
     }
-    for(uint8_t i=0; i<numModule_; i++)
-        listFileSgd.at(i)->setFileName((dirFile+"/UpHole_device_%1.sgd").arg(i+1));
 
-    this->setSettings();
-
+    for(uint8_t i=0; i<4; i++)
+         update_sgd_files(i, dirFile);
 }
 
-void Transceiver_ground::setSettings()
+void Transceiver_ground::update_sgd_files(quint8 numModule, QString dirFile)
+{
+    /* Если пустой, то создать просто новый файл */
+    if(dirFile == ""){
+        QString fileName = listFileSgd.at(numModule)->getFileName();
+        listFileSgd.at(numModule)->close_data();
+        uint cnt = fileName.lastIndexOf("_UpHole_device_");     //Найти номер файла sgd и заменить его на текущий
+        listFileSgd.at(numModule)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[numModule])));
+    }
+    else{
+        listFileSgd.at(numModule)->setFileName((dirFile+"/" + QString::number(listCntFileSGD[numModule]) + "_UpHole_device_%1.sgd").arg(numModule+1));
+    }
+
+    this->setSettings(numModule);
+}
+void Transceiver_ground::setSettings(quint8 numModule)
 {
     QDate date_tmp = QDate::currentDate();
     QTime time_tmp = QTime::currentTime();
-    int count_measures = 20000; //20 sec
+    int count_measures = 131070; //было 20sec
 
-    for(auto i= 0; i < numModule_; i++ ){
-        listFileSgd.at(i)->setData(date_tmp);
-        listFileSgd.at(i)->setTime(time_tmp);
-        listFileSgd.at(i)->setCounterByte(0);
-        listFileSgd.at(i)->setFileNumber(1);
-        listFileSgd.at(i)->setRecordLenght(1);
-        listFileSgd.at(i)->setChannelSets(1);
-        listFileSgd.at(i)->write_general_header();
-        listFileSgd.at(i)->write_general_header_blk2();
-        listFileSgd.at(i)->write_general_header_blk3();
-        listFileSgd.at(i)->setChannelSetNumber(3);
-        listFileSgd.at(i)->setChannelSetStartTime(0);
-        listFileSgd.at(i)->setChannelSetEndTime(0);
-        listFileSgd.at(i)->setDataLength(count_measures); //length data
-        listFileSgd.at(i)->setNumberOfChannels(numModule_);
-        listFileSgd.at(i)->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
-        listFileSgd.at(i)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
-        listFileSgd.at(i)->setAliasFilterSlope((quint16)1);
-        listFileSgd.at(i)->write_header();
-        listFileSgd.at(i)->open_data();
-        listFileSgd.at(i)->write_data_header(3, i+1);
-    }
+    listFileSgd.at(numModule)->setData(date_tmp);
+    listFileSgd.at(numModule)->setTime(time_tmp);
+    listFileSgd.at(numModule)->setCounterByte(0);
+    listFileSgd.at(numModule)->setFileNumber(1);
+    listFileSgd.at(numModule)->setRecordLenght(1);
+    listFileSgd.at(numModule)->setChannelSets(1);
+    listFileSgd.at(numModule)->write_general_header();
+    listFileSgd.at(numModule)->write_general_header_blk2();
+    listFileSgd.at(numModule)->write_general_header_blk3();
+    listFileSgd.at(numModule)->setChannelSetNumber(3);
+    listFileSgd.at(numModule)->setChannelSetStartTime(0);    /* Инкремент 2 мс) */
+    listFileSgd.at(numModule)->setChannelSetEndTime(0);
+    listFileSgd.at(numModule)->setDataLength(20000); //length data
+    listFileSgd.at(numModule)->setNumberOfChannels(numModule_);
+    listFileSgd.at(numModule)->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
+    listFileSgd.at(numModule)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+    listFileSgd.at(numModule)->setAliasFilterSlope((quint16)1);
+    listFileSgd.at(numModule)->write_header();
+    listFileSgd.at(numModule)->open_data();
+    listFileSgd.at(numModule)->write_data_header(3, numModule+1);
 }
 
 void Transceiver_ground::setNumModule(int numModule)
@@ -460,6 +525,6 @@ void Transceiver_ground::setNumModule(int numModule)
         }
         listFileSgd.clear();
     }
-    for(auto i=0; i<numModule_; i++)
+    for(auto i=0; i<4; i++)
         listFileSgd.append(new single_segd_files());
 }

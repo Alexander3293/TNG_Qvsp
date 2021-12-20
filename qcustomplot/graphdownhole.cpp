@@ -14,6 +14,8 @@ graphDownHole::graphDownHole(Transceiver_class *transceiver, QWidget *parent) :
     for(int i =0; i< 500; i++)
         xTimeCpy_.append(i);
     KU_ = 0;
+    err_crc_ = 0;
+    this->set_lose_crc(err_crc_);
 
 }
 
@@ -112,6 +114,7 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
         set_state_rele((*(pdata + trace_status)) & 0x40);
     }
     else{
+        this->set_lose_crc(++err_crc_);
         x.x31_0 = maxValMissPacket;
     }
     mesX = x.x31_0;
@@ -259,3 +262,7 @@ void graphDownHole::set_state_rele(quint8 rele)
     }
 }
 
+void graphDownHole::set_lose_crc(quint32 error_crc)
+{
+    ui->label_ErrorCRC->setText(QString::number(error_crc));
+}

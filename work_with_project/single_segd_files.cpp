@@ -187,7 +187,7 @@ unsigned char* single_segd_files::convertData(double value)
                     if ( (tmpVal & (quint8)0x01) == false){
                         //qDebug() << "tmpVal" << tmpVal << "leftRadix" << leftRadix << "j" << j;
                         //TODO
-                        bitArray.setBit(j, false);  // TODO //умирает здесь
+                        //bitArray.setBit(j, false);  // TODO //умирает здесь
                     }
                     else{
                         bitArray.setBit(j, true);
@@ -1220,6 +1220,21 @@ void single_segd_files::append_data(QVector<float> data)
     delete[] output;
 }
 
+void single_segd_files::append_data(QVector<double> data, int len){
+    QDataStream stream;
+    stream.setDevice(file_);
+    stream.setVersion(QDataStream::Qt_5_9);
+    unsigned char* output = new unsigned char[4];
+    for(int i=0; i < len; i++){
+        output =  convertData(data.at(i));
+        stream << (unsigned char)output[0];
+        stream << (unsigned char)output[1];
+        stream << (unsigned char)output[2];
+        stream << (unsigned char)output[3];
+    }
+    file_->flush();
+    delete[] output;
+}
 void single_segd_files::append_data(QVector<double> data)
 {
     QDataStream stream;

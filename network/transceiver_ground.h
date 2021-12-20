@@ -20,7 +20,7 @@
 #define ADC_STOP                0xc3
 
 #define ADC_ENABLE              0xdedea0
-#define ADC_DISABLE             0xdedea5
+#define ADC_DISABLE             0xdede05
 #define SEARCH_DEV              0xdedeaf
 
 
@@ -47,7 +47,7 @@ public:
     ~Transceiver_ground();
     void initialize(QString address, int port);
     void setFileName(int idMeas, QString dirFile);
-    void setSettings();
+    void setSettings(quint8 numModule);
     void setNumModule(int numModule);
     void setRecord(bool isRecording);
     bool getRecord();
@@ -79,6 +79,9 @@ private:
     //QFile file_global;      // for the correct close fil
     QList<single_segd_files*> listFileSgd;
     int numModule_;     //Количество устройств для записи
+    QList<quint32> listCntMeasSGD;      //количество измерений в файле
+    QList<quint16> listCntFileSGD;      //номер sgd файла
+    quint32 max_len_sgd = 13100;       //максимальная длина файла segd rev2.1
 
     void AddToLog(QString strLog);
     void WriteToFile (QByteArray data);
@@ -101,6 +104,7 @@ public slots:
     void send_Settings_KU(int value, uint8_t numDev);
     void getDataOffsetDownHoles(quint16 numPckt);
     void send_search_devices();
+    void update_sgd_files(quint8 numModule, QString dirFile);
 
 signals:
     void dataGroundUpdate(pointsFromWGrounds *data);

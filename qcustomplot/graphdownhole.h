@@ -54,6 +54,7 @@ private slots:
 private:
     void set_state_KU(quint8);
     void set_state_rele(quint8 rele);
+    void set_lose_crc(quint32 error_crc);
 private:
     Ui::graphDownHole *ui;
     QVector <double> xTime_, xTimeCpy_;
@@ -79,6 +80,8 @@ private:
 
     quint8  trace_XYZ;
     quint8  KU_;
+    \
+    quint32 err_crc_;
 
 };
 

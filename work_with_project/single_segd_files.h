@@ -185,6 +185,7 @@ public:
     void append_data(QVector<float> data);
     void append_data(QVector<double> data);
     void append_data(QVector<bool> data);
+    void append_data(QVector<double> data, int len);
     void append_data2(QVector<float> data);
     void append_data_test();
 

@@ -13,6 +13,7 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     numPckt_ = -1;
     numMeasure_ = -1;
     connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+    //connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
 
 }
 
