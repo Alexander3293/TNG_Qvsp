@@ -187,6 +187,8 @@ void MainWindow::plotWidgetLayout()
 
     //ui->gridLayout->setSpacing(0);
 
+
+
     for(int i=0; i<listGraphDnHole.count(); i++)
     {
         //ui->gridLayout->addWidget(new QPushButton(tr("add")), shiftGridLayout_, 1);
@@ -212,8 +214,6 @@ void MainWindow::plotWidgetLayout()
 
         /*Выбираем необходимый модуль для данных */
         listGraphDnHole.at(i)->setTraceDnHole();
-
-
     }
 //-------------------------------------------//
     /* Widget real-time наземных модулей - геофонов */
@@ -232,6 +232,8 @@ void MainWindow::plotWidgetLayout()
     }
 //-------------------------------------------//
 
+    qDebug() << "size down" << listGraphDnHole.at(0)->size();
+    qDebug() << "size down" << listGraphGround.at(0)->size();
 }
 
 

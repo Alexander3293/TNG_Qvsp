@@ -12,6 +12,10 @@ graphSync::graphSync(SyncModuleTranciever* transceiver, QWidget *parent) :
     numMeasure_ = -1;
     maxAmpl_ = 0x0FFF;
     isVibro_ = true;
+
+    legendSync = new PaintLegend(this, modOVSP::syncMod);
+    ui->grdLayoutPaintLegend->addWidget(legendSync);
+    //ui->gridLayout2->addWidget(legendSync);
 }
 
 graphSync::~graphSync()
@@ -44,9 +48,9 @@ void graphSync::plot()
     subLayout->addElement(0,0,leftAxisRect);
     subLayout->addElement(0,1,ui->customPlot->legend);
 
-    ui->customPlot->legend->setMaximumSize(1,1); // (width, heigth)
-    // change the fill order of the legend, so it's filled left to right in columns:
-    ui->customPlot->legend->setFillOrder(QCPLegend::foColumnsFirst);
+//    ui->customPlot->legend->setMaximumSize(1,1); // (width, heigth)
+//    // change the fill order of the legend, so it's filled left to right in columns:
+//    ui->customPlot->legend->setFillOrder(QCPLegend::foColumnsFirst);
 }
 
 void graphSync::initGraphSync()
@@ -57,7 +61,7 @@ void graphSync::initGraphSync()
     ui->customPlot->xAxis->setTicks(0); //off ticks
     ui->customPlot->yAxis->setTicks(0);
 
-    ui->customPlot->legend->setVisible(true);
+    ui->customPlot->legend->setVisible(false);
     QFont legendFont = font();
     legendFont.setPointSize(8);
     ui->customPlot->legend->setFont(legendFont);
@@ -133,7 +137,6 @@ void graphSync::frstPlotData(SyncModuleTranciever::pointsFromSync *dataPckt)
         }
     }
 }
-
 
 void graphSync::plotData(SyncModuleTranciever::pointsFromSync *dataPckt)
 {

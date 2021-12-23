@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include "network/syncmoduletranciever.h"
+#include "qcustomplot/paintlegend.h"
 namespace Ui {
 class graphSync;
 }
@@ -28,6 +29,7 @@ private slots:
     void plotData(SyncModuleTranciever::pointsFromSync *dataPckt);
 private:
     Ui::graphSync *ui;
+    PaintLegend *legendSync;
     QVector <double>    x, dataADC, dataTB, dataCTB;
     int dataSize_;
     SyncModuleTranciever *transceiver_sync_;

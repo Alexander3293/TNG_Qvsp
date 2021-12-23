@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>538</width>
-    <height>132</height>
+    <width>687</width>
+    <height>160</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,55 +60,70 @@
    <item row="0" column="1">
     <layout class="QGridLayout" name="gridLayout_3">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
-     <item row="2" column="0">
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <property name="horizontalSpacing">
+      <number>0</number>
+     </property>
+     <item row="0" column="1">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Ошибок CRC</string>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Minimum</enum>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
+      </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="1">
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>81</width>
-         <height>20</height>
+         <width>73</width>
+         <height>0</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item row="0" column="0">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="1" column="1">
+      <widget class="QLabel" name="label_ErrorCRC">
+       <property name="styleSheet">
+        <string notr="true">QLabel#label_ErrorCRC {
+    background-color: white;
+    border-style: outset;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 1em;
+
+}</string>
        </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Minimum</enum>
+       <property name="text">
+        <string>0</string>
        </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
-      </spacer>
+      </widget>
+     </item>
+     <item row="0" column="0" rowspan="3">
+      <layout class="QGridLayout" name="grdLayoutPaintLegend">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>91</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>
