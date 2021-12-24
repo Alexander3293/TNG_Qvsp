@@ -8,7 +8,7 @@
 #include <QMetaType>
 #include <QFile>
 
-#include "work_with_project/single_segd_files.h"
+#include "work_with_project/single_segd_rev2_files.h"
 #include "network/transceiver_class.h"
 
 /*--------- CMD ground modules -----------------*/
@@ -77,11 +77,11 @@ private:
     Transceiver_class* trans_;
 
     //QFile file_global;      // for the correct close fil
-    QList<single_segd_files*> listFileSgd;
+    QList<single_segd_rev2_files*> listFileSgd;     //rev2.1
     int numModule_;     //Количество устройств для записи
     QList<quint32> listCntMeasSGD;      //количество измерений в файле
     QList<quint16> listCntFileSGD;      //номер sgd файла
-    quint32 max_len_sgd = 13100;       //максимальная длина файла segd rev2.1
+    quint32 max_len_sgd = 131070;       //максимальная длина файла segd rev2.1
 
     void AddToLog(QString strLog);
     void WriteToFile (QByteArray data);

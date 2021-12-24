@@ -424,9 +424,13 @@ void single_segd_rev2_files::write_general_header_blk2()
     /* Number of blocks General Trailer 13-14 bytes */
     generalHeader <<  (quint16) hex_from_dec(0);    //not used
     /* Extended Record  3 bytes general_header_blk1 bytes 26 & 27 sets 0xFFF, 15-17 bytes*/
-    generalHeader <<  (quint8) 0x01;
-    generalHeader <<  (quint8) 0xff;
-    generalHeader <<  (quint8) 0xfe;
+//    generalHeader <<  (quint8) 0x01;
+//    generalHeader <<  (quint8) 0xff;
+//    generalHeader <<  (quint8) 0xfe;
+
+    generalHeader <<  (quint8) 0x00;
+    generalHeader <<  (quint8) 0x00;
+    generalHeader <<  (quint8) 0x00;
     /* Zeros 18 */
     generalHeader <<  (quint8) 0;
     /* Num blk 19 */
@@ -1113,6 +1117,22 @@ void single_segd_rev2_files::write_data_header( unsigned int channelSet, quint16
         stream << static_cast<unsigned char>(0x00);
 }
 
+void single_segd_rev2_files::append_data(QVector<double> data, int len){
+    QDataStream stream;
+    stream.setDevice(file_);
+    stream.setVersion(QDataStream::Qt_5_9);
+    unsigned char* output = new unsigned char[4];
+    for(int i=0; i < len; i++){
+        output =  convertData(data.at(i));
+        stream << (unsigned char)output[0];
+        stream << (unsigned char)output[1];
+        stream << (unsigned char)output[2];
+        stream << (unsigned char)output[3];
+    }
+    file_->flush();
+    delete[] output;
+}
+
 void single_segd_rev2_files::append_data(QVector<float> data)
 {
     QDataStream stream;
@@ -1129,6 +1149,7 @@ void single_segd_rev2_files::append_data(QVector<float> data)
     file_->flush();
     delete[] output;
 }
+
 
 void single_segd_rev2_files::append_data(QVector<double> data)
 {

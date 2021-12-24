@@ -137,7 +137,7 @@ private:
     QString file_nameGN;
 
     /* SGD */
-    single_segd_files* segd_;
+    single_segd_rev2_files* segd_;
     QList<single_segd_rev2_files*> lFileNameRev2;
 
     const qint32 max_range_size_24bit = 8388607;

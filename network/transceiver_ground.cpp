@@ -341,7 +341,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                                        qDebug() << "ostatok" << ostatok;
                                        listCntFileSGD[device_id]+=1;
                                        this->update_sgd_files(device_id, "");
-
+                                       data.remove(0, data.size()-ostatok);
                                        listCntMeasSGD[device_id] = ostatok;
                                        listFileSgd.at(device_id)->append_data(data, ostatok);
                                    }
@@ -353,12 +353,14 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                        else{
                            listCntMeasSGD[device_id] += data.size();
                            if(listCntMeasSGD[device_id] >= max_len_sgd){
-                               uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
-                               listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-                               qDebug() << "ostatok" << ostatok;
+
+                               uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;  
+                               int tmp = data.size()-ostatok;
+                               listFileSgd.at(device_id)->append_data(data, tmp);
                                listCntFileSGD[device_id]+=1;
                                this->update_sgd_files(device_id, "");
                                listCntMeasSGD[device_id] = ostatok;
+                               data.remove(0, tmp);
                                listFileSgd.at(device_id)->append_data(data, ostatok);
                            }
                            else
@@ -409,6 +411,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                         listCntFileSGD[device_id]+=1;
                         this->update_sgd_files(device_id, "");
                         listCntMeasSGD[device_id] = ostatok;
+                        data.remove(0, data.size()-ostatok);
                         listFileSgd.at(device_id)->append_data(data, ostatok);
                     }
                     else
@@ -426,6 +429,7 @@ qDebug() << "ostatok" << ostatok;
                 listCntFileSGD[device_id]+=1;
                 this->update_sgd_files(device_id, "");
                 listCntMeasSGD[device_id] = ostatok;
+                data.remove(0, data.size()-ostatok);
                 listFileSgd.at(device_id)->append_data(data, ostatok);
             }
             else
@@ -490,7 +494,7 @@ void Transceiver_ground::setSettings(quint8 numModule)
 {
     QDate date_tmp = QDate::currentDate();
     QTime time_tmp = QTime::currentTime();
-    int count_measures = 131070; //было 20sec
+    quint16 count_measures = 65535; //было 130 070 ms
 
     listFileSgd.at(numModule)->setData(date_tmp);
     listFileSgd.at(numModule)->setTime(time_tmp);
@@ -500,16 +504,17 @@ void Transceiver_ground::setSettings(quint8 numModule)
     listFileSgd.at(numModule)->setChannelSets(1);
     listFileSgd.at(numModule)->write_general_header();
     listFileSgd.at(numModule)->write_general_header_blk2();
-    listFileSgd.at(numModule)->write_general_header_blk3();
+    //listFileSgd.at(numModule)->write_general_header_blk3();       //rev3.1
     listFileSgd.at(numModule)->setChannelSetNumber(3);
     listFileSgd.at(numModule)->setChannelSetStartTime(0);    /* Инкремент 2 мс) */
-    listFileSgd.at(numModule)->setChannelSetEndTime(0);
-    listFileSgd.at(numModule)->setDataLength(20000); //length data
+    listFileSgd.at(numModule)->setChannelSetEndTime(count_measures);
+    listFileSgd.at(numModule)->setDataLength(0); //length data
     listFileSgd.at(numModule)->setNumberOfChannels(numModule_);
     listFileSgd.at(numModule)->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
     listFileSgd.at(numModule)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
     listFileSgd.at(numModule)->setAliasFilterSlope((quint16)1);
     listFileSgd.at(numModule)->write_header();
+    listFileSgd.at(numModule)->write_extended_header();
     listFileSgd.at(numModule)->open_data();
     listFileSgd.at(numModule)->write_data_header(3, numModule+1);
 }
@@ -526,5 +531,5 @@ void Transceiver_ground::setNumModule(int numModule)
         listFileSgd.clear();
     }
     for(auto i=0; i<4; i++)
-        listFileSgd.append(new single_segd_files());
+        listFileSgd.append(new single_segd_rev2_files());
 }

@@ -5,9 +5,9 @@
 #include <QPainter>
 
 typedef  enum{
-    syncMod     = 0,
-    DownHoleMod      = 1,
-    GroundHoleMod   = 2
+    syncMod        = 0,
+    DownHoleMod    = 1,
+    GroundHoleMod  = 2
 }modOVSP;
 
 typedef  enum{
@@ -25,9 +25,9 @@ class PaintLegend : public QWidget
     Q_OBJECT
 
 public:
-    explicit PaintLegend(QWidget *parent = nullptr);
-    explicit PaintLegend(QWidget *parent = nullptr, modOVSP mode = modOVSP::syncMod);
-    explicit PaintLegend(QWidget *parent = nullptr, modOVSP mode = modOVSP::syncMod, int numMode = 0, axisPaintLegend axis = axisPaintLegend::X);
+    //explicit PaintLegend(QWidget *parent = nullptr);
+    explicit PaintLegend(QWidget *parent, modOVSP mode);
+    explicit PaintLegend(QWidget *parent, modOVSP mode, int numMode, axisPaintLegend axis);
     ~PaintLegend();
     void setText(QString);
     void setMod(modOVSP mode);

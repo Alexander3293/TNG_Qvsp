@@ -17,14 +17,14 @@ bool checksum::checkCRC(quint8 *pdata, const uint8_t numModule)
 
     if (CRC7_cmd != *(pdata + traceCmd + 3)){
         result = false;
-        qDebug() << "error crc cmd" << "num module" << numModule;
+        //qDebug() << "error crc cmd" << "num module" << numModule;
     }
 
     quint8 CRC7_data = (calc_CRC7_for_data(pdata + traceData) << 1) | 1;
 
     if (CRC7_data != *(pdata + traceData + 15)){
         result = false;
-        qDebug() << "error crc data" << "num module" << numModule;
+        //qDebug() << "error crc data" << "num module" << numModule;
     }
     //delete [] pdata;
     return result;

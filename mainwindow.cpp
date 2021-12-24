@@ -231,9 +231,6 @@ void MainWindow::plotWidgetLayout()
         listGraphGround.at(i)->initGraphGround();
     }
 //-------------------------------------------//
-
-    qDebug() << "size down" << listGraphDnHole.at(0)->size();
-    qDebug() << "size down" << listGraphGround.at(0)->size();
 }
 
 
@@ -929,12 +926,274 @@ void MainWindow::writeFiles(QString fileName)
 
 }
 
+///* save SGD version 2 */
+//void MainWindow::on_pbSaveSGD_clicked()
+//{
+//    QString filter = "Meas File(*.meas)";
+//    QString path_file = "D:/Tests";
+//    QString meas_file = QFileDialog::getOpenFileName(this, "Open a File", path_file, filter);
+//    if(meas_file == "")
+//        return;
+
+//    qDebug() << "fileName" << meas_file;
+//    qDebug() << "fileName" << meas_file.mid(0, meas_file.lastIndexOf("/"));
+//    QString dir_meas_file = meas_file.mid(0, meas_file.lastIndexOf("/")+1);
+
+//    Measurement* meas_ = new Measurement(meas_file);
+//    //QTime time_between =meas_->getTimeStop() - meas_->getTimeStart();
+//    int count_measures = QTime(0,0,0).msecsTo(meas_->getTimeStop()) - QTime(0,0,0).msecsTo(meas_->getTimeStart());
+//    qDebug() << "raznost msec" << count_measures;
+//    qDebug() << "Time Start" << meas_->getTimeStart();
+//    qDebug() << "Time Stop" << meas_->getTimeStop();
+
+//    qDebug() << "num Dwnholes" << meas_->getNumDnHoleModules();
+//    qDebug() << "num Upholes" << meas_->getNumUpHoleModules();
+//    QDate date_tmp = meas_->getDate();
+//    QTime time_tmp = meas_->getTime();
+
+//    uint device_downHoles = 0;       //Количество подземных модулей
+//    uint device_UpHoles = 0;
+//    uint device_tbf  = 1;
+//    uint device_sync = 1;
+
+//    device_downHoles = meas_->getNumDnHoleModules() * 3;
+//    device_UpHoles = meas_->getNumUpHoleModules();
+
+//    /* Обработка SGD файлов в один файл */
+//    QDir dir(dir_meas_file);
+//    dir.setNameFilters(QStringList("*.sgd"));
+//    QStringList lis_file = dir.entryList(QDir::Files, QDir::Name);
+//    qDebug() << lis_file.count();
+
+//    segd_ = new single_segd_files();
+//    segd_->setFileName(dir_meas_file+"fileName.sgd");
+//    QStringList lis_file_tmp;
+//    /* Проверим на наличие данных в файлах измерений */
+//    bool statusFileData = false;
+//    for (const auto& filName : qAsConst(lis_file) )
+//    {
+//        statusFileData = segd_->checkData(dir_meas_file+filName);
+//        qDebug() << filName << statusFileData;
+
+//        if(filName.startsWith("DownnHole_device")){
+//            if(statusFileData == false)
+//                device_downHoles -= 1;
+//            else
+//                lis_file_tmp.append(filName);
+//        }
+//        else if(filName.startsWith("UpHole_device")){
+//            if(statusFileData == false)
+//                device_UpHoles -= 1;
+
+//            else
+//                lis_file_tmp.append(filName);
+//        }
+//        else if(filName.startsWith("Sync_device")){
+
+//            if(statusFileData == false)
+//                device_sync = 0;
+//            else
+//                lis_file_tmp.append(filName);
+//        }
+//        else if(filName.startsWith("TBF")){
+
+//            if(statusFileData == false)
+//                device_tbf = 0;
+//            else
+//                lis_file_tmp.append(filName);
+//        }
+
+
+//    }
+//    /* Определяем количество устройств по названию файлов */
+//    uint8_t cnt_chnl_sets = 0;
+//    if(device_downHoles) cnt_chnl_sets++;
+//    if(device_UpHoles) cnt_chnl_sets++;
+//    if(device_sync) cnt_chnl_sets++;
+//    if(device_tbf) cnt_chnl_sets++;
+
+//    segd_->setData(date_tmp);
+//    segd_->setTime(time_tmp);
+//    segd_->setCounterByte(0);
+//    segd_->setFileNumber(1);
+//    //segd_->setRecordLenght(recLen);   //not used for rev 3.1
+//    segd_->setChannelSets(cnt_chnl_sets);    //Количество используемых каналов (sync, tbf...)
+//    segd_->write_general_header();
+//    segd_->write_general_header_blk2();
+//    segd_->write_general_header_blk3();
+
+//    /* Заполняю Header конечного файла */
+//    if(device_downHoles){
+//        /* Down Holes */
+//        segd_->setChannelSetNumber(1);
+//        segd_->setChannelSetStartTime(0);
+//        segd_->setChannelSetEndTime(0);       //length data
+//        segd_->setDataLength(count_measures); //length data
+//        segd_->setNumberOfChannels(device_downHoles);
+//        segd_->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
+//        segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//        segd_->setAliasFilterSlope((quint16)1);
+//        segd_->write_header();
+//    }
+//    if(device_UpHoles){
+//        /*Up Hole */
+//        segd_->setChannelSetNumber(3);
+//        segd_->setChannelSetStartTime(0);
+//        segd_->setChannelSetEndTime(0);       //length data
+//        segd_->setDataLength(count_measures); //length data
+//        segd_->setNumberOfChannels(device_UpHoles);
+//        segd_->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
+//        segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//        segd_->setAliasFilterSlope((quint16)1);
+//        segd_->write_header();
+//    }
+//    if(device_sync) {
+//        /* Sync */
+//        segd_->setChannelSetNumber(4);
+//        segd_->setChannelSetStartTime(0);
+//        segd_->setChannelSetEndTime(0);
+//        segd_->setNumberOfChannels(device_sync);
+//        segd_->setChannelType((quint8)CHANNELSETS_TYPE_OTHER);
+//        segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//        segd_->setAliasFilterSlope((quint16)1);
+//        segd_->write_header();
+//    }
+//    if(device_tbf){
+//        /* TBF */
+//        segd_->setChannelSetNumber(2);
+//        segd_->setChannelSetStartTime(0);
+//        segd_->setChannelSetEndTime(0);       //length data
+//        segd_->setDataLength(count_measures); //length data
+//        segd_->setNumberOfChannels(device_tbf);
+//        segd_->setChannelType((quint8)CHANNELSETS_TYPE_TIMEBREAK);
+//        segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//        segd_->setAliasFilterSlope((quint16)1);
+//        segd_->write_header();
+//    }
+//    /* test */
+//    for (int i=0; i<lis_file_tmp.count(); i++) {
+//      qDebug() << "2" << lis_file_tmp.at(i);
+//       segd_->openFile_test(dir_meas_file +lis_file_tmp.at(i));
+//    }
+//    delete segd_;
+
+//    segd_ = new single_segd_files();
+//    segd_->getHeaderData(dir_meas_file+"fileName.sgd");
+//    /* Создаю множество файлов rev 2 */
+//    lFileNameRev2.clear();
+//    uint32_t max_num_rev2 = 131070;     //msec ~= 2min
+//    uint32_t numberOfSamples = segd_->getNumOfSamples();
+
+//    uint32_t cnt_files = numberOfSamples / max_num_rev2;
+//    qDebug() << "КОЛИЧЕСТВО sgd файлов " << cnt_files+1;
+//    uint32_t end_time = 0xffff;
+//    /* Заполнить все segd revision 2.1 шапкой */
+//    for (uint32_t cnt = 0; cnt < (cnt_files +1); cnt++) { //+1, так как округление в меньшую сторону
+//        lFileNameRev2.append(new single_segd_rev2_files);
+//        //lFileNameRev2.at(cnt)->setFileName(fileDir_+"/"+"dir/"+QString::number(cnt) + ".sgd");
+//        lFileNameRev2.at(cnt)->setFileName(dir_meas_file+QString::number(cnt) + ".sgd");
+//        lFileNameRev2.at(cnt)->setData(date_tmp);
+//        lFileNameRev2.at(cnt)->setTime(time_tmp);
+//        lFileNameRev2.at(cnt)->setCounterByte(0);
+//        lFileNameRev2.at(cnt)->setFileNumber(1);
+//        //segd_->setRecordLenght(recLen);   //not used for rev 3.1
+//        lFileNameRev2.at(cnt)->setChannelSets(cnt_chnl_sets);    //Количество используемых каналов (sync, tbf...)
+//        lFileNameRev2.at(cnt)->write_general_header();
+//        lFileNameRev2.at(cnt)->write_general_header_blk2();
+
+//        if(device_downHoles){
+//            /* Down Holes */
+//            lFileNameRev2.at(cnt)->setChannelSetNumber(1);
+//            lFileNameRev2.at(cnt)->setChannelSetStartTime(0);
+//            lFileNameRev2.at(cnt)->setChannelSetEndTime(end_time);       //length data
+//            lFileNameRev2.at(cnt)->setDataLength(0); //length data
+//            lFileNameRev2.at(cnt)->setNumberOfChannels(device_downHoles);
+//            lFileNameRev2.at(cnt)->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
+//            lFileNameRev2.at(cnt)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//            lFileNameRev2.at(cnt)->setAliasFilterSlope((quint16)1);
+//            lFileNameRev2.at(cnt)->write_header();
+//        }
+//        if(device_UpHoles){
+//            /*Up Hole */
+//            lFileNameRev2.at(cnt)->setChannelSetNumber(3);
+//            lFileNameRev2.at(cnt)->setChannelSetStartTime(0);
+//            lFileNameRev2.at(cnt)->setChannelSetEndTime(end_time);       //length data
+//            lFileNameRev2.at(cnt)->setDataLength(0); //length data
+//            lFileNameRev2.at(cnt)->setNumberOfChannels(device_UpHoles);
+//            lFileNameRev2.at(cnt)->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
+//            lFileNameRev2.at(cnt)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//            lFileNameRev2.at(cnt)->setAliasFilterSlope((quint16)1);
+//            lFileNameRev2.at(cnt)->write_header();
+//        }
+//        if(device_sync) {
+//            /* Sync */
+//            lFileNameRev2.at(cnt)->setChannelSetNumber(4);
+//            lFileNameRev2.at(cnt)->setChannelSetStartTime(0);
+//            lFileNameRev2.at(cnt)->setChannelSetEndTime(end_time);
+//            lFileNameRev2.at(cnt)->setDataLength(0); //length data
+//            lFileNameRev2.at(cnt)->setNumberOfChannels(device_sync);
+//            lFileNameRev2.at(cnt)->setChannelType((quint8)CHANNELSETS_TYPE_OTHER);
+//            lFileNameRev2.at(cnt)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//            lFileNameRev2.at(cnt)->setAliasFilterSlope((quint16)1);
+//            lFileNameRev2.at(cnt)->write_header();
+//        }
+//        if(device_tbf){
+//            /* TBF */
+//            lFileNameRev2.at(cnt)->setChannelSetNumber(2);
+//            lFileNameRev2.at(cnt)->setChannelSetStartTime(0);
+//            lFileNameRev2.at(cnt)->setChannelSetEndTime(end_time);       //length data
+//            lFileNameRev2.at(cnt)->setDataLength(0); //length data
+//            lFileNameRev2.at(cnt)->setNumberOfChannels(device_tbf);
+//            lFileNameRev2.at(cnt)->setChannelType((quint8)CHANNELSETS_TYPE_TIMEBREAK);
+//            lFileNameRev2.at(cnt)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+//            lFileNameRev2.at(cnt)->setAliasFilterSlope((quint16)1);
+//            lFileNameRev2.at(cnt)->write_header();
+//        }
+
+//        lFileNameRev2.at(cnt)->write_extended_header();
+//    }
+
+
+//    uint32_t global_Cnt_samples = 0;
+//    uint32_t remainder = numberOfSamples % max_num_rev2;    //сколько остается еще дозабить файл нулями
+//    dem_trace_header demux_trace_rev3;
+
+//    uint16_t cnt_meas = device_downHoles+device_UpHoles + device_sync+ device_tbf;
+//    for (uint16_t i=0; i< cnt_meas; i++ ) {
+//        demux_trace_rev3 = segd_->getDemuxTraceHeader();
+
+//        for (uint32_t cnt = 0; cnt < cnt_files ; cnt++) {
+//            lFileNameRev2.at(cnt)->setDemuxTraceHeader(demux_trace_rev3);
+//            lFileNameRev2.at(cnt)->open_data(); //для записи
+//            for (global_Cnt_samples =0; global_Cnt_samples < max_num_rev2; global_Cnt_samples+=255) //514*255 = 131 070
+//            {
+//                lFileNameRev2.at(cnt)->writeData(segd_->getDataRev3(255));
+//            }
+//            lFileNameRev2.at(cnt)->close_data(); //для записи
+
+//        }
+//        /* считывание отдельного файла */
+//        lFileNameRev2.last()->setDemuxTraceHeader(demux_trace_rev3);
+//        QVector<float> vecNull;
+//        lFileNameRev2.last()->open_data(); //для записи
+//        lFileNameRev2.last()->writeData(segd_->getDataRev3(remainder));
+//        /* дозаполню нулями */
+//        for(uint i=0; i < (max_num_rev2 - remainder); i++)
+//            vecNull.append(0.0);
+//        lFileNameRev2.last()->writeData(vecNull);
+//        lFileNameRev2.last()->close_data(); //для записи
+//    }
+//    QApplication::beep();
+
+//}
+
 /* save SGD version 2 */
 void MainWindow::on_pbSaveSGD_clicked()
 {
     QString filter = "Meas File(*.meas)";
     QString path_file = "D:/Tests";
     QString meas_file = QFileDialog::getOpenFileName(this, "Open a File", path_file, filter);
+
     if(meas_file == "")
         return;
 
@@ -978,36 +1237,37 @@ void MainWindow::on_pbSaveSGD_clicked()
         statusFileData = segd_->checkData(dir_meas_file+filName);
         qDebug() << filName << statusFileData;
 
-        if(filName.startsWith("DownnHole_device")){
+        if(filName.contains("DownnHole_device")){
             if(statusFileData == false)
                 device_downHoles -= 1;
             else
                 lis_file_tmp.append(filName);
         }
-        else if(filName.startsWith("UpHole_device")){
+        else if(filName.contains("UpHole_device")){
             if(statusFileData == false)
                 device_UpHoles -= 1;
 
-            else
+            else{
+                qDebug() << "name files UpHole" << filName;
                 lis_file_tmp.append(filName);
+            }
         }
-        else if(filName.startsWith("Sync_device")){
+        else if(filName.contains("Sync_device")){
 
             if(statusFileData == false)
                 device_sync = 0;
             else
                 lis_file_tmp.append(filName);
         }
-        else if(filName.startsWith("TBF")){
+        else if(filName.contains("TBF")){
 
             if(statusFileData == false)
                 device_tbf = 0;
             else
                 lis_file_tmp.append(filName);
         }
-
-
     }
+
     /* Определяем количество устройств по названию файлов */
     uint8_t cnt_chnl_sets = 0;
     if(device_downHoles) cnt_chnl_sets++;
@@ -1189,6 +1449,7 @@ void MainWindow::on_pbSaveSGD_clicked()
     QApplication::beep();
 
 }
+
 
 /* Init Sliders */
 void MainWindow::initSliders()

@@ -2,13 +2,13 @@
 #include "ui_paintlegend.h"
 
 
-PaintLegend::PaintLegend(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::PaintLegend)
-{
-    ui->setupUi(this);
-    mode_ = syncMod;
-}
+//PaintLegend::PaintLegend(QWidget *parent) :
+//    QWidget(parent),
+//    ui(new Ui::PaintLegend)
+//{
+//    ui->setupUi(this);
+//    mode_ = syncMod;
+//}
 
 PaintLegend::PaintLegend(QWidget *parent, modOVSP mode):
     QWidget(parent),
