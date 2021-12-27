@@ -14,7 +14,7 @@
 #include <QQueue>
 #include <QFile>
 #include <QUdpSocket>
-#include "work_with_project/single_segd_files.h"
+#include "work_with_project/single_segd_rev2_files.h"
 //#include "spinnerprogresscontroller.h"
 
 
@@ -84,6 +84,7 @@ public:
     void dataProcessingModuleSync (QByteArray data);
     void setRecord(bool isRecording);
     bool getRecord();
+    void update_sgd_files(QString dirFile);
 
 private:
     bool isConnected_;
@@ -112,7 +113,7 @@ private:
     QHostAddress            senderAdr;
     quint16                 senderPort;
     //QFile                   file_global;
-    QList<single_segd_files*> listFileSgd;
+
     void WriteToFile(QByteArray data);
 
     QList<pointsFromSync* > listSyncModule;
@@ -133,8 +134,13 @@ private:
     quint8 blk_count;
     bool checkBLKCount; //Чтобы первый пакет был равен Pckt Number
     pointsFromSync* dataPointTmp;
+    QList<single_segd_rev2_files*> listFileSgd;
+    QList<quint32> listCntMeasSGD;      //количество измерений в файле
+    QList<quint16> listCntFileSGD;      //номер sgd файла
+
     double maxValMissPacketADC = 0x7fffff;  //8 388 607 (int24)
     bool maxValMissPacketDigit = false;  //8 388 607 (int24)
+    quint32 max_len_sgd = 131070;       //максимальная длина файла segd rev2.1
 
     quint32 cntFilesSgd;
 

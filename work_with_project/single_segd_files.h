@@ -141,6 +141,11 @@ typedef struct {
     unsigned char type3;  /* 96 Header block type */
 } scan_type_header;
 
+/*--------------- Extended header -----------------------*/
+typedef struct {
+    unsigned char f[32];     /* 01-32 file number */
+} extended_header;
+
 /*--------------- Demux trace header -----------------------*/
 typedef struct {
     unsigned char f[2];     /* 01-02 file number */
@@ -162,6 +167,16 @@ typedef struct {
     unsigned char en[2];  /* 16-17 extended channel set number */
     unsigned char efn[3]; /* 18-20 extended file number */
 } dem_trace_header;
+
+/*--------------- Demux trace header -----------------------*/
+typedef struct {
+    general_header_1    gen_head_1;
+    general_header_2    gen_head_2;
+    scan_type_header    scan_head;
+    extended_header     ext_head;
+    dem_trace_header    demux_head;
+    uint32_t            trace_length_ms;
+} head_rev2_1;
 
 class single_segd_files : public QObject
 {

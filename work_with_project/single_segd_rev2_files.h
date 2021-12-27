@@ -150,7 +150,9 @@ public:
     explicit single_segd_rev2_files(QObject *parent = nullptr);
     ~single_segd_rev2_files();
     void setTime(const QTime &time);
+    void setTime(uchar* hour, uchar* minute, uchar* second);
     void setData(const QDate &data);
+    void setData(unsigned char *year, unsigned char *day);
     void write_general_header();
     void write_general_header_blk2();
     void write_header();
@@ -192,6 +194,7 @@ public:
     void setDataLength(const quint32 &numOfSamples);
     quint8 channelSets() const;
     void setChannelSets(const quint8 &channelSets);
+    bool checkData(QString fileCheckName);
 
     void openFile(QString fileReadName);
     void openFile_test(QString fileReadName);
@@ -199,6 +202,14 @@ public:
     void setDemuxTraceHeader(dem_trace_header str_demux);
     void writeData(QVector<float> vecData);
     void read_and_write();
+    void getHeaderDataRev2_1(QString fileName, head_rev2_1 &str_head_rev2_1);
+    general_header_1 getGenHead1(QFile *fileName);
+    general_header_2 getGenHead2(QFile *fileName);
+    scan_type_header getScanHead(QFile *fileName);
+    extended_header getExtendedHead(QFile *fileName);
+    dem_trace_header getDemuxTrace(QFile *fileName);
+    uint32_t getTraceLength(QFile *file);
+
 private:
     uint16_t bit_to_byte(QBitArray* bitArray);
     void bit_to_byte(QBitArray* bitArray, uint8_t  returnValue);
