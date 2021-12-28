@@ -63,7 +63,7 @@ void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
             y.append(dataPckt->data[i]);
 
         }
-
+        ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
         if(y.size() >= width_) {
             ui->customPlot->graph(0)->setData(x, y);
             //ui->customPlot->rescaleAxes();

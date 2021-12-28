@@ -21,7 +21,7 @@
 //#include <QTimer>
 #include <QList>
 #include "checksum.h"
-#include "work_with_project/single_segd_files.h"
+#include "work_with_project/single_segd_rev2_files.h"
 //-----------------------------------------------------------------------------
 #include "network/declarateTransceiveringData.h"
 //-----------------------------------------------------------------------------
@@ -74,7 +74,7 @@ private:
     QTime timeOfPoint;
     void send_cmd(u_short cmd);
     int depth_ = 0;
-    QList<single_segd_files*> listFileSgd;
+    QList<single_segd_rev2_files*> listFileSgd;
     //QFile file_global;      // for the correct close file
     bool startFile;     //ЧТобы запись файла начиналась с 1 пакета
     bool flagFirst;     //сдлеать сдвиг на 11 отсчетов

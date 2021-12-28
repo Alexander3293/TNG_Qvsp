@@ -437,6 +437,33 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
     }
 
 }
+
+void Transceiver_class::update_sgd_files(QString dirFile)
+{
+    /* Если пустой, то создать просто новый файл */
+    if(dirFile == ""){
+        QString fileName = listFileSgd.at(0)->getFileName();
+        uint cnt = fileName.lastIndexOf("_DownnHole_device_");     //Найти номер файла sgd и заменить его на текущий
+
+        for(auto fileSgd: listFileSgd){
+            fileSgd->close_data();
+            fileSgd->setFileName(fileName.replace(cnt-1, 1, QString::number(сntFileSGD)));
+        }
+    }
+    else{
+        for(auto i=0; i<numModule_; i++){
+
+            listFileSgd.at(3*i+0)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+                                                "_DownnHole_device_%1X.sgd").arg(i+1));
+            listFileSgd.at(3*i+1)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+                                                "_DownnHole_device_%1Y.sgd").arg(i+1));
+            listFileSgd.at(3*i+2)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+                                                "_DownnHole_device_%1Z.sgd").arg(i+1));
+        }
+    }
+
+    this->setSettings();
+}
 void Transceiver_class::setRecord(bool isRecording)
 {
     isRecording_ = isRecording;
