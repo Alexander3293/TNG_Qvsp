@@ -93,7 +93,7 @@ private:
     quint32 cntCurrentData_;
     quint32 sizeSgdFile_ = 131070;
     QString dirFile_;
-
+    quint16 cntFileSGD;      //номер sgd файла
     checksum crc_;
 
 signals:
@@ -136,6 +136,7 @@ public:
     void setRecord(bool isRecording);
     bool getRecord();
     void WriteToFile(pointFromDownHoles &point, uint size);
+    void update_sgd_files(QString dirFile);
 
 };
 Q_DECLARE_METATYPE(pointFromDownHoles)

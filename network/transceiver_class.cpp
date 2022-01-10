@@ -253,18 +253,7 @@ void Transceiver_class::on_udp_data_rx(void)
             this->depth_ = pdata->dept;
             emit newDepth(this->depth_);
         }
-        /* Начинать проверять пакеты */
-//        if(startFile)
-//        {
-//            oldPckt_ = pdata->n_pocket;
-//        }
-//        else if(++oldPckt_ !=  dataPoint->n_pocket)
-//        {
-//            //Значит пропущен пакет, отправляем это на наземные модули.
-//            qDebug() << "Error DownHole module";
-//        }
-//    qDebug() << "blk_count = " << blk_count;
-//    qDebug() << "in protocol = " << ntohs(pdata->n_pocket) ;
+
         /*Назначаем номер пакета */
         if(!checkBLKCount){
             blk_count = ntohs(pdata->n_pocket);
@@ -447,17 +436,17 @@ void Transceiver_class::update_sgd_files(QString dirFile)
 
         for(auto fileSgd: listFileSgd){
             fileSgd->close_data();
-            fileSgd->setFileName(fileName.replace(cnt-1, 1, QString::number(сntFileSGD)));
+            fileSgd->setFileName(fileName.replace(cnt-1, 1, QString::number(cntFileSGD)));
         }
     }
     else{
         for(auto i=0; i<numModule_; i++){
 
-            listFileSgd.at(3*i+0)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+            listFileSgd.at(3*i+0)->setFileName((dirFile+"/" +QString::number(cntFileSGD)+
                                                 "_DownnHole_device_%1X.sgd").arg(i+1));
-            listFileSgd.at(3*i+1)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+            listFileSgd.at(3*i+1)->setFileName((dirFile+"/" +QString::number(cntFileSGD)+
                                                 "_DownnHole_device_%1Y.sgd").arg(i+1));
-            listFileSgd.at(3*i+2)->setFileName((dirFile+"/" +QString::number(сntFileSGD)+
+            listFileSgd.at(3*i+2)->setFileName((dirFile+"/" +QString::number(cntFileSGD)+
                                                 "_DownnHole_device_%1Z.sgd").arg(i+1));
         }
     }
@@ -505,7 +494,7 @@ void Transceiver_class::setSettings()
 {
     QDate date_tmp = QDate::currentDate();
     QTime time_tmp = QTime::currentTime();
-    int count_measures = 20000; //20 sec
+    quint16 count_measures = 65535; //20 sec
 
     for(auto i= 0; i < numModule_; i++ ){
         listFileSgd.at(3*i)->setData(date_tmp);
@@ -516,16 +505,17 @@ void Transceiver_class::setSettings()
         listFileSgd.at(3*i)->setChannelSets(1);
         listFileSgd.at(3*i)->write_general_header();
         listFileSgd.at(3*i)->write_general_header_blk2();
-        listFileSgd.at(3*i)->write_general_header_blk3();
+        //listFileSgd.at(3*i)->write_general_header_blk3();
         listFileSgd.at(3*i)->setChannelSetNumber(1);
         listFileSgd.at(3*i)->setChannelSetStartTime(0);
-        listFileSgd.at(3*i)->setChannelSetEndTime(0);
-        listFileSgd.at(3*i)->setDataLength(count_measures); //length data
+        listFileSgd.at(3*i)->setChannelSetEndTime(count_measures);
+        //listFileSgd.at(3*i)->setDataLength(count_measures); //length data
         listFileSgd.at(3*i)->setNumberOfChannels(numModule_*3);
         listFileSgd.at(3*i)->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
         listFileSgd.at(3*i)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
         listFileSgd.at(3*i)->setAliasFilterSlope((quint16)1);
         listFileSgd.at(3*i)->write_header();
+        listFileSgd.at(3*i)->write_extended_header();
         listFileSgd.at(3*i+0)->open_data();
         listFileSgd.at(3*i+0)->write_data_header(1, 3*i+1);
 
@@ -537,16 +527,17 @@ void Transceiver_class::setSettings()
         listFileSgd.at(3*i+1)->setChannelSets(1);
         listFileSgd.at(3*i+1)->write_general_header();
         listFileSgd.at(3*i+1)->write_general_header_blk2();
-        listFileSgd.at(3*i+1)->write_general_header_blk3();
+        //listFileSgd.at(3*i+1)->write_general_header_blk3();
         listFileSgd.at(3*i+1)->setChannelSetNumber(1);
         listFileSgd.at(3*i+1)->setChannelSetStartTime(0);
-        listFileSgd.at(3*i+1)->setChannelSetEndTime(0);
-        listFileSgd.at(3*i+1)->setDataLength(count_measures); //length data
+        listFileSgd.at(3*i+1)->setChannelSetEndTime(count_measures);
+        //listFileSgd.at(3*i+1)->setDataLength(count_measures); //length data
         listFileSgd.at(3*i+1)->setNumberOfChannels(numModule_*3);
         listFileSgd.at(3*i+1)->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
         listFileSgd.at(3*i+1)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
         listFileSgd.at(3*i+1)->setAliasFilterSlope((quint16)1);
         listFileSgd.at(3*i+1)->write_header();
+        listFileSgd.at(3*i+1)->write_extended_header();
         listFileSgd.at(3*i+1)->open_data();
         listFileSgd.at(3*i+1)->write_data_header(1, 3*i+2);
 
@@ -558,16 +549,17 @@ void Transceiver_class::setSettings()
         listFileSgd.at(3*i+2)->setChannelSets(1);
         listFileSgd.at(3*i+2)->write_general_header();
         listFileSgd.at(3*i+2)->write_general_header_blk2();
-        listFileSgd.at(3*i+2)->write_general_header_blk3();
+        //listFileSgd.at(3*i+2)->write_general_header_blk3();
         listFileSgd.at(3*i+2)->setChannelSetNumber(1);
         listFileSgd.at(3*i+2)->setChannelSetStartTime(0);
-        listFileSgd.at(3*i+2)->setChannelSetEndTime(0);
-        listFileSgd.at(3*i+2)->setDataLength(count_measures); //length data
+        listFileSgd.at(3*i+2)->setChannelSetEndTime(count_measures);
+        //listFileSgd.at(3*i+2)->setDataLength(count_measures); //length data
         listFileSgd.at(3*i+2)->setNumberOfChannels(numModule_*3);
         listFileSgd.at(3*i+2)->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
         listFileSgd.at(3*i+2)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
         listFileSgd.at(3*i+2)->setAliasFilterSlope((quint16)1);
         listFileSgd.at(3*i+2)->write_header();
+        listFileSgd.at(3*i+2)->write_extended_header();
         listFileSgd.at(3*i+2)->open_data();
         listFileSgd.at(3*i+2)->write_data_header(1, 3*i+3);
     }
@@ -587,8 +579,8 @@ void Transceiver_class::setNumModule(int numModule)
         listFileSgd.clear();
     }
     for(auto i=0; i<numModule_; i++){
-        listFileSgd.append(new single_segd_files()); //x
-        listFileSgd.append(new single_segd_files()); //y
-        listFileSgd.append(new single_segd_files()); //z
+        listFileSgd.append(new single_segd_rev2_files()); //x
+        listFileSgd.append(new single_segd_rev2_files()); //y
+        listFileSgd.append(new single_segd_rev2_files()); //z
     }
 }
