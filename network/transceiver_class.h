@@ -89,11 +89,11 @@ private:
     uint8_t MSBvalMissPacket = 0x7f;
     uint8_t LSBvalMissPacket = 0xff;
 
-    quint32 cntFilesSgd_;
     quint32 cntCurrentData_;
     quint32 sizeSgdFile_ = 131070;
     QString dirFile_;
     quint16 cntFileSGD;      //номер sgd файла
+    quint32 cntMeasSGD;      //количество измерений в файле
     checksum crc_;
 
 signals:

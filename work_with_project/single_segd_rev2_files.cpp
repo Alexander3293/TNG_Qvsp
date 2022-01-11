@@ -1386,8 +1386,11 @@ void single_segd_rev2_files::open_data()
 
 void single_segd_rev2_files::close_data()
 {
-    file_->flush();
-    file_->close();
+    if(file_->isOpen()){
+        file_->flush();
+        file_->close();
+    }
+
 }
 
 void single_segd_rev2_files::openFile_test(QString fileReadName)

@@ -425,7 +425,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                 uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
                 listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-qDebug() << "ostatok" << ostatok;
+                qDebug() << "ostatok" << ostatok;
                 listCntFileSGD[device_id]+=1;
                 this->update_sgd_files(device_id, "");
                 listCntMeasSGD[device_id] = ostatok;
@@ -469,6 +469,10 @@ void Transceiver_ground::setFileName(int idMeas, QString dirFile)
 
     for(auto i =0 ; i < 4; i++){
         listCntFileSGD[i] = 0;
+    }
+
+    for(auto i =0 ; i < 4; i++){
+        listCntMeasSGD[i] = 0;
     }
 
     for(uint8_t i=0; i<4; i++)

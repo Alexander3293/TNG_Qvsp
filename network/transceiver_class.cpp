@@ -28,9 +28,10 @@ Transceiver_class::Transceiver_class(QObject *parent) :
     sizeFile_=0;
     frstPcktOffset = false;
 
-    cntFilesSgd_ = 0;
-
+    cntFileSGD = 0;
+    cntMeasSGD   = 0;
     checkBLKCount = false;
+
     dataPointTmp = new (pointFromDownHoles);
     for(int i=0; i < 20;i++){    //max 8 modules
         dataPointTmp->data[i * 16 + 0] = MSBvalMissPacket;
@@ -254,7 +255,7 @@ void Transceiver_class::on_udp_data_rx(void)
             emit newDepth(this->depth_);
         }
 
-        /*Назначаем номер пакета */
+        /*Назначаем номер пакета в самый первый раз */
         if(!checkBLKCount){
             blk_count = ntohs(pdata->n_pocket);
             qDebug() << "BLK count" << blk_count;
@@ -288,7 +289,7 @@ void Transceiver_class::on_udp_data_rx(void)
         emit data_update(blk_count, (*dataPoint));
         blk_count++;
         if(!flagFirst) {
-            uint16_t numPcktDownHoles = ntohs(pdata->n_pocket);  //начало пакета с 1 у подземных модулей
+            uint16_t numPcktDownHoles = ntohs(pdata->n_pocket);
             if((numPcktDownHoles%256) > 10)
                 flagFirst = true;
 
@@ -381,6 +382,12 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
     QVector<float> data_tmp;
     data_tmp.append(0.0);
 
+    if(cntMeasSGD >= sizeSgdFile_){  //131070 or more
+        cntMeasSGD = 0;
+        cntFileSGD++;
+        this->update_sgd_files("");
+    }
+
     for(uint8_t numMod=0; numMod<numModule_; numMod++){
         /* Check CRC data */
         if(!crc_.checkCRC(pdata,numMod )){
@@ -425,6 +432,39 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
         }
     }
 
+    cntMeasSGD++;
+}
+
+void Transceiver_class::setRecord(bool isRecording)
+{
+    isRecording_ = isRecording;
+}
+
+bool Transceiver_class::getRecord()
+{
+    return isRecording_;
+}
+
+void Transceiver_class::setFileName(int idMeas, QString dirFile)
+{
+    Q_UNUSED(idMeas);
+//    file_global.setFileName(dirFile+"/DownHole.txt");
+//    if (!file_global.open(QIODevice::WriteOnly|QIODevice::Append))
+//    {
+//        qDebug() << "Ошибка при открытии файла";
+//        return;
+//    }
+
+//    if(listFileSgd.count() > 0){
+//        for(auto cnt=0; cnt<listFileSgd.count(); cnt++){
+//            if(listFileSgd.at(cnt)->getFileName()!="")
+//                listFileSgd.at(cnt)->close_data();
+//        }
+//    }
+    cntFileSGD = 0;
+    cntMeasSGD = 0;
+    update_sgd_files(dirFile);
+
 }
 
 void Transceiver_class::update_sgd_files(QString dirFile)
@@ -449,42 +489,6 @@ void Transceiver_class::update_sgd_files(QString dirFile)
             listFileSgd.at(3*i+2)->setFileName((dirFile+"/" +QString::number(cntFileSGD)+
                                                 "_DownnHole_device_%1Z.sgd").arg(i+1));
         }
-    }
-
-    this->setSettings();
-}
-void Transceiver_class::setRecord(bool isRecording)
-{
-    isRecording_ = isRecording;
-}
-
-bool Transceiver_class::getRecord()
-{
-    return isRecording_;
-}
-
-void Transceiver_class::setFileName(int idMeas, QString dirFile)
-{
-    Q_UNUSED(idMeas);
-//    file_global.setFileName(dirFile+"/DownHole.txt");
-//    if (!file_global.open(QIODevice::WriteOnly|QIODevice::Append))
-//    {
-//        qDebug() << "Ошибка при открытии файла";
-//        return;
-//    }
-
-    if(listFileSgd.count() > 0){
-        for(auto cnt=0; cnt<listFileSgd.count(); cnt++){
-            if(listFileSgd.at(cnt)->getFileName()!="")
-                listFileSgd.at(cnt)->close_data();
-        }
-    }
-
-    for(uint8_t i=0; i<numModule_; i++){
-
-        listFileSgd.at(3*i  )->setFileName((dirFile+"/DownnHole_device_%1X.sgd").arg(i+1));
-        listFileSgd.at(3*i+1)->setFileName((dirFile+"/DownnHole_device_%1Y.sgd").arg(i+1));
-        listFileSgd.at(3*i+2)->setFileName((dirFile+"/DownnHole_device_%1Z.sgd").arg(i+1));
     }
 
     this->setSettings();

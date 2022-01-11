@@ -329,14 +329,14 @@ void MainWindow::resizeNumModules(int numDownHoleModules, int numWeelsModules)
     Q_UNUSED(numWeelsModules);
     Q_UNUSED(numDownHoleModules);
 
-    sizeList_ = listGraphGround.size()*3;
+    sizeList_ = listGraphGround.size();
     for(int i=0; i < sizeList_; i++)
     {
         ui->gridLayout->removeWidget(listGraphGround.at(0));
         delete  listGraphGround.at(0);
         listGraphGround.removeAt(0);
     }
-    sizeList_ = listGraphDnHole.size()*3;
+    sizeList_ = listGraphDnHole.size();
     for(int i=0; i < sizeList_; i++)
     {
         ui->gridLayout->removeWidget(listGraphDnHole.at(0));
