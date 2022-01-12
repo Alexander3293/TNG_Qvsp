@@ -1050,6 +1050,35 @@ QSlider::handle:horizontal {
      <enum>QSlider::TicksAbove</enum>
     </property>
    </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>70</y>
+      <width>84</width>
+      <height>42</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="rb_xxx">
+       <property name="text">
+        <string>XXX</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="rb_xyz">
+       <property name="text">
+        <string>XYZ</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <zorder>sliderDownHole</zorder>
    <zorder>gridLayoutWidget</zorder>
    <zorder>pushButtonSupplyModules</zorder>
@@ -1068,6 +1097,8 @@ QSlider::handle:horizontal {
    <zorder>pbSaveSGD</zorder>
    <zorder>gridLayoutWidget_2</zorder>
    <zorder>sliderUpHole</zorder>
+   <zorder>rb_xxx</zorder>
+   <zorder>rb_xyz</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

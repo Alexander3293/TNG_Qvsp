@@ -59,6 +59,13 @@ MainWindow::MainWindow(QWidget *parent)
     /* SLIDER */
     initSliders();
 
+    /* Radio Button Group */
+    QButtonGroup *buttonGroup = new QButtonGroup;
+    rb_widget_ = XXX;
+    buttonGroup->addButton(ui->rb_xxx, XXX);
+    buttonGroup->addButton(ui->rb_xyz, XYZ);
+    connect(buttonGroup, SIGNAL(buttonClicked(int)), this, SLOT(selectRadioButton(int)));
+
     /* Совместное построение наземного и подземного */
 //    testPlot_ = new plotDoubleGraph(transceiver_ground_, transceiver_);
 //    ui->gridLayout->addWidget(testPlot_, shiftGridLayout_++, 0);
@@ -180,57 +187,157 @@ void MainWindow::on_pushButtonSupplyModules_clicked()
 /* Init graphics Ground, downholes */
 void MainWindow::plotWidgetLayout()
 {
-    shiftGridLayout_ = 2;
-    /* График real-time для подземных модулей */
-    for(int i=0; i < numDnMod_*3; i++)
-        listGraphDnHole.append(new graphDownHole(transceiver_));
+    shiftGridLayout_ = 1;   //1 - sync
 
-    //ui->gridLayout->setSpacing(0);
+    switch(rb_widget_){
+    case rb_widget::XXX:{
+        /* График real-time для подземных модулей */
+        for(int i=0; i < numDnMod_*3; i++)
+            listGraphDnHole.append(new graphDownHole(transceiver_));
 
+        for(int i=0; i<listGraphDnHole.count(); i++)
+        {
+            ui->gridLayout->addWidget(listGraphDnHole.at(i), ++shiftGridLayout_, 0);
 
+            /* ширина построения */
+            listGraphDnHole.at(i)->setWidth(width_);
+            /* Передача номера модуля */
+            listGraphDnHole.at(i)->setModNum(i/3);
+            /*Стираем старые данные */
+            listGraphDnHole.at(i)->clearData();
 
-    for(int i=0; i<listGraphDnHole.count(); i++)
-    {
-        //ui->gridLayout->addWidget(new QPushButton(tr("add")), shiftGridLayout_, 1);
-        ui->gridLayout->addWidget(listGraphDnHole.at(i), shiftGridLayout_++, 0);
-        /* ширина построения */
-        listGraphDnHole.at(i)->setWidth(width_);
-        /* Передача номера модуля */
-        listGraphDnHole.at(i)->setModNum(i/3);
-        /*Стираем старые данные */
-        listGraphDnHole.at(i)->clearData();
+            switch (i%3) {
+            case init_graph_DownHoles::graph_axis_X:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_X);
+                break;
+            case init_graph_DownHoles::graph_axis_Y:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Y);
+                break;
+            case init_graph_DownHoles::graph_axis_Z:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
+                break;
+            }
 
-        switch (i%3) {
-        case init_graph_DownHoles::graph_axis_X:
-            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_X);
-            break;
-        case init_graph_DownHoles::graph_axis_Y:
-            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Y);
-            break;
-        case init_graph_DownHoles::graph_axis_Z:
-            listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
-            break;
+            /*Выбираем необходимый модуль для данных */
+            listGraphDnHole.at(i)->setTraceDnHole();
         }
 
-        /*Выбираем необходимый модуль для данных */
-        listGraphDnHole.at(i)->setTraceDnHole();
-    }
-//-------------------------------------------//
-    /* Widget real-time наземных модулей - геофонов */
-    for(int i=0; i < numWellsMod_; i++)
-        listGraphGround.append(new graphGround(transceiver_ground_));
+        uint8_t cnt = 0;
+        uint8_t cnt_device = 0;
+        /* Нужно сделать по-человечески, когда мне дадут время, конечно же */
+        for(cnt=0; cnt<numDnMod_; cnt++)
+        {
+            ui->gridLayout->addWidget(listGraphDnHole.at(cnt), ++shiftGridLayout_, 0);
+            /* ширина построения */
+            listGraphDnHole.at(cnt)->setWidth(width_);
+            /* Передача номера модуля */
+            listGraphDnHole.at(cnt)->setModNum(cnt_device++);
+            /*Стираем старые данные */
+            listGraphDnHole.at(cnt)->clearData();
+            listGraphDnHole.at(cnt)->initGraphXYZ(init_graph_DownHoles::graph_axis_X);
 
-    for(int i=0; i<listGraphGround.count(); i++)
-    {
-        ui->gridLayout->addWidget(listGraphGround.at(i), shiftGridLayout_++, 0);
-        /* Передача номера устройства */
-        listGraphGround.at(i)->setDevNum(i);
-        /* ширина построения */
-        listGraphGround.at(i)->setWidth(width_);
-        /* Отрисовка какого-то графика*/
-        listGraphGround.at(i)->initGraphGround();
+            /*Выбираем необходимый модуль для данных */
+            listGraphDnHole.at(cnt)->setTraceDnHole();
+        }
+
+        cnt_device = 0;
+        for(; cnt<numDnMod_*2; cnt++)
+        {
+            ui->gridLayout->addWidget(listGraphDnHole.at(cnt), ++shiftGridLayout_, 0);
+            /* ширина построения */
+            listGraphDnHole.at(cnt)->setWidth(width_);
+            /* Передача номера модуля */
+            listGraphDnHole.at(cnt)->setModNum(cnt_device++);
+            /*Стираем старые данные */
+            listGraphDnHole.at(cnt)->clearData();
+            listGraphDnHole.at(cnt)->initGraphXYZ(init_graph_DownHoles::graph_axis_Y);
+
+            /*Выбираем необходимый модуль для данных */
+            listGraphDnHole.at(cnt)->setTraceDnHole();
+        }
+
+        cnt_device = 0;
+        for(; cnt<numDnMod_*3; cnt++)
+        {
+            ui->gridLayout->addWidget(listGraphDnHole.at(cnt), ++shiftGridLayout_, 0);
+            /* ширина построения */
+            listGraphDnHole.at(cnt)->setWidth(width_);
+            /* Передача номера модуля */
+            listGraphDnHole.at(cnt)->setModNum(cnt_device++);
+            /*Стираем старые данные */
+            listGraphDnHole.at(cnt)->clearData();
+            listGraphDnHole.at(cnt)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
+
+            /*Выбираем необходимый модуль для данных */
+            listGraphDnHole.at(cnt)->setTraceDnHole();
+        }
+
+        //-------------------------------------------//
+            /* Widget real-time наземных модулей - геофонов */
+            for(int i=0; i < numWellsMod_; i++)
+                listGraphGround.append(new graphGround(transceiver_ground_));
+
+            for(int i=0; i<listGraphGround.count(); i++){
+                ui->gridLayout->addWidget(listGraphGround.at(i), ++shiftGridLayout_, 0);
+                /* Передача номера устройства */
+                listGraphGround.at(i)->setDevNum(i);
+                /* ширина построения */
+                listGraphGround.at(i)->setWidth(width_);
+                /* Отрисовка какого-то графика*/
+                listGraphGround.at(i)->initGraphGround();
+            }
+
+        break;
     }
-//-------------------------------------------//
+    case rb_widget::XYZ:
+        /* График real-time для подземных модулей */
+        for(int i=0; i < numDnMod_*3; i++)
+            listGraphDnHole.append(new graphDownHole(transceiver_));
+
+        //ui->gridLayout->setSpacing(0);
+        for(int i=0; i<listGraphDnHole.count(); i++)
+        {
+            //ui->gridLayout->addWidget(new QPushButton(tr("add")), shiftGridLayout_, 1);
+            ui->gridLayout->addWidget(listGraphDnHole.at(i), ++shiftGridLayout_, 0);
+            /* ширина построения */
+            listGraphDnHole.at(i)->setWidth(width_);
+            /* Передача номера модуля */
+            listGraphDnHole.at(i)->setModNum(i/3);
+            /*Стираем старые данные */
+            listGraphDnHole.at(i)->clearData();
+
+            switch (i%3) {
+            case init_graph_DownHoles::graph_axis_X:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_X);
+                break;
+            case init_graph_DownHoles::graph_axis_Y:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Y);
+                break;
+            case init_graph_DownHoles::graph_axis_Z:
+                listGraphDnHole.at(i)->initGraphXYZ(init_graph_DownHoles::graph_axis_Z);
+                break;
+            }
+
+            /*Выбираем необходимый модуль для данных */
+            listGraphDnHole.at(i)->setTraceDnHole();
+        }
+    //-------------------------------------------//
+        /* Widget real-time наземных модулей - геофонов */
+        for(int i=0; i < numWellsMod_; i++)
+            listGraphGround.append(new graphGround(transceiver_ground_));
+
+        for(int i=0; i<listGraphGround.count(); i++){
+            ui->gridLayout->addWidget(listGraphGround.at(i), ++shiftGridLayout_, 0);
+            /* Передача номера устройства */
+            listGraphGround.at(i)->setDevNum(i);
+            /* ширина построения */
+            listGraphGround.at(i)->setWidth(width_);
+            /* Отрисовка какого-то графика*/
+            listGraphGround.at(i)->initGraphGround();
+        }
+        break;
+    //-------------------------------------------//
+    }
 }
 
 
@@ -1370,6 +1477,21 @@ void MainWindow::on_pbSaveSGD_clicked()
     QApplication::beep();
 }
 
+void MainWindow::selectRadioButton(int id)
+{
+    switch(id){
+    case XXX:         //xxx
+        rb_widget_ = XXX;
+        break;
+    case XYZ:         //xyz
+        rb_widget_ = XYZ;
+        break;
+    }
+
+    resizeNumModules(numDnMod_, numWellsMod_);
+    plotWidgetLayout();
+}
+
 
 /* Init Sliders */
 void MainWindow::initSliders()
@@ -1513,28 +1635,37 @@ void MainWindow::newProj(QString name, QString path)
     connect(proj_, SIGNAL(projectCreatedError(QString)), this, SLOT(messageProject(QString)));
     connect(proj_, SIGNAL(measPath(int, QString)), this, SLOT(setFileName(int, QString)));
 
-//    connect(transceiverThread_, SIGNAL(started()), transceiver_, SLOT(start()));
-//    connect(transceiver_, SIGNAL(connectionClosed()), transceiverThread_, SLOT(quit()));
-//    connect(transceiverThread_, SIGNAL(finished()), transceiverThread_, SLOT(deleteLater()));
-//    connect(transceiver_, SIGNAL(newDepth(int)), this, SLOT(updateDepth(int)));
-//    transceiverThread_->start();
-
     bool status = proj_->projectCreate(name, path);
     if(proj_->isOpened() == true)
         this->setWindowTitle(QString("TNG \r :: \r") + (QString::fromUtf8("Проект: ") + proj_->projectName().mid(0,proj_->projectName().indexOf("."))));
 //    if(status == true)
 //        clearRecordList();
+
+//    const int COUNT_TYPES_MODULES = 5;
+//    measId_ = proj_->addMeasurement(COUNT_TYPES_MODULES, numDnMod_, numWellsMod_, timeRecord_, timeSwip_, syncChannel_, syncCMD_, gainDnHole_, gainUpHole_);
+//    QMap <QString, QString> serviceInfo;
+//    serviceInfo.insert("Depth", depth_);
+//    serviceInfo.insert("Operator", operator_);
+//    serviceInfo.insert("NumHole", numHole_);
+//    serviceInfo.insert("NameArea", nameArea_);
+//    serviceInfo.insert("DistBtwDevices", distBtwDevices_);
+//    proj_->onUpdateServiceInfo(measId_ + 1, serviceInfo);
+
+    this->addMeasurment();
+    transceiver_->send_start();
+
+}
+
+void MainWindow::addMeasurment()
+{
     const int COUNT_TYPES_MODULES = 5;
-    measId_ = proj_->addMeasurement(COUNT_TYPES_MODULES, numDnMod_, numWellsMod_, timeRecord_, timeSwip_, syncChannel_, syncCMD_, gainDnHole_, gainUpHole_);
     QMap <QString, QString> serviceInfo;
+    measId_ = proj_->addMeasurement(COUNT_TYPES_MODULES, numDnMod_, numWellsMod_, timeRecord_, timeSwip_, syncChannel_, syncCMD_, gainDnHole_, gainUpHole_);
     serviceInfo.insert("Depth", depth_);
     serviceInfo.insert("Operator", operator_);
     serviceInfo.insert("NumHole", numHole_);
     serviceInfo.insert("NameArea", nameArea_);
     serviceInfo.insert("DistBtwDevices", distBtwDevices_);
     proj_->onUpdateServiceInfo(measId_ + 1, serviceInfo);
-
-    transceiver_->send_start();
-
 }
 

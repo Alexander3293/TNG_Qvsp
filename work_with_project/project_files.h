@@ -7,7 +7,6 @@
 #include <QInputDialog>
 #include <QDate>
 #include <QTime>
-#include <work_with_project/measurement.h>
 #include <QVector>
 #include <QDataStream>
 #include <QSettings>

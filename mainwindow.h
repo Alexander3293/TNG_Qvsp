@@ -20,8 +20,13 @@
 #include "work_with_project/single_segd_files.h"
 #include "work_with_project/single_segd_rev2_files.h"
 #include <QFile>
-
+#include <QButtonGroup>
 #include "settings/settings.h"
+
+typedef enum{
+    XXX = 0,
+    XYZ = 1
+}rb_widget ;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -67,7 +72,10 @@ private slots:
     void on_StopButton_clicked();
 
     void newProj(QString, QString);
+    void addMeasurment();
     void on_pbSaveSGD_clicked();
+
+    void selectRadioButton(int);
 
 signals:
    void updateSettings();
@@ -139,8 +147,10 @@ private:
     /* SGD */
     single_segd_rev2_files* segd_;
     QList<single_segd_rev2_files*> lFileNameRev2;
-
     const qint32 max_range_size_24bit = 8388607;
+
+    QButtonGroup *buttonGroup;
+    rb_widget rb_widget_;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;
