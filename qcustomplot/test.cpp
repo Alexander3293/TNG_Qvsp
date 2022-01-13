@@ -1,14 +1,12 @@
 #include "test.h"
 #include "ui_test.h"
 
-test::test(Transceiver_ground *transceiver_ground,Transceiver_class *transceiver_down, QWidget *parent) :
+test::test(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::test)
 {
     ui->setupUi(this);
     deviceCount = 1;
-    transceiver_ground_ = transceiver_ground;
-    trasceiver_down_ = transceiver_down;
     width_ = 500;
 
     for(int i=0; i < 700; i++)
@@ -22,106 +20,106 @@ test::~test()
     delete ui;
 }
 
-void test::plotData(pointsFromWGrounds *dataPckt)
-{
-    if(dataPckt->numModule == deviceCount)  {
+//void test::plotData(pointsFromWGrounds *dataPckt)
+//{
+//    if(dataPckt->numModule == deviceCount)  {
 
-    timeMes_ = dataPckt->time;
-    dataSize_ = dataPckt->data.size();
-    y.clear();
-    //y.resize(width_);
-    for(int i=0; i< dataSize_; i++){
-        y.append(dataPckt->data[i]);
+//    timeMes_ = dataPckt->time;
+//    dataSize_ = dataPckt->data.size();
+//    y.clear();
+//    //y.resize(width_);
+//    for(int i=0; i< dataSize_; i++){
+//        y.append(dataPckt->data[i]);
 
-    }
-    ui->customPlot->graph(1)->setData(X, y);
-    // set axes ranges, so we see all data:
-    ui->customPlot->rescaleAxes();
-    //ui->customPlot->yAxis->setRange(0, 1);
+//    }
+//    ui->customPlot->graph(1)->setData(X, y);
+//    // set axes ranges, so we see all data:
+//    ui->customPlot->rescaleAxes();
+//    //ui->customPlot->yAxis->setRange(0, 1);
 
-    ui->customPlot->replot();
+//    ui->customPlot->replot();
 
-        //x.clear();
-
-
-
-    }
-}
-
-void test::conectSignals()
-{
-    connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
-    connect(trasceiver_down_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int, pointFromDownHoles)));
-}
-
-void test::slot_data_update (const int blk_cnt, const pointFromDownHoles &point)// прием и обработка данных
-{
-    Q_UNUSED(blk_cnt);
-
-    quint8* pdata = (quint8*)&(point.data[0]);
-
-    union {
-        struct {
-            quint8 x7_0;
-            quint8 x15_8;
-            quint8 x23_16;
-            quint8 x31_24;
-        };
-        quint32 x31_0;
-    } x, y, z;
-    x.x23_16 = *(pdata + trace_23_16_X);
-    x.x15_8  = *(pdata + trace_15_8_X );
-    x.x7_0   = *(pdata + trace_7_0_X);
-
-    y.x23_16 = *(pdata + trace_23_16_Y);
-    y.x15_8  = *(pdata + trace_15_8_Y );
-    y.x7_0   = *(pdata + trace_7_0_Y);
-
-    z.x23_16 = *(pdata + trace_23_16_Z);
-    z.x15_8  = *(pdata + trace_15_8_Z );
-    z.x7_0   = *(pdata + trace_7_0_Z);
-//    trace15_8ForKU_ = *(pdata + (tool_No * 16 + 14));;
-//    trace23_16ForKU_ = *(pdata + (tool_No * 16 + 14) );
-    if ((x.x31_0 & 0x00800000) > 0) x.x31_24 = 0xFF;
-    else x.x31_24 = 0;
-
-    if ((y.x31_0 & 0x00800000) > 0) y.x31_24 = 0xFF;
-    else y.x31_24 = 0;
-
-    if ((z.x31_0 & 0x00800000) > 0) z.x31_24 = 0xFF;
-    else z.x31_24 = 0;
-
-//    mesX = x.x31_0;
-//    data_vectorX.append(mesX);
-
-    mesY = y.x31_0;
-    data_vectorY.append(mesY);
-
-
-//    mesZ = z.x31_0;
-//    data_vectorZ.append(mesZ);
+//        //x.clear();
 
 
 
-    if ((data_vectorY.count() >= width_) )  //Данные для построения, если есть:
-    {
-//        data_cpyX = data_vectorX;
-        data_cpyY = data_vectorY;
-//        data_cpyZ = data_vectorZ;
+//    }
+//}
 
-        data_vectorX.clear();
-        data_vectorY.clear();
-        data_vectorZ.clear();
+//void test::conectSignals()
+//{
+//    connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+//    connect(trasceiver_down_, SIGNAL(data_update(int,pointFromDownHoles)), this, SLOT(slot_data_update(int, pointFromDownHoles)));
+//}
 
-        ui->customPlot->graph(0)->setData(X, data_cpyY);
-        ui->customPlot->rescaleAxes();
-        //ui->customPlot->yAxis->setRange(0, 1);
+//void test::slot_data_update (const int blk_cnt, const pointFromDownHoles &point)// прием и обработка данных
+//{
+//    Q_UNUSED(blk_cnt);
 
-        ui->customPlot->replot();
-    }
+//    quint8* pdata = (quint8*)&(point.data[0]);
 
-    delete [] pdata;
-}
+//    union {
+//        struct {
+//            quint8 x7_0;
+//            quint8 x15_8;
+//            quint8 x23_16;
+//            quint8 x31_24;
+//        };
+//        quint32 x31_0;
+//    } x, y, z;
+//    x.x23_16 = *(pdata + trace_23_16_X);
+//    x.x15_8  = *(pdata + trace_15_8_X );
+//    x.x7_0   = *(pdata + trace_7_0_X);
+
+//    y.x23_16 = *(pdata + trace_23_16_Y);
+//    y.x15_8  = *(pdata + trace_15_8_Y );
+//    y.x7_0   = *(pdata + trace_7_0_Y);
+
+//    z.x23_16 = *(pdata + trace_23_16_Z);
+//    z.x15_8  = *(pdata + trace_15_8_Z );
+//    z.x7_0   = *(pdata + trace_7_0_Z);
+////    trace15_8ForKU_ = *(pdata + (tool_No * 16 + 14));;
+////    trace23_16ForKU_ = *(pdata + (tool_No * 16 + 14) );
+//    if ((x.x31_0 & 0x00800000) > 0) x.x31_24 = 0xFF;
+//    else x.x31_24 = 0;
+
+//    if ((y.x31_0 & 0x00800000) > 0) y.x31_24 = 0xFF;
+//    else y.x31_24 = 0;
+
+//    if ((z.x31_0 & 0x00800000) > 0) z.x31_24 = 0xFF;
+//    else z.x31_24 = 0;
+
+////    mesX = x.x31_0;
+////    data_vectorX.append(mesX);
+
+//    mesY = y.x31_0;
+//    data_vectorY.append(mesY);
+
+
+////    mesZ = z.x31_0;
+////    data_vectorZ.append(mesZ);
+
+
+
+//    if ((data_vectorY.count() >= width_) )  //Данные для построения, если есть:
+//    {
+////        data_cpyX = data_vectorX;
+//        data_cpyY = data_vectorY;
+////        data_cpyZ = data_vectorZ;
+
+//        data_vectorX.clear();
+//        data_vectorY.clear();
+//        data_vectorZ.clear();
+
+//        ui->customPlot->graph(0)->setData(X, data_cpyY);
+//        ui->customPlot->rescaleAxes();
+//        //ui->customPlot->yAxis->setRange(0, 1);
+
+//        ui->customPlot->replot();
+//    }
+
+//    delete [] pdata;
+//}
 
 void test::setTraceDnHole()
 {

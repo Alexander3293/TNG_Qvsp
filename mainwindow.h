@@ -6,9 +6,11 @@
 /*User Includes*/
 #include "qcustomplot/graphground.h"
 #include "qcustomplot/graphsync.h"
+#include "qcustomplot/graphsynchro.h"
 #include "qcustomplot/graphdownhole.h"
 #include "qcustomplot/paintlegend.h"            //Отрисовка legend
 #include  "qcustomplot/plotdoublegraph.h"
+#include  "qcustomplot/test.h"
 #include "work_with_powerSupply/powerdevices.h"
 #include "work_with_powerSupply/powersupplycontroller.h"
 
@@ -22,11 +24,6 @@
 #include <QFile>
 #include <QButtonGroup>
 #include "settings/settings.h"
-
-typedef enum{
-    XXX = 0,
-    XYZ = 1
-}rb_widget ;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -141,7 +138,7 @@ private:
     QTimer* reconnectPowSupplytimer_;
     QSharedPointer<QTimer> endActionTimer_;
 
-    plotDoubleGraph * testPlot_;
+    test * testPlot_;
     QString file_nameGN;
 
     /* SGD */
@@ -150,7 +147,7 @@ private:
     const qint32 max_range_size_24bit = 8388607;
 
     QButtonGroup *buttonGroup;
-    rb_widget rb_widget_;
+    axisPaintLegend rb_widget_;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;

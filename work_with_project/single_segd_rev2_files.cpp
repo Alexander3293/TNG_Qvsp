@@ -1192,6 +1192,7 @@ void single_segd_rev2_files::setFileName(QString fileName)
 {
     fileName_ = fileName;
     file_->setFileName(fileName_);
+    qDebug() << "get File Name" << fileName_;
 }
 QString single_segd_rev2_files::getFileName()
 {

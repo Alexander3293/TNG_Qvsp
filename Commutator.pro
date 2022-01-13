@@ -27,6 +27,7 @@ SOURCES += \
     qcustomplot/graphdownhole.cpp \
     qcustomplot/graphground.cpp \
     qcustomplot/graphsync.cpp \
+    qcustomplot/graphsynchro.cpp \
     qcustomplot/paintlegend.cpp \
     qcustomplot/plotdoublegraph.cpp \
     qcustomplot/qcustomplot.cpp \
@@ -57,6 +58,7 @@ HEADERS += \
     qcustomplot/graphdownhole.h \
     qcustomplot/graphground.h \
     qcustomplot/graphsync.h \
+    qcustomplot/graphsynchro.h \
     qcustomplot/paintlegend.h \
     qcustomplot/plotdoublegraph.h \
     qcustomplot/qcustomplot.h \
@@ -81,6 +83,7 @@ FORMS += \
     qcustomplot/graphdownhole.ui \
     qcustomplot/graphground.ui \
     qcustomplot/graphsync.ui \
+    qcustomplot/graphsynchro.ui \
     qcustomplot/paintlegend.ui \
     qcustomplot/plotdoublegraph.ui \
     qcustomplot/test.ui \

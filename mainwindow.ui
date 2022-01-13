@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2102</width>
-    <height>787</height>
+    <width>1833</width>
+    <height>831</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1800</width>
+    <height>831</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -20,12 +26,12 @@
       <x>30</x>
       <y>150</y>
       <width>1631</width>
-      <height>581</height>
+      <height>631</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout" columnminimumwidth="0">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SetNoConstraint</enum>
      </property>
      <property name="spacing">
       <number>0</number>
@@ -936,8 +942,8 @@ font-size: 11pt; font-weight: 450; border-radius: 1;
      <rect>
       <x>1670</x>
       <y>150</y>
-      <width>421</width>
-      <height>841</height>
+      <width>161</width>
+      <height>631</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_Descrip"/>
@@ -1050,35 +1056,43 @@ QSlider::handle:horizontal {
      <enum>QSlider::TicksAbove</enum>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>470</x>
       <y>70</y>
       <width>84</width>
-      <height>42</height>
+      <height>65</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="0">
-      <widget class="QRadioButton" name="rb_xxx">
+     <item row="1" column="0">
+      <widget class="QRadioButton" name="rb_y">
        <property name="text">
-        <string>XXX</string>
+        <string>Y</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QRadioButton" name="rb_x">
+       <property name="text">
+        <string>X</string>
        </property>
        <property name="checked">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QRadioButton" name="rb_xyz">
+     <item row="2" column="0">
+      <widget class="QRadioButton" name="rb_z">
        <property name="text">
-        <string>XYZ</string>
+        <string>Z</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
+   <zorder>layoutWidget</zorder>
    <zorder>sliderDownHole</zorder>
    <zorder>gridLayoutWidget</zorder>
    <zorder>pushButtonSupplyModules</zorder>
@@ -1097,15 +1111,13 @@ QSlider::handle:horizontal {
    <zorder>pbSaveSGD</zorder>
    <zorder>gridLayoutWidget_2</zorder>
    <zorder>sliderUpHole</zorder>
-   <zorder>rb_xxx</zorder>
-   <zorder>rb_xyz</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2102</width>
+     <width>1833</width>
      <height>21</height>
     </rect>
    </property>

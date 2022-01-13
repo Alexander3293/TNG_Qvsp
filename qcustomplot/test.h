@@ -2,8 +2,6 @@
 #define TEST_H
 
 #include <QWidget>
-#include "network/transceiver_class.h"
-#include "network/transceiver_ground.h"
 
 namespace Ui {
 class test;
@@ -14,21 +12,20 @@ class test : public QWidget
     Q_OBJECT
 
 public:
-    explicit test(Transceiver_ground *transceiver_ground,Transceiver_class *transceiver_down,QWidget *parent = nullptr);
+    explicit test(QWidget *parent = nullptr);
     ~test();
     void conectSignals();
     void initGraphXYZ();
 public slots:
-    void plotData(pointsFromWGrounds* dataPckt);
-    void slot_data_update (const int blk_cnt, const pointFromDownHoles &point);
+    //void plotData(pointsFromWGrounds* dataPckt);
+    //void slot_data_update (const int blk_cnt, const pointFromDownHoles &point);
 
 private:
     Ui::test *ui;
     QVector <double>    X, y;
     int dataSize_;
     uint                deviceCount;
-    Transceiver_ground *transceiver_ground_;
-    Transceiver_class *trasceiver_down_;
+
     int timeMes_;
     int width_;
     double frequnce = 998.5;
