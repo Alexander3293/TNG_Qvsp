@@ -143,6 +143,15 @@ typedef struct {
     unsigned char efn[3]; /* 18-20 extended file number */
 } dem_trace_header_rev2;
 
+typedef struct {
+    general_header_1_rev2    gen_head_1;
+    general_header_2_rev2    gen_head_2;
+    scan_type_header_rev2    scan_head;
+    extended_header          ext_head;
+    dem_trace_header_rev2    demux_head;
+    uint32_t                 trace_length_ms;
+} head_rev2_1;
+
 class single_segd_rev2_files : public QObject
 {
     Q_OBJECT
@@ -203,11 +212,11 @@ public:
     void writeData(QVector<float> vecData);
     void read_and_write();
     void getHeaderDataRev2_1(QString fileName, head_rev2_1 &str_head_rev2_1);
-    general_header_1 getGenHead1(QFile *fileName);
-    general_header_2 getGenHead2(QFile *fileName);
-    scan_type_header getScanHead(QFile *fileName);
+    general_header_1_rev2 getGenHead1(QFile *fileName);
+    general_header_2_rev2 getGenHead2(QFile *fileName);
+    scan_type_header_rev2 getScanHead(QFile *fileName);
     extended_header getExtendedHead(QFile *fileName);
-    dem_trace_header getDemuxTrace(QFile *fileName);
+    dem_trace_header_rev2 getDemuxTrace(QFile *fileName);
     uint32_t getTraceLength(QFile *file);
 
 private:

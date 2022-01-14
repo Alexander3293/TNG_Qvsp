@@ -1272,8 +1272,8 @@ void MainWindow::on_pbSaveSGD_clicked()
     uint device_sync = 1;
 
     device_downHoles = meas_->getNumDnHoleModules() * 3;
-    device_UpHoles = meas_->getNumUpHoleModules();
-
+//    device_UpHoles = meas_->getNumUpHoleModules();
+    device_UpHoles = 4; //max 4 device          /* TODO */
     /* Обработка SGD файлов в один файл */
     int number_files = 0;
 
@@ -1343,9 +1343,9 @@ void MainWindow::on_pbSaveSGD_clicked()
         /* Запись всех файлов осуществляется при наличии хотя бы 1 подземного модуля,
          * поэтому отсчет данные времени будут взяты из него */
 
-        segd_->getHeaderDataRev2_1(lis_file_tmp.at(0), header_sgd_rev2_1);
+        segd_->getHeaderDataRev2_1(dir_meas_file + lis_file_tmp.at(0), header_sgd_rev2_1);
 
-        segd_->setData(&header_sgd_rev2_1.gen_head_1.yr, header_sgd_rev2_1.gen_head_1.dy);
+        segd_->setData(&header_sgd_rev2_1.gen_head_1.yr, &header_sgd_rev2_1.gen_head_1.dy);
         segd_->setTime(&header_sgd_rev2_1.gen_head_1.h, &header_sgd_rev2_1.gen_head_1.mi, &header_sgd_rev2_1.gen_head_1.se);
         segd_->setCounterByte(0);
         segd_->setFileNumber(1);

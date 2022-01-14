@@ -83,7 +83,10 @@ void single_segd_rev2_files::setData(const QDate &date)
 void single_segd_rev2_files::setData(unsigned char *year, unsigned char* day)
 {
     year_   = (quint8) (*year);
-    day_    = (quint16)(((*day << 8) & 0xff00) | *(day+1));
+    qDebug() << "day" << *day;
+    //day_    = (quint16)(((*day << 8) & 0xff00) | *(day+1));
+    day_ = *day;
+    qDebug() << "day_" << day_;
 }
 
 void single_segd_rev2_files::write_spacer()
@@ -1031,8 +1034,8 @@ void single_segd_rev2_files::read_and_write()
     /* Проверять до тех пор, пока все значения не будут пройдены или файл не закончится */
     while(globalCount < numOfSamples_ && streamData.readRawData(buffer, 4)!= -1 )
     {
-        tmp_var = static_cast<float>(((static_cast<quint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<quint32>(buffer[1])& 0x000000ff) << 16) +
-                    ((static_cast<quint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<quint32>(buffer[3])& 0x000000ff)));
+        tmp_var = static_cast<float>(((static_cast<qint32>(buffer[0])& 0x000000ff) << 24) + ((static_cast<qint32>(buffer[1])& 0x000000ff) << 16) +
+                    ((static_cast<qint32>(buffer[2])& 0x000000ff) << 8) + ((static_cast<qint32>(buffer[3])& 0x000000ff)));
         vecData.append(tmp_var);
         globalCount++;
 
@@ -1062,6 +1065,7 @@ void single_segd_rev2_files::getHeaderDataRev2_1(QString fileName, head_rev2_1 &
 {
     QFile* fileCheck;
     fileCheck = new QFile();
+    qDebug() << "FILE NAME" << fileName;
     fileCheck->setFileName(fileName);
     if (!fileCheck->open(QIODevice::ReadOnly)){
         qDebug() << fileCheck->errorString();
@@ -1080,20 +1084,20 @@ void single_segd_rev2_files::getHeaderDataRev2_1(QString fileName, head_rev2_1 &
     delete  fileCheck;
 }
 
-general_header_1 single_segd_rev2_files::getGenHead1(QFile *file)
+general_header_1_rev2 single_segd_rev2_files::getGenHead1(QFile *file)
 {
-    general_header_1 header1;
+    general_header_1_rev2 header1;
     QDataStream streamData;
     streamData.setDevice(file);
     streamData.setVersion(QDataStream::Qt_5_9);
-    streamData.readRawData((char*)&header1, sizeof (header1));
+    streamData.readRawData((char*)&header1, 32);
 
     return header1;
 }
 
-general_header_2 single_segd_rev2_files::getGenHead2(QFile *file)
+general_header_2_rev2 single_segd_rev2_files::getGenHead2(QFile *file)
 {
-    general_header_2 header2;
+    general_header_2_rev2 header2;
     QDataStream streamData;
     streamData.setDevice(file);
     streamData.setVersion(QDataStream::Qt_5_9);
@@ -1102,9 +1106,9 @@ general_header_2 single_segd_rev2_files::getGenHead2(QFile *file)
     return header2;
 }
 
-scan_type_header single_segd_rev2_files::getScanHead(QFile *file)
+scan_type_header_rev2 single_segd_rev2_files::getScanHead(QFile *file)
 {
-    scan_type_header sc_type;
+    scan_type_header_rev2 sc_type;
     QDataStream streamData;
     streamData.setDevice(file);
     streamData.setVersion(QDataStream::Qt_5_9);
@@ -1124,9 +1128,9 @@ extended_header single_segd_rev2_files::getExtendedHead(QFile *file)
     return ext_header;
 }
 
-dem_trace_header single_segd_rev2_files::getDemuxTrace(QFile *file)
+dem_trace_header_rev2 single_segd_rev2_files::getDemuxTrace(QFile *file)
 {
-    dem_trace_header dem_header;
+    dem_trace_header_rev2 dem_header;
     QDataStream streamData;
     streamData.setDevice(file);
     streamData.setVersion(QDataStream::Qt_5_9);
@@ -1137,14 +1141,17 @@ dem_trace_header single_segd_rev2_files::getDemuxTrace(QFile *file)
 
 uint32_t single_segd_rev2_files::getTraceLength(QFile *file)
 {
-    uint32_t len_data = 0;
+    uint32_t len_data = -1;
     QDataStream streamData;
     streamData.setDevice(file);
     streamData.setVersion(QDataStream::Qt_5_9);
     uint32_t data;
-    while(streamData.readRawData((char*)&data, 4) != -1){
+    int8_t ret_data = 0;
+    do{
+        ret_data = streamData.readRawData((char*)&data, 4);
         len_data++;
-    }
+    }while(ret_data > 0);
+
     return len_data;
 }
 
@@ -1407,7 +1414,7 @@ void single_segd_rev2_files::openFile_test(QString fileReadName)
     streamData.setDevice(fileRead_);
     streamData.setVersion(QDataStream::Qt_5_9);
     /* ----------------General Header Block 1--------------------- */
-    general_header_1 header1;
+    general_header_1_rev2 header1;
     streamData.readRawData((char*)&header1, sizeof (header1));
 
     fileNumber_ = static_cast<quint16>((static_cast<quint16>(header1.f[0]) << 8)  + static_cast<quint8>(header1.f[1]));
@@ -1415,17 +1422,17 @@ void single_segd_rev2_files::openFile_test(QString fileReadName)
     for(int i = 0; i < generalConstantSize_; i++)
         generalConstant_ += static_cast<quint8>(header1.k[i] << ((generalConstantSize_ - 1 - i) * 8));
     year_ = static_cast<quint8>(header1.yr);
-    day_ = (static_cast<quint16>((static_cast<quint16>(header1.dy[0]) << 8) + static_cast<quint8>(header1.dy[1])) & 0x0fff);
-    numGenBlks_ = (static_cast<quint16>((static_cast<quint16>(header1.dy[0]) << 8 ) & 0xf000) >> 12);
+//    day_ = (static_cast<quint16>((static_cast<quint16>(header1.dy[0]) << 8) + static_cast<quint8>(header1.dy[1])) & 0x0fff);
+//    numGenBlks_ = (static_cast<quint16>((static_cast<quint16>(header1.dy[0]) << 8 ) & 0xf000) >> 12);
     hour_ = (static_cast<quint8>(header1.h));
     minute_ = (static_cast<quint8>(header1.mi));
     second_ = (static_cast<quint8>(header1.se));
     manufactureCode_ = (static_cast<quint8>(header1.m[0]));
     baseScanInterval_ = (static_cast<qint8>(header1.i));
     polarity_ = ((static_cast<quint8>(header1.p_sbx)) >> 4);
-    recordType_  = (static_cast<quint8>(header1.z_r[0]) >> 4);
-    recordLength_ = (static_cast<quint16>(header1.z_r[0] & 0x0f) << 8);
-    recordLength_  += (static_cast<quint8>(header1.z_r[1]));
+//    recordType_  = (static_cast<quint8>(header1.z_r[0]) >> 4);
+//    recordLength_ = (static_cast<quint16>(header1.z_r[0] & 0x0f) << 8);
+//    recordLength_  += (static_cast<quint8>(header1.z_r[1]));
     scanTypes_ = (static_cast<quint8>(header1.str));
     channelSets_ = (static_cast<quint8>(header1.cs));
     skewBlocks_ = (static_cast<quint8>(header1.sk));
@@ -1433,23 +1440,23 @@ void single_segd_rev2_files::openFile_test(QString fileReadName)
     externalHeaderBlocks_ = (static_cast<quint8>(header1.ex));
 
     /* ----------------General Header Block 2--------------------- */
-    general_header_2 header2;
+    general_header_2_rev2 header2;
     streamData.readRawData((char*)&header2, sizeof (header2));
     extendedRecord_ = static_cast<quint32>(((static_cast<quint32>(header2.erl[0])& 0x000000ff) << 24) + ((static_cast<quint32>(header2.erl[1])& 0x000000ff) << 16) +
             ((static_cast<quint32>(header2.erl[2])& 0x000000ff) << 8) + ((static_cast<quint32>(header2.erl[3])& 0x000000ff)));
     qDebug() << "extended" << extendedRecord_;
 
     /* ------------------Channel set Descriptor ----------------------------------------*/
-    scan_type_header scn_type_hdr;
+    scan_type_header_rev2 scn_type_hdr;
     streamData.readRawData((char*)&scn_type_hdr, sizeof (scn_type_hdr));
 
-    scanTypeNumber_ = (static_cast<quint8>(scn_type_hdr.st)) ;
-    qDebug () << "scanTypeNumber" << scanTypeNumber_;
-    channelSetNumber_ = (static_cast<quint16>(static_cast<quint16>((scn_type_hdr.cs[0]<<8)&0xff00)
-            + static_cast<quint16>(scn_type_hdr.cs[1]))) ;
-    qDebug () << "channelSetNumber_" << channelSetNumber_;
-    channelType_ = (static_cast<quint8>(scn_type_hdr.c) >> 4 );
-    qDebug () << "channelType_" << channelType_;
+//    scanTypeNumber_ = (static_cast<quint8>(scn_type_hdr.st)) ;
+//    qDebug () << "scanTypeNumber" << scanTypeNumber_;
+//    channelSetNumber_ = (static_cast<quint16>(static_cast<quint16>((scn_type_hdr.cs[0]<<8)&0xff00)
+//            + static_cast<quint16>(scn_type_hdr.cs[1]))) ;
+//    qDebug () << "channelSetNumber_" << channelSetNumber_;
+//    channelType_ = (static_cast<quint8>(scn_type_hdr.c) >> 4 );
+//    qDebug () << "channelType_" << channelType_;
 
     channelSetStartTime_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.tf[0])& 0x000000ff) << 24) + ((static_cast<quint32>(scn_type_hdr.tf[1])& 0x000000ff) << 16) +
             ((static_cast<quint32>(scn_type_hdr.tf[2])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.tf[3])& 0x000000ff))); // [5-8]
@@ -1463,18 +1470,18 @@ void single_segd_rev2_files::openFile_test(QString fileReadName)
 //            ((static_cast<quint32>(scn_type_hdr.ns[2])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.ns[3])& 0x000000ff)));//[13-16] number of samples
 //    qDebug () << "number of samples" << numOfSamples_;
 
-    descaleMultiplier_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.dsm[0])& 0x000000ff) << 24) + ((static_cast<quint32>(scn_type_hdr.dsm[1])& 0x000000ff) << 16) +
-            ((static_cast<quint32>(scn_type_hdr.dsm[2])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.dsm[3])& 0x000000ff)));// [17-20]
-    qDebug () << "descaleMultiplier_" << descaleMultiplier_;
+//    descaleMultiplier_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.dsm[0])& 0x000000ff) << 24) + ((static_cast<quint32>(scn_type_hdr.dsm[1])& 0x000000ff) << 16) +
+//            ((static_cast<quint32>(scn_type_hdr.dsm[2])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.dsm[3])& 0x000000ff)));// [17-20]
+//    qDebug () << "descaleMultiplier_" << descaleMultiplier_;
 
-    numberOfChannels_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.c_s[0])& 0x000000ff) << 16) +
-            ((static_cast<quint32>(scn_type_hdr.c_s[1])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.c_s[2])& 0x000000ff))); // [21-23]
-    qDebug () << "numberOfChannels_" << numberOfChannels_;
+//    numberOfChannels_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.c_s[0])& 0x000000ff) << 16) +
+//            ((static_cast<quint32>(scn_type_hdr.c_s[1])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.c_s[2])& 0x000000ff))); // [21-23]
+//    qDebug () << "numberOfChannels_" << numberOfChannels_;
 
-    /* Sampling Interval 24- 26 (0x3 0xe8 = 1ms) */
-    samplingInterval_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.sr[0])& 0x000000ff) << 16) +
-            ((static_cast<quint32>(scn_type_hdr.sr[1])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.sr[2])& 0x000000ff))); // [21-23]
-    qDebug () << "samplingInterval_" << samplingInterval_;
+//    /* Sampling Interval 24- 26 (0x3 0xe8 = 1ms) */
+//    samplingInterval_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.sr[0])& 0x000000ff) << 16) +
+//            ((static_cast<quint32>(scn_type_hdr.sr[1])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.sr[2])& 0x000000ff))); // [21-23]
+//    qDebug () << "samplingInterval_" << samplingInterval_;
 
     aliasFilterFrequency_ = static_cast<quint32>(((static_cast<quint32>(scn_type_hdr.af[0])& 0x000000ff) << 24) + ((static_cast<quint32>(scn_type_hdr.af[1])& 0x000000ff) << 16) +
             ((static_cast<quint32>(scn_type_hdr.af[2])& 0x000000ff) << 8) + ((static_cast<quint32>(scn_type_hdr.af[3])& 0x000000ff)));
@@ -1493,7 +1500,7 @@ void single_segd_rev2_files::openFile_test(QString fileReadName)
     streamData.readRawData((char*)&strct_ext_head, sizeof (strct_ext_head));
 
     /* -------------------Read Measure ---------------------------*/
-    dem_trace_header strct_read_mes;
+    dem_trace_header_rev2 strct_read_mes;
     streamData.readRawData((char*)&strct_read_mes, sizeof (strct_read_mes));
 
     fileNumber_ = static_cast<quint16>(((static_cast<quint16>(strct_read_mes.f[0]) & 0x00ff) << 8) + (static_cast<quint16>(strct_read_mes.f[1])));
