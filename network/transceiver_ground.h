@@ -10,6 +10,7 @@
 
 #include "work_with_project/single_segd_rev2_files.h"
 #include "network/transceiver_class.h"
+#include "checksum.h"
 
 /*--------- CMD ground modules -----------------*/
 #define SEARCH_NUMBER_DEVICES	0xa9
@@ -67,6 +68,7 @@ private:
 
     QString handPackage = "ed00ff";
     int32_t tmpMSB;
+    int32_t tmpSSB;
     int32_t tmpLSB;
     int32_t valuePckt;
     uint32_t counterDatagram;
@@ -91,8 +93,9 @@ private:
     QList<bool> checkBLKCount; //Чтобы первый пакет был равен Pckt Number
     pointsFromWGrounds* dataPointTmp;
     double maxValMissPacket = 0x7fffff;  //8 388 607 (int24)
-
     quint32 cntFilesSgd;
+
+    checksum crc_;
 
 public slots:
     void on_udp_data_rx(void);

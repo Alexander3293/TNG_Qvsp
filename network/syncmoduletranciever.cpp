@@ -370,7 +370,7 @@ void SyncModuleTranciever::getDataOffsetDownHoles(quint16 numPckt)
     numPckt_ = numPckt / 256;
     numMeasure_ = numPckt %  256;
     Offset = true;
-    //qDebug() << "Sync" << "numPckt Up" << numPckt_ << "num Meas" << numMeasure_;
+    qDebug() << "Sync" << "numPckt Up" << numPckt_ << "num Meas" << numMeasure_;
 }
 
 /* Обработка данных */
@@ -400,6 +400,7 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                 blk_count = listSyncModule.at(0)->numPckt;
                 checkBLKCount = true;
                 blk_count++;
+                qDebug() << "blk sync" << blk_count << "num Pckt sync" << listSyncModule.at(0)->numPckt;
             }
             else{
                 if(blk_count != listSyncModule.at(0)->numPckt){
@@ -421,6 +422,7 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                                 for(int i=0; i < numMeasure_; i++){
                                     dataSync.removeFirst();
                                     dataTBF.removeFirst();
+                                    qDebug() << "offset 1";
                                 }
 
                                 Offset = false;
@@ -438,7 +440,8 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                                     dataSync.remove(0, dataSync.size()-ostatok);
                                     dataTBF.remove(0, dataTBF.size()-ostatok);
                                     listCntMeasSGD[0] = ostatok;
-                                    listFileSgd.at(0)->append_data(dataSync);
+                                    listFileSgd.at(0)->append_data(dataSync, ostatok);
+                                    listFileSgd.at(1)->append_data(dataTBF, ostatok);
                                 }
                             }
                             else{
@@ -450,10 +453,11 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                         listCntMeasSGD[0] += dataSync.size();
                         if(listCntMeasSGD[0] >= max_len_sgd){
 
-                            uint16_t ostatok = listCntMeasSGD[0]  - max_len_sgd;
+                            uint32_t ostatok = listCntMeasSGD[0]  - max_len_sgd;
                             int tmp = dataSync.size()-ostatok;
                             listFileSgd.at(0)->append_data(dataSync, tmp);
                             listFileSgd.at(1)->append_data(dataTBF, tmp);
+                            qDebug() << "ostatok Sync" << ostatok;
                             listCntFileSGD[0]+=1;
                             this->update_sgd_files("");
                             listCntMeasSGD[0] = ostatok;
@@ -468,8 +472,9 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                         }
                     }
                 }
-                blk_count++;
+
             }
+                blk_count++;
             }
         }
         else{
@@ -517,43 +522,34 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
             dataTBF.append(listSyncModule.at(0)->timeBreakDetonation.at(i));
 
         if(Offset){
-            if(dataPointTmp->numPckt ==numPckt_){
+            qDebug() << "size do" << dataSync.size();
+            if(listSyncModule.at(0)->numPckt ==numPckt_){
                 for(int i=0; i < numMeasure_; i++){
                     dataSync.removeFirst();
                     dataTBF.removeFirst();
                 }
-
+                qDebug() << "offset 2";
                 Offset = false;
 
                 qDebug() << "смещение" << "sync";
                 listCntMeasSGD[0] += dataSync.size();
+                qDebug() << "size after" << dataSync.size();
+                qDebug() << "listCntMeasSGD[0]" << listCntMeasSGD[0];
 
-                if(listCntMeasSGD[0] >= max_len_sgd){
-                    uint16_t ostatok = listCntMeasSGD[0]  - max_len_sgd;
-                    listFileSgd.at(0)->append_data(dataSync, dataSync.size()-ostatok);
-                    listFileSgd.at(1)->append_data(dataTBF, dataTBF.size()-ostatok);
-                    qDebug() << "ostatok" << ostatok;
-                    listCntFileSGD[0]+=1;
-                    update_sgd_files("");
-                    dataSync.remove(0, dataSync.size()-ostatok);
-                    dataTBF.remove(0, dataTBF.size()-ostatok);
-                    listCntMeasSGD[0] = ostatok;
-                    listFileSgd.at(0)->append_data(dataSync);
-                }
-            }
-            else{
                 listFileSgd.at(0)->append_data(dataSync);
                 listFileSgd.at(1)->append_data(dataTBF);
+
             }
         }
         else{
             listCntMeasSGD[0] += dataSync.size();
             if(listCntMeasSGD[0] >= max_len_sgd){
 
-                uint16_t ostatok = listCntMeasSGD[0]  - max_len_sgd;
-                int tmp = dataSync.size()-ostatok;
+                uint32_t ostatok = listCntMeasSGD[0]  - max_len_sgd;
+                quint32 tmp = dataSync.size()-ostatok;
                 listFileSgd.at(0)->append_data(dataSync, tmp);
                 listFileSgd.at(1)->append_data(dataTBF, tmp);
+                qDebug() << "ostatok sync 2" << ostatok;
                 listCntFileSGD[0]+=1;
                 this->update_sgd_files("");
                 listCntMeasSGD[0] = ostatok;
@@ -608,8 +604,7 @@ void SyncModuleTranciever::setFileName(int idMeas, QString dirFile)
 //    listFileSgd.at(0)->setFileName(dirFile+"/Sync_device.sgd"); //Sync
 //    listFileSgd.at(1)->setFileName(dirFile+"/TBF.sgd");         //TBF
 
-    for(uint8_t i=0; i<2; i++)
-         this->update_sgd_files(dirFile);
+    this->update_sgd_files(dirFile);
 
 //    file_global.setFileName(dirFile+"/Syncro.txt");
 //    if (!file_global.open(QIODevice::WriteOnly|QIODevice::Append))
@@ -626,12 +621,19 @@ void SyncModuleTranciever::update_sgd_files(QString dirFile)
         QString fileName = listFileSgd.at(0)->getFileName();
         listFileSgd.at(0)->close_data();
         uint cnt = fileName.lastIndexOf("_Sync_device");     //Найти номер файла sgd и заменить его на текущий
-        listFileSgd.at(0)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
+        if(listCntFileSGD[0] > 10)
+            listFileSgd.at(0)->setFileName(fileName.replace(cnt-2, 2, QString::number(listCntFileSGD[0])));
+        else
+            listFileSgd.at(0)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
 
         fileName = listFileSgd.at(1)->getFileName();
         listFileSgd.at(1)->close_data();
-        cnt = fileName.lastIndexOf("_TBF_");     //Найти номер файла sgd и заменить его на текущий
-        listFileSgd.at(1)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
+        cnt = fileName.lastIndexOf("_TBF");     //Найти номер файла sgd и заменить его на текущий
+        //listFileSgd.at(1)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
+        if(listCntFileSGD[0] > 10)
+            listFileSgd.at(1)->setFileName(fileName.replace(cnt-2, 2, QString::number(listCntFileSGD[0])));
+        else
+            listFileSgd.at(1)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
     }
     else{
         listFileSgd.at(0)->setFileName(dirFile+"/" + QString::number(listCntFileSGD[0]) + "_Sync_device.sgd");
@@ -657,7 +659,7 @@ void SyncModuleTranciever::setSettings()
     listFileSgd.at(0)->setChannelSetNumber(4);
     listFileSgd.at(0)->setChannelSetStartTime(0);
     listFileSgd.at(0)->setChannelSetEndTime(65535);
-    listFileSgd.at(0)->setDataLength(1); //length data
+    listFileSgd.at(0)->setDataLength(0); //length data
     listFileSgd.at(0)->setNumberOfChannels(1);
     listFileSgd.at(0)->setChannelType((quint8)CHANNELSETS_TYPE_OTHER);
     listFileSgd.at(0)->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);

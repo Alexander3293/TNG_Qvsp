@@ -24,6 +24,7 @@
 #include <QFile>
 #include <QButtonGroup>
 #include "settings/settings.h"
+#include "work_with_project/filecopyer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -71,6 +72,7 @@ private slots:
     void newProj(QString, QString);
     void addMeasurment();
     void on_pbSaveSGD_clicked();
+    void handleResultSEGD(bool status);
 
     void selectRadioButton(int);
 
@@ -145,6 +147,8 @@ private:
     single_segd_rev2_files* segd_;
     QList<single_segd_rev2_files*> lFileNameRev2;
     const qint32 max_range_size_24bit = 8388607;
+    FileCopyer *segd_file_operate_;
+    QThread segd_thread_;
 
     QButtonGroup *buttonGroup;
     axisPaintLegend rb_widget_;

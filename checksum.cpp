@@ -126,14 +126,16 @@ quint8 checksum::calc_CRC7_for_data(const quint8* pcmd)
  * @param data new char to hash
  * @param crcAccum the already accumulated checksum
  **/
+
+
 inline void checksum::crc_accumulate(uint8_t data, uint16_t *crcAccum)
 {
-    /*Accumulate one byte of data into the CRC*/
-    uint8_t tmp;
+        /*Accumulate one byte of data into the CRC*/
+        uint8_t tmp;
 
-    tmp = data ^ (uint8_t)(*crcAccum &0xff);
-    tmp ^= (tmp<<4);
-    *crcAccum = (*crcAccum>>8) ^ (tmp<<8) ^ (tmp <<3) ^ (tmp>>4);
+        tmp = data ^ (uint8_t)(*crcAccum &0xff);
+        tmp ^= (tmp<<4);
+        *crcAccum = (*crcAccum>>8) ^ (tmp<<8) ^ (tmp <<3) ^ (tmp>>4);
 }
 
 /**
@@ -154,14 +156,13 @@ inline void crc_init(uint16_t* crcAccum)
  * @param  length  length of the byte array
  * @return the checksum over the buffer bytes
  **/
-inline uint16_t checksum::crc_calculate_x25(const uint8_t* pBuffer, uint16_t length)
+ inline uint16_t checksum::crc_calculate(const uint8_t* pBuffer, uint16_t length)
 {
     uint16_t crcTmp;
     crc_init(&crcTmp);
     while (length--) {
         crc_accumulate(*pBuffer++, &crcTmp);
     }
-
     return crcTmp;
 }
 
@@ -181,4 +182,26 @@ inline void checksum::crc_accumulate_buffer(uint16_t *crcAccum, const char *pBuf
     while (length--) {
         crc_accumulate(*p++, crcAccum);
     }
+}
+
+bool checksum::checkCRC_UpHole(QVector<double> &data, uint16_t len, uint8_t crc_msb, uint8_t crc_lsb)
+{
+    uint16_t tmp_crc = 0;
+    uint32_t data32 = 0;
+    uint8_t *pdata = new uint8_t [len*3];
+    for(int i = 0 ; i < len; i++){
+        data32 = uint32_t(data.at(i));
+        *(pdata+2+i*3) = (uint8_t)(data32 & 0x000000ff);
+        *(pdata+1+i*3) = (uint8_t)((data32 & 0x0000ff00) >> 8);
+        *(pdata+0+i*3) = (uint8_t)((data32 & 0x00ff0000) >> 16);
+    }
+
+    tmp_crc = crc_calculate(pdata, len*3);
+    delete [] pdata;
+
+    if(tmp_crc == (crc_lsb << 8 | crc_msb))
+        return true;
+    else
+        return false;
+
 }

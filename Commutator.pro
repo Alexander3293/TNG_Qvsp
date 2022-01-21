@@ -17,6 +17,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     checksum.cpp \
+    correlation/correlation.cpp \
+    correlation/correlation2.cpp \
+    correlation/correlationmanager.cpp \
+    correlation/fft/qcomplexnumber.cpp \
+    correlation/fft/qfouriercalculator.cpp \
+    correlation/fft/qfourierfixedcalculator.cpp \
+    correlation/fft/qfouriertransformer.cpp \
+    correlation/fft/qfouriervariablecalculator.cpp \
+    correlation/fft/qwindowfunction.cpp \
     main.cpp \
     mainwindow.cpp \
     network/declarateTransceiveringData.cpp \
@@ -49,6 +58,35 @@ SOURCES += \
 
 HEADERS += \
     checksum.h \
+    correlation/correlation.h \
+    correlation/correlation2.h \
+    correlation/correlationmanager.h \
+    correlation/fft/fftreal/Array.h \
+    correlation/fft/fftreal/Array.hpp \
+    correlation/fft/fftreal/DynArray.h \
+    correlation/fft/fftreal/DynArray.hpp \
+    correlation/fft/fftreal/FFTReal.h \
+    correlation/fft/fftreal/FFTReal.hpp \
+    correlation/fft/fftreal/FFTRealFixLen.h \
+    correlation/fft/fftreal/FFTRealFixLen.hpp \
+    correlation/fft/fftreal/FFTRealFixLenParam.h \
+    correlation/fft/fftreal/FFTRealPassDirect.h \
+    correlation/fft/fftreal/FFTRealPassDirect.hpp \
+    correlation/fft/fftreal/FFTRealPassInverse.h \
+    correlation/fft/fftreal/FFTRealPassInverse.hpp \
+    correlation/fft/fftreal/FFTRealSelect.h \
+    correlation/fft/fftreal/FFTRealSelect.hpp \
+    correlation/fft/fftreal/FFTRealUseTrigo.h \
+    correlation/fft/fftreal/FFTRealUseTrigo.hpp \
+    correlation/fft/fftreal/OscSinCos.h \
+    correlation/fft/fftreal/OscSinCos.hpp \
+    correlation/fft/fftreal/def.h \
+    correlation/fft/qcomplexnumber.h \
+    correlation/fft/qfouriercalculator.h \
+    correlation/fft/qfourierfixedcalculator.h \
+    correlation/fft/qfouriertransformer.h \
+    correlation/fft/qfouriervariablecalculator.h \
+    correlation/fft/qwindowfunction.h \
     mainwindow.h \
     network/declarateTransceiveringData.h \
     network/syncmoduletranciever.h \

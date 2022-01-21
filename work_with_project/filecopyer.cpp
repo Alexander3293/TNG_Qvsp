@@ -1,104 +1,187 @@
 #include "filecopyer.h"
+//FileCopyer::FileCopyer()
+//{
+//    meas_file = "";
+//}
 
-#include <QtCore/qstring.h>
-#include <QtCore/qobject.h>
-#include <QtCore/qfile.h>
-#include <QtCore/qfileinfo.h>
-#include <QtCore/qvector.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qdebug.h>
+void FileCopyer::setFileName(QString fileName)
+{
+    meas_file = fileName;
 
+    single_segd_rev2_files* segd_;
 
-FileCopyer::FileCopyer(QThread* _thread) :QObject(nullptr),
-    _interrupt(false){
-    moveToThread(_thread);
-    setChunkSize(DEFAULT_CHUNK_SIZE);
+    qDebug() << "fileName" << meas_file;
+    qDebug() << "fileName" << meas_file.mid(0, meas_file.lastIndexOf("/"));
+    QString dir_meas_file = meas_file.mid(0, meas_file.lastIndexOf("/")+1);
+    Measurement* meas_ = new Measurement(meas_file);
+    //QTime time_between =meas_->getTimeStop() - meas_->getTimeStart();
+//    int count_measures = QTime(0,0,0).msecsTo(meas_->getTimeStop()) - QTime(0,0,0).msecsTo(meas_->getTimeStart());
+//    qDebug() << "raznost msec" << count_measures;
+    qDebug() << "Time Start" << meas_->getTimeStart();
+    qDebug() << "Time Stop" << meas_->getTimeStop();
 
-    QObject::connect(_thread, &QThread::started, this, &FileCopyer::copy);
-    QObject::connect(this, &FileCopyer::finished, _thread, &QThread::quit);
-    //QObject::connect(this, &FileCopyer::finished, this, &FileCopyer::deleteLater);
-    QObject::connect(_thread, &QThread::finished, _thread, &QThread::deleteLater);
-}
+    qDebug() << "num Dwnholes" << meas_->getNumDnHoleModules();
+    qDebug() << "num Upholes" << meas_->getNumUpHoleModules();
+//    QDate date_tmp = meas_->getDate();
+//    QTime time_tmp = meas_->getTime();
 
-FileCopyer::~FileCopyer() {
+    uint device_downHoles = 0;       //Количество подземных модулей
+    uint device_UpHoles = 0;
+    uint device_tbf  = 1;
+    uint device_sync = 1;
 
-}
+    device_downHoles = meas_->getNumDnHoleModules() * 3;
+//    device_UpHoles = meas_->getNumUpHoleModules();
+    device_UpHoles = 4; //max 4 device          /* TODO */
+    /* Обработка SGD файлов в один файл */
+    int number_files = 0;
 
-void FileCopyer::copy() {
-    if (src.isEmpty() || dst.isEmpty()) {
-        qWarning() << QStringLiteral("source or destination paths are empty!");
-        emit finished(false);
-        return;
-    }
+    QDir dir(dir_meas_file);
+    QStringList lis_file;
 
-    if (src.count() != dst.count()) {
-        qWarning() << QStringLiteral("source or destination paths doesn't match!");
-        emit finished(false);
-        return;
-    }
+    head_rev2_1 header_sgd_rev2_1;
 
-    qint64 total = 0, written = 0;
-    for (const auto& f : src)
-        total += QFileInfo(f).size();
-    qInfo() << QStringLiteral("%1 bytes should be write in total").arg(total);
+    /* Начинаем проверять наличие файлов и объединять их */
+    do{
+        lis_file.clear();
+        dir.setNameFilters(QStringList(QString::number(number_files) + "*.sgd"));
+        lis_file = dir.entryList(QDir::Files, QDir::Name);
+        qDebug() << lis_file.count();
+        if(lis_file.isEmpty())
+            continue;
+        segd_ = new single_segd_rev2_files();
+        segd_->setFileName(dir_meas_file+QString::number(number_files)+"_meas_.sgd");
 
-    int indx = 0;
-    qInfo() << QStringLiteral("writing with chunk size of %1 byte").arg(chunkSize());
-    while (indx < src.count()) {
-        const auto dstPath = dst.at(indx);
+        QStringList lis_file_tmp;
 
-        QFile srcFile(src.at(indx));
-        QFile dstFile(dstPath);
-        if (QFile::exists(dstPath)) {
-            qInfo() << QStringLiteral("file %1 alreasy exists, overwriting...").arg(dstPath);
-            QFile::remove(dstPath);
-        }
+        /* Проверим на наличие данных в файлах измерений и запишем в QStringList lis_file_tmp*/
+        bool statusFileData = false;
+        for (const auto& filName : qAsConst(lis_file) )
+        {
+            statusFileData = segd_->checkData(dir_meas_file+filName);
+            qDebug() << filName << statusFileData;
 
-        if (!srcFile.open(QFileDevice::ReadOnly)) {
-            qWarning() << QStringLiteral("failed to open %1 (error:%2)").arg(srcFile.fileName()).arg(srcFile.errorString());
-            indx++;
-            continue; // skip
-        }
-
-        if (!dstFile.open(QFileDevice::Append)) {
-            qWarning() << QStringLiteral("failed to open %1 (error:%2)").arg(dstFile.fileName()).arg(dstFile.errorString());
-            indx++;
-            continue; // skip
-        }
-        emit oneBegin(QFileInfo(srcFile).fileName());
-        /* copy the content in portion of chunk size */
-        qint64 fSize = srcFile.size();
-        while (fSize) {
-            if(_interrupt)
-            {
-                emit finished(true);
-                return;
+            if(filName.contains("DownnHole_device")){
+                if(statusFileData == false)
+                    device_downHoles -= 1;
+                else
+                    lis_file_tmp.append(filName);
             }
-            const auto data = srcFile.read(chunkSize());
-            const auto _written = dstFile.write(data);
-            if (data.size() == _written) {
-                written += _written;
-                fSize -= data.size();
-                emit copyProgress(written, total);
-            } else {
-                emit oneFinished(dstPath, false);
-                qWarning() << QStringLiteral("failed to write to %1 (error:%2)").arg(dstFile.fileName()).arg(dstFile.errorString());
-                fSize = 0;
-                break; // skip this operation
+            else if(filName.contains("UpHole_device")){
+                if(statusFileData == false)
+                    device_UpHoles -= 1;
+
+                else{
+                    qDebug() << "name files UpHole" << filName;
+                    lis_file_tmp.append(filName);
+                }
+            }
+            else if(filName.contains("Sync_device")){
+
+                if(statusFileData == false)
+                    device_sync = 0;
+                else
+                    lis_file_tmp.append(filName);
+            }
+            else if(filName.contains("TBF")){
+
+                if(statusFileData == false)
+                    device_tbf = 0;
+                else
+                    lis_file_tmp.append(filName);
             }
         }
 
-        srcFile.close();
-        dstFile.close();
-        emit oneFinished(dstPath, true);
-        indx++;
-        qDebug() << QThread::currentThreadId();
-    }
+        /* Определяем количество устройств по названию файлов */
+        uint8_t cnt_chnl_sets = 0;
+        if(device_downHoles) cnt_chnl_sets++;
+        if(device_UpHoles) cnt_chnl_sets++;
+        if(device_sync) cnt_chnl_sets++;
+        if(device_tbf) cnt_chnl_sets++;
 
-    if (total == written) {
-        qInfo() << QStringLiteral("progress finished, %1 bytes of %2 has been written").arg(written).arg(total);
-        emit finished(true);
-    } else {
-        emit finished(false);
-    }
+        /* Запись всех файлов осуществляется при наличии хотя бы 1 подземного модуля,
+         * поэтому отсчет данные времени будут взяты из него */
+
+        segd_->getHeaderDataRev2_1(dir_meas_file + lis_file_tmp.at(0), header_sgd_rev2_1);
+
+        segd_->setData(&header_sgd_rev2_1.gen_head_1.yr, &header_sgd_rev2_1.gen_head_1.dy);
+        segd_->setTime(&header_sgd_rev2_1.gen_head_1.h, &header_sgd_rev2_1.gen_head_1.mi, &header_sgd_rev2_1.gen_head_1.se);
+        segd_->setCounterByte(0);
+        segd_->setFileNumber(1);
+        segd_->setRecordLenght(1);   //not used for rev 3.1
+        segd_->setChannelSets(cnt_chnl_sets);    //Количество используемых каналов (sync, tbf...)
+        segd_->write_general_header();
+        segd_->write_general_header_blk2();
+
+        if(header_sgd_rev2_1.trace_length_ms > 131070){
+            qDebug() << "trace length" << header_sgd_rev2_1.trace_length_ms;
+            header_sgd_rev2_1.trace_length_ms = 131070;
+        }
+        /* Заполняю Header конечного файла */
+        if(device_downHoles){
+            /* Down Holes */
+            segd_->setChannelSetNumber(1);
+            segd_->setChannelSetStartTime(0);
+            segd_->setChannelSetEndTime(header_sgd_rev2_1.trace_length_ms/2);       //length data
+            segd_->setDataLength(0); //length data
+            segd_->setNumberOfChannels(device_downHoles);
+            segd_->setChannelType((quint8)CHANNELSETS_TYPE_SEIS);
+            segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+            segd_->setAliasFilterSlope((quint16)1);
+            segd_->write_header();
+        }
+        if(device_UpHoles){
+            /*Up Hole */
+            segd_->setChannelSetNumber(3);
+            segd_->setChannelSetStartTime(0);
+            segd_->setChannelSetEndTime(header_sgd_rev2_1.trace_length_ms/2);       //length data
+            segd_->setDataLength(0); //length data
+            segd_->setNumberOfChannels(device_UpHoles);
+            segd_->setChannelType((quint8)CHANNELSETS_TYPE_UPHOLE);
+            segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+            segd_->setAliasFilterSlope((quint16)1);
+            segd_->write_header();
+        }
+        if(device_sync) {
+            /* Sync */
+            segd_->setChannelSetNumber(4);
+            segd_->setChannelSetEndTime(header_sgd_rev2_1.trace_length_ms/2);       //length data
+            segd_->setDataLength(0); //length data
+            segd_->setNumberOfChannels(device_sync);
+            segd_->setChannelType((quint8)CHANNELSETS_TYPE_OTHER);
+            segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+            segd_->setAliasFilterSlope((quint16)1);
+            segd_->write_header();
+        }
+        if(device_tbf){
+            /* TBF */
+            segd_->setChannelSetNumber(2);
+            segd_->setChannelSetStartTime(0);
+            segd_->setChannelSetEndTime(header_sgd_rev2_1.trace_length_ms/2);       //length data
+            segd_->setDataLength(0); //length data
+            segd_->setNumberOfChannels(device_tbf);
+            segd_->setChannelType((quint8)CHANNELSETS_TYPE_TIMEBREAK);
+            segd_->setChannelGainControlMethod((quint8)CHANNELSETS_GAINMODE_FIXED);
+            segd_->setAliasFilterSlope((quint16)1);
+            segd_->write_header();
+        }
+        segd_->write_extended_header();
+        segd_->setDataLength(header_sgd_rev2_1.trace_length_ms);
+
+        /* test */
+        for (int i=0; i<lis_file_tmp.count(); i++) {
+          qDebug() << "2" << lis_file_tmp.at(i);
+           segd_->openFile_test(dir_meas_file +lis_file_tmp.at(i));
+        }
+
+        number_files++;
+        delete  segd_;
+
+    }while (!lis_file.isEmpty());
+
+    QApplication::beep();
+
+    emit resultReady(true);
 }
+
+

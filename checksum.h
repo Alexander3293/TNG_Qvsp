@@ -14,9 +14,10 @@ public:
     bool checkCRC(quint8 *pdata, const uint8_t numModule);
     quint8 calc_CRC7_for_cmd(const quint8* pcmd);
     quint8 calc_CRC7_for_data(const quint8* pcmd);
-    inline uint16_t crc_calculate_x25(const uint8_t* pBuffer, uint16_t length);
+    inline uint16_t crc_calculate(const uint8_t* pBuffer, uint16_t length);
     inline void crc_accumulate(uint8_t data, uint16_t *crcAccum);
     inline void crc_accumulate_buffer(uint16_t *crcAccum, const char *pBuffer, uint16_t length);
+    bool checkCRC_UpHole(QVector<double> &data, uint16_t len, uint8_t crc_msb, uint8_t crc_lsb);
 private:
     int traceData;
     int traceCmd;

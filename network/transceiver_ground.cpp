@@ -253,13 +253,19 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 //    }
 
     while(counterDatagram < dataDatagramlen) {              // Length Files
-       tmp_str_iVal = str_data.mid(counterDatagram,8);      //read 2 bytes + 2 bytes
+       tmp_str_iVal = str_data.mid(counterDatagram,6);      //read 2 bytes + 2 bytes
        counterDatagram += 6;
 
        if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package
 
            if(device_id> -1) {
                     emit dataGroundUpdate(listGroundModules.at(device_id));
+
+               if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
+                                    listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
+                   qDebug() << "Error CRC";
+               }
+
                //listFileSgd.at(device_id)->append_data(*(QVector<float>*)(&listGroundModules.at(device_id)->data));
 
                if(isRecording_){
@@ -338,7 +344,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                                    if(listCntMeasSGD[device_id] >= max_len_sgd){
                                        uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
                                        listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-                                       qDebug() << "ostatok" << ostatok;
+                                       qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
                                        listCntFileSGD[device_id]+=1;
                                        this->update_sgd_files(device_id, "");
                                        data.remove(0, data.size()-ostatok);
@@ -375,17 +381,22 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
        }
 
        else {
-           tmpMSB = tmp_str_iVal.left(4).toInt(&ok,16);
+           tmpMSB = tmp_str_iVal.left(2).toInt(&ok,16);
+           tmpSSB = tmp_str_iVal.mid(2,2).toInt(&ok,16);
            tmpLSB = tmp_str_iVal.right(2).toInt(&ok,16);
 
            //value = (tmp1 << 16) | (tmp2);// & 0x00ffffff;   //24-bit ADC
-           valuePckt = (tmpMSB << 8) | (tmpLSB >> 8);// & 0x00ffffff;   //24-bit ADC
+           valuePckt = (tmpMSB << 16) |(tmpSSB << 8)| (tmpLSB);// & 0x00ffffff;   //24-bit ADC
            if(valuePckt & 0x800000){
                valuePckt |= 0xff000000;
            }
 
            listGroundModules.at(device_id)->data.append(valuePckt);
        }
+    }
+    if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
+                         listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
+        qDebug() << "Error CRC";
     }
     emit dataGroundUpdate(listGroundModules.at(device_id));
     /* Выставлен offset */
@@ -405,7 +416,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                     listCntMeasSGD[device_id] += data.size();
                     if(listCntMeasSGD[device_id] >= max_len_sgd){
                         uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
-                        qDebug() << "ostatok" << ostatok;
+                        qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
                         listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
 
                         listCntFileSGD[device_id]+=1;
@@ -425,7 +436,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                 uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
                 listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-                qDebug() << "ostatok" << ostatok;
+                qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
                 listCntFileSGD[device_id]+=1;
                 this->update_sgd_files(device_id, "");
                 listCntMeasSGD[device_id] = ostatok;
@@ -486,7 +497,10 @@ void Transceiver_ground::update_sgd_files(quint8 numModule, QString dirFile)
         QString fileName = listFileSgd.at(numModule)->getFileName();
         listFileSgd.at(numModule)->close_data();
         uint cnt = fileName.lastIndexOf("_UpHole_device_");     //Найти номер файла sgd и заменить его на текущий
-        listFileSgd.at(numModule)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[numModule])));
+        if(listCntFileSGD[numModule] > 10)
+            listFileSgd.at(numModule)->setFileName(fileName.replace(cnt-2, 2, QString::number(listCntFileSGD[numModule])));
+        else
+            listFileSgd.at(numModule)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[numModule])));
     }
     else{
         listFileSgd.at(numModule)->setFileName((dirFile+"/" + QString::number(listCntFileSGD[numModule]) + "_UpHole_device_%1.sgd").arg(numModule+1));

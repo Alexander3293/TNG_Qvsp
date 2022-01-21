@@ -1,55 +1,23 @@
 #ifndef FILECOPYER_H
 #define FILECOPYER_H
 
+/* Класс обработки SEGD в потоке */
+
 #include <QObject>
-#include <QVector>
+#include <QThread>
+#include <QDebug>
+#include "work_with_project/createproject.h"
+#include "work_with_project/project_files.h"
+#include "work_with_project/single_segd_rev2_files.h"
 class FileCopyer : public QObject
 {
     Q_OBJECT
+    //explicit FileCopyer();
 public:
-    FileCopyer(QThread*);
-    ~FileCopyer();
-    static const int DEFAULT_CHUNK_SIZE = 1024 * 1024 * 1;
-
-    qint64 chunkSize() const {
-        return _chunk;
-    }
-    void setChunkSize(qint64 ch) {
-        _chunk = ch;
-    }
-
-    QVector<QString> sourcePaths() const {
-        return src;
-    }
-    void setSourcePaths(const QVector<QString>& _src) {
-        src = _src;
-    }
-
-    QVector<QString> destinationPaths() const {
-        return dst;
-    }
-    void setDestinationPaths(const QVector<QString>& _dst) {
-        dst = _dst;
-    }
-
-    void interrupt()
-    {
-        _interrupt = true;
-    }
-private:
-    QVector<QString> src, dst;
-    qint64 _chunk;
-    bool _interrupt;
-
-protected slots:
-    void copy();
-
+    void setFileName(QString fileName);
+    QString meas_file;
 signals:
-    void copyProgress(qint64 bytesCopied, qint64 bytesTotal);
-    void finished(bool success);
-    void oneBegin(QString srcFileName);
-    void oneFinished(QString dstPath, bool result);
-
+    void resultReady(bool result);
 };
 
 #endif // FILECOPYER_H

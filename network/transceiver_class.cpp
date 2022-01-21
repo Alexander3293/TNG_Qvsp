@@ -476,7 +476,10 @@ void Transceiver_class::update_sgd_files(QString dirFile)
 
         for(auto fileSgd: listFileSgd){
             fileSgd->close_data();
-            fileSgd->setFileName(fileSgd->getFileName().replace(cnt-1, 1, QString::number(cntFileSGD)));
+            if(cntFileSGD > 10)
+                fileSgd->setFileName(fileSgd->getFileName().replace(cnt-2, 2, QString::number(cntFileSGD)));
+            else
+                fileSgd->setFileName(fileSgd->getFileName().replace(cnt-1, 1, QString::number(cntFileSGD)));
         }
     }
 
