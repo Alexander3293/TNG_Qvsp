@@ -13,6 +13,8 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     numPckt_ = -1;
     numMeasure_ = -1;
     connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+    error_crc_ = 0;
+    error_pckt_ = 0;
     //connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
 
 }
@@ -28,6 +30,15 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
 
         //timeMes_ = dataPckt->time;
         dataSize_ = dataPckt->data.size();
+        switch(dataPckt->error){
+        case -1:    //error CRC
+            error_crc_++;
+            ui->label_ErrorCRC->setText(QString::number(error_crc_));
+            break;
+        case -2:    //error Cnumber packet
+            error_pckt_++;
+            break;
+        }
 
         for(int i=0; i< dataSize_; i++){
             y.append(dataPckt->data[i]);

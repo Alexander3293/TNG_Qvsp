@@ -6,7 +6,6 @@
 /*User Includes*/
 #include "qcustomplot/graphground.h"
 #include "qcustomplot/graphsync.h"
-#include "qcustomplot/graphsynchro.h"
 #include "qcustomplot/graphdownhole.h"
 #include "qcustomplot/paintlegend.h"            //Отрисовка legend
 #include  "qcustomplot/plotdoublegraph.h"
@@ -134,6 +133,10 @@ private:
     QString qsPort;
     uint32_t width_;
     bool offset;
+
+    int rangeUpHole_   = 0;
+    int rangeDownHole_   = 0;
+    int chartDownHole_   = 0;
 
     uint16_t sizeList_ = 0;
     PowerSupplyController* powerSupplyController_;

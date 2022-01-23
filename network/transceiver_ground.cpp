@@ -6,7 +6,7 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
     QObject(parent)
 {
     /* todo TODO: */
-    for (int numberModule=0; numberModule < 8; numberModule++)
+    for (int numberModule=0; numberModule < 4; numberModule++)
     {
 
         listGroundModules.append(new (pointsFromWGrounds));
@@ -259,12 +259,20 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
        if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package
 
            if(device_id> -1) {
-                    emit dataGroundUpdate(listGroundModules.at(device_id));
+
 
                if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
                                     listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
-                   qDebug() << "Error CRC";
+
+                   qDebug() << "Error CRC" << "device_id"<< device_id;
+                   dataPointTmp->error = -1;
+                   dataPointTmp->numPckt = blk_count[device_id];
+                   dataPointTmp->numModule = device_id;
+                   emit dataGroundUpdate(dataPointTmp);
                }
+
+               else
+                   emit dataGroundUpdate(listGroundModules.at(device_id));
 
                //listFileSgd.at(device_id)->append_data(*(QVector<float>*)(&listGroundModules.at(device_id)->data));
 
@@ -323,6 +331,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                         << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
                    dataPointTmp->numPckt = blk_count[device_id];
                    dataPointTmp->numModule = device_id;
+                   dataPointTmp->error = -2;
 
                    emit dataGroundUpdate(dataPointTmp);
 
@@ -396,9 +405,16 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
     }
     if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
                          listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
-        qDebug() << "Error CRC";
+
+        qDebug() << "Error CRC" << "device_id"<< device_id;
+        dataPointTmp->error = -1;
+        dataPointTmp->numPckt = blk_count[device_id];
+        dataPointTmp->numModule = device_id;
+
+        emit dataGroundUpdate(dataPointTmp);
     }
-    emit dataGroundUpdate(listGroundModules.at(device_id));
+    else
+        emit dataGroundUpdate(listGroundModules.at(device_id));
     /* Выставлен offset */
     if(isRecording_){
         QVector<double> data;

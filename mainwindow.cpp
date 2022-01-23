@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent)
     /* Radio Button Group */
     QButtonGroup *buttonGroup = new QButtonGroup;
     rb_widget_ = axisPaintLegend::Y;
-    ui->rb_y->clicked(true);
+    ui->rb_y->setChecked(true);
 
     buttonGroup->addButton(ui->rb_x, axisPaintLegend::X);
     buttonGroup->addButton(ui->rb_y, axisPaintLegend::Y);
@@ -133,8 +133,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(&segd_thread_, &QThread::finished, segd_file_operate_, &QObject::deleteLater);
     connect(segd_file_operate_, SIGNAL(resultReady(bool)), this, SLOT(handleResultSEGD(bool)));
 
-    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
-                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+//    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+//                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
 
     transceiver_ground_->initialize(ADDRESS_GROUND_, PORT_GROUND_);
     transceiverGroundThread_ = new QThread();
@@ -338,9 +338,29 @@ void MainWindow::onUpdateSettings()
         syncCMD_ = settingsWidget_->syncCMD();
         transceiver_->setNumModule(numDnMod_);
         transceiver_ground_->setNumModule(numWellsMod_);
+        timeSwip_ = settingsWidget_->swipLen();
+
+        switch(settingsWidget_->getchartGraphDownHoleChanged()){
+            case X:
+                rb_widget_ = X;
+                ui->rb_x->setChecked(true);
+                break;
+            case Y:
+                rb_widget_ = Y;
+                ui->rb_y->setChecked(true);
+                break;
+            case Z:
+                rb_widget_ = Z;
+                ui->rb_z->setChecked(true);
+                break;
+        }
         resizeNumModules(numDnMod_, numWellsMod_);
         plotWidgetLayout();
+
+        connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                    SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
     }
+
     timeRecord_ = settingsWidget_->timeRecord();
     countRecord_ = settingsWidget_->countRecord();
     timeWaiting_ = settingsWidget_->timeWaiting();
@@ -348,7 +368,13 @@ void MainWindow::onUpdateSettings()
 //    syncChannel_ = settingsWidget_->syncChannel();
 //    corrDraw_ = settingsWidget_->corrDraw();
 //    corrSave_ = settingsWidget_->corrSave();
-    timeSwip_ = settingsWidget_->swipLen();
+
+    rangeDownHole_ = settingsWidget_->getrangeGraphDownHoleChanged();
+    rangeUpHole_ = settingsWidget_->getrangeGraphUpHoleChanged();
+    this->rangeGraphDownHoleChanged(rangeDownHole_);
+    this->rangeGraphUpHoleChanged(rangeUpHole_);
+    ui->sliderDownHole->setValue(rangeDownHole_);
+    ui->sliderUpHole->setValue(rangeUpHole_);
 
 //    if(settingsWidget_->depth().size() > 0)
 //        depth_ = settingsWidget_->depth();
@@ -1283,7 +1309,7 @@ void MainWindow::selectRadioButton(int id)
         rb_widget_ = Z;
         break;
     }
-
+    settingsWidget_->chartGraphDownHoleChanged(id);
     resizeNumModules(numDnMod_, numWellsMod_);
     plotWidgetLayout();
 }
@@ -1358,9 +1384,11 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
 
                 if(object == ui->sliderDownHole){
                     this->rangeGraphDownHoleChanged(change_value);
+                    settingsWidget_->rangeGraphDownHoleChanged(change_value);
                 }
                 else if(object == ui->sliderUpHole){
                     this->rangeGraphUpHoleChanged(change_value);
+                    settingsWidget_->rangeGraphUpHoleChanged(change_value);
                 }
             }
             event->accept();
@@ -1382,9 +1410,11 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
 
                 if(object == ui->sliderDownHole){
                     this->rangeGraphDownHoleChanged(change_value);
+                    settingsWidget_->rangeGraphDownHoleChanged(change_value);
                 }
                 else if(object == ui->sliderUpHole){
                     this->rangeGraphUpHoleChanged(change_value);
+                    settingsWidget_->rangeGraphUpHoleChanged(change_value);
                 }
 
             }

@@ -36,6 +36,7 @@ typedef struct
     QVector<double> data;
     uint8_t	CRC_MSB;
     uint8_t	CRC_LSB;
+    int error;
 
 } pointsFromWGrounds;
 

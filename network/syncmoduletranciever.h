@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QUdpSocket>
 #include "work_with_project/single_segd_rev2_files.h"
+#include "checksum.h"
 //#include "spinnerprogresscontroller.h"
 
 
@@ -40,14 +41,15 @@ public:
 
     typedef struct
     {
-        int time;
         uint8_t numPckt;
         int16_t oldPckt;        //Отлавливать битый пакет
-        uint8_t	numModule;
         QVector<double> dataADC;
         QVector<bool> timeBreakVibro;
         QVector<bool> timeBreakDetonation;
         QVector<bool> timeBreakDetonationConfirm;
+        quint8 CRC_LSB;
+        quint8 CRC_MSB;    
+        int error;
 
     } pointsFromSync;
 
@@ -143,6 +145,9 @@ private:
     quint32 max_len_sgd = 131070;       //максимальная длина файла segd rev2.1
 
     quint32 cntFilesSgd;
+    checksum crc_;
+    quint8 CRC_LSB;
+    quint8 CRC_MSB;
 
 
 private slots:

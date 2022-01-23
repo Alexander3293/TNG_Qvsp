@@ -39,6 +39,8 @@ private:
 
     int16_t numPckt_;
     int16_t numMeasure_;
+    uint32_t error_crc_;
+    uint32_t error_pckt_;
 
 };
 

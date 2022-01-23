@@ -407,6 +407,7 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                     qDebug() << "Error Packet Sync" << "CurrentPckt:" << listSyncModule.at(0)->numPckt
                              << "last Pckt : "<< blk_count;
                     dataPointTmp->numPckt = blk_count;
+                    dataPointTmp->error = -2;
                     emit dataSyncUpdate(dataPointTmp);
 
                     if(isRecording_){
@@ -476,6 +477,15 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
             }
                 blk_count++;
             }
+
+            /*get crc from sync module */
+            tmp_str_iVal = str_data.mid(counterDatagram,2);
+            counterDatagram += 2;
+            CRC_LSB = tmp_str_iVal.toUInt(&ok, 16);
+
+            tmp_str_iVal = str_data.mid(counterDatagram,2);
+            counterDatagram += 2;
+            CRC_MSB = tmp_str_iVal.toUInt(&ok, 16);
         }
         else{
             //valuePckt = tmp_str_iVal.left(4).toUInt(&ok,16);
@@ -511,7 +521,16 @@ void SyncModuleTranciever::dataProcessingModuleSync (QByteArray data)
                 listSyncModule.at(0)->timeBreakDetonationConfirm.append(false);
         }
     }
-    emit dataSyncUpdate(listSyncModule.at(0));
+    if(!crc_.checkCRC_UpHole(listSyncModule.at(0)->dataADC, listSyncModule.at(0)->dataADC.length(),
+                         listSyncModule.at(0)->CRC_MSB , listSyncModule.at(0)->CRC_LSB)){
+
+        qDebug() << "Error CRC" << "Sync";
+        dataPointTmp->numPckt = blk_count;
+        dataPointTmp->error = -1;
+        emit dataSyncUpdate(dataPointTmp);
+    }
+    else
+        emit dataSyncUpdate(listSyncModule.at(0));
 
     if(isRecording_){
         QVector<double> dataSync, dataTBF;

@@ -372,6 +372,15 @@ void Settings::readSettings()
     isPaintZeroLines_ = settings_->value("PaintZeroLines", ui->checkBoxZeroLines->checkState() == Qt::CheckState::Checked ? true : false).toBool();
     settings_->endGroup();
 
+    settings_->beginGroup("Scale");
+    rangeDownHole_ = settings_->value("SliderDownHole", QString::number(rangeDownHole_)).toInt();
+    rangeUpHole_ = settings_->value("SliderUpHole", QString::number(rangeUpHole_)).toInt();
+    settings_->endGroup();
+
+    settings_->beginGroup("ViewChart");
+    chartDownHole_ = settings_->value("DownHole", QString::number(chartDownHole_)).toInt();
+    settings_->endGroup();
+
 //    settings_->beginGroup("Modem");
 //    isModemOn_ = settings_->value("State", ui->checkBoxZeroLines->checkState() == Qt::CheckState::Checked ? true : false).toBool();
 //    int tmpVal = -1;
@@ -425,6 +434,15 @@ void Settings::writeSettings()
     settings_->setValue("OffsetDnHoleModemOn", offsetDnHoleModemOn());
     settings_->setValue("OffsetUpHole", offsetUpHole());
     settings_->endGroup();
+
+    settings_->beginGroup("Scale");
+    settings_->setValue("SliderDownHole", rangeDownHole_);
+    settings_->setValue("SliderUpHole", rangeUpHole_);
+    settings_->endGroup();
+
+    settings_->beginGroup("ViewChart");
+    settings_->setValue("DownHole", chartDownHole_);
+    settings_->endGroup();
 }
 
 QString Settings::editVal(bool flag, QString inVal)
@@ -453,6 +471,47 @@ int Settings::offsetUpHole() const
 void Settings::setOffsetUpHole(int offsetUpHole)
 {
     offsetUpHole_ = offsetUpHole;
+}
+
+void Settings::rangeGraphDownHoleChanged(int val)
+{
+    rangeDownHole_ = val;
+    settings_->beginGroup("Scale");
+    settings_->setValue("SliderDownHole", rangeDownHole_);
+    settings_->setValue("SliderUpHole", rangeUpHole_);
+    settings_->endGroup();
+}
+
+void Settings::rangeGraphUpHoleChanged(int val)
+{
+    rangeUpHole_ = val;
+    settings_->beginGroup("Scale");
+    settings_->setValue("SliderDownHole", rangeDownHole_);
+    settings_->setValue("SliderUpHole", rangeUpHole_);
+    settings_->endGroup();
+}
+
+void Settings::chartGraphDownHoleChanged(int rb)
+{
+    chartDownHole_ = rb;
+    settings_->beginGroup("ViewChart");
+    settings_->setValue("DownHole", chartDownHole_);
+    settings_->endGroup();
+}
+
+int Settings::getrangeGraphDownHoleChanged()
+{
+    return rangeDownHole_;
+}
+
+int Settings::getrangeGraphUpHoleChanged()
+{
+    return rangeUpHole_;
+}
+
+int Settings::getchartGraphDownHoleChanged()
+{
+    return chartDownHole_;
 }
 
 int Settings::offsetDnHoleModemOff() const
@@ -714,8 +773,11 @@ void Settings::on_toolButtonNumWellsModPlus_clicked()
     QString tmp = editVal(true, ui->lineEditNumWellsMod->text());
     if(tmp == "")
         return;
-    else
+    else{
+        if(tmp.toInt() > 4)
+            tmp = QString::number(4);
         ui->lineEditNumWellsMod->setText(tmp);
+    }
 }
 
 void Settings::on_toolButtonCountRecordMin_clicked()

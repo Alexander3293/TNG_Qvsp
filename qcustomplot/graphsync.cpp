@@ -15,6 +15,9 @@ graphSync::graphSync(SyncModuleTranciever* transceiver, QWidget *parent) :
 
     legendSync = new PaintLegend(this, modOVSP::syncMod);
     ui->grdLayoutPaintLegend->addWidget(legendSync);
+
+    error_crc_ = 0;
+    error_pckt_ = 0;
     //ui->gridLayout2->addWidget(legendSync);
 }
 
@@ -142,8 +145,16 @@ void graphSync::plotData(SyncModuleTranciever::pointsFromSync *dataPckt)
 {
 //    qDebug() << "numPckt" <<numPckt_ << "need" << dataPckt->numPckt;
 
-    timeMes_ = dataPckt->time;
+    //timeMes_ = dataPckt->time;
     dataSize_ = dataPckt->dataADC.size();
+    switch(dataPckt->error){
+    case -1:
+        ++error_crc_;
+        ui->label_ErrorCRC->setText(QString::number(error_crc_));
+        break;
+    case -2:
+        break;
+    }
 
     //y.resize(width_);
     for(int i=0; i< dataSize_; i++){

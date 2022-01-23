@@ -78,6 +78,14 @@ public:
     int offsetUpHole() const;
     void setOffsetUpHole(int offsetUpHole);
 
+    void rangeGraphDownHoleChanged(int val);
+    void rangeGraphUpHoleChanged(int val);
+    void chartGraphDownHoleChanged(int rb);
+
+    int getrangeGraphDownHoleChanged();
+    int getrangeGraphUpHoleChanged();
+    int getchartGraphDownHoleChanged();
+
 private slots:
     void on_pushButton_2_clicked();
     void on_pushButton_3_clicked();
@@ -143,6 +151,10 @@ private:
     int offsetDnHoleModemOn_ = 10;
     int offsetDnHoleModemOff_ = 13;
     int offsetUpHole_ = -10;
+    int rangeUpHole_   = 0;
+    int rangeDownHole_   = 0;
+    int chartDownHole_   = 0;
+
 
 public slots:
     void onUpdateParametres();
