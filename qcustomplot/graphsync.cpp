@@ -150,6 +150,7 @@ void graphSync::plotData(SyncModuleTranciever::pointsFromSync *dataPckt)
     switch(dataPckt->error){
     case -1:
         ++error_crc_;
+        qDebug() << "er crc";
         ui->label_ErrorCRC->setText(QString::number(error_crc_));
         break;
     case -2:

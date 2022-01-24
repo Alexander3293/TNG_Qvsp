@@ -592,3 +592,9 @@ void Transceiver_class::setNumModule(int numModule)
         listFileSgd.append(new single_segd_rev2_files()); //z
     }
 }
+
+void Transceiver_class::clearFlags()
+{
+    flagFirst = false;
+    isRecording_ = false;
+}

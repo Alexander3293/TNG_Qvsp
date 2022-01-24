@@ -231,7 +231,7 @@ void Transceiver_ground::getDataOffsetDownHoles(quint16 numPckt)
         qDebug() << "num Pckt UP holes" << numPckt;
         numPckt_ = numPckt / 256;
         numMeasure_ = numPckt %  256;
-        for (int numberModule=0; numberModule < 8; numberModule++)
+        for (int numberModule=0; numberModule < 4; numberModule++)
             listOffset[numberModule] = true;
         qDebug() << "I am here" << "numPckt Up" << numPckt_ << "num Meas" << numMeasure_;
 
@@ -256,7 +256,7 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
        tmp_str_iVal = str_data.mid(counterDatagram,6);      //read 2 bytes + 2 bytes
        counterDatagram += 6;
 
-       if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package
+       if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package   0xed00ff
 
            if(device_id> -1) {
 
@@ -327,7 +327,8 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
            }
            else{
                if(blk_count[device_id] != listGroundModules.at(device_id)->numPckt){
-                   qDebug() << "Error Packet Up hole. Device ID:" << device_id
+                   while(blk_count[device_id]!=listGroundModules.at(device_id)->numPckt){
+                   qDebug() << "Error Packet Up hole. x1 Device ID:" << device_id
                         << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
                    dataPointTmp->numPckt = blk_count[device_id];
                    dataPointTmp->numModule = device_id;
@@ -384,7 +385,11 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                        }
                    }
+                   blk_count[device_id]++;
                }
+                   blk_count[device_id]--;
+               }
+
                blk_count[device_id]++;
            }
        }
@@ -566,4 +571,13 @@ void Transceiver_ground::setNumModule(int numModule)
     }
     for(auto i=0; i<4; i++)
         listFileSgd.append(new single_segd_rev2_files());
+}
+
+void Transceiver_ground::clearFlags()
+{
+    for(auto i =0; i < listOffset.size(); i++){
+        listOffset[i] = false;
+
+    }
+    isRecording_ = false;
 }

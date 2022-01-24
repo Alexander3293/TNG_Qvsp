@@ -53,6 +53,7 @@ public:
     void setNumModule(int numModule);
     void setRecord(bool isRecording);
     bool getRecord();
+    void clearFlags();
 
 private:
     QUdpSocket              *udp_socket;

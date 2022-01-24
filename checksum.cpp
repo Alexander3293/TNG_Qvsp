@@ -205,3 +205,24 @@ bool checksum::checkCRC_UpHole(QVector<double> &data, uint16_t len, uint8_t crc_
         return false;
 
 }
+
+bool checksum::checkCRC_SyncHole(QVector<double> &data, uint16_t len, uint8_t crc_msb, uint8_t crc_lsb)
+{
+    uint16_t tmp_crc = 0;
+    uint32_t data16 = 0;
+    uint8_t *pdata = new uint8_t [len*2];
+    for(int i = 0 ; i < len; i++){
+        data16 = uint16_t(data.at(i));
+        *(pdata+0+i*2) = (uint8_t)((data16 & 0xff00) >> 8);
+        *(pdata+1+i*2) = (uint8_t)(data16 & 0x00ff);
+    }
+
+    tmp_crc = crc_calculate(pdata, len*2);
+    delete [] pdata;
+
+    if(tmp_crc == (crc_msb << 8 | crc_lsb))
+        return true;
+    else
+        return false;
+
+}

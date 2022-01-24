@@ -138,6 +138,8 @@ public:
     void WriteToFile(pointFromDownHoles &point, uint size);
     void update_sgd_files(QString dirFile);
 
+    void clearFlags();
+
 };
 Q_DECLARE_METATYPE(pointFromDownHoles)
 //-----------------------------------------------------------------------------

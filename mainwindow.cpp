@@ -71,12 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    testPlot_->conectSignals();
 
     //syncPlot_ = new graphSync(transceiver_sync_);
-    shiftGridLayout_ = 0;
-    syncPlot_ = new graphSync(transceiver_sync_);
-    ui->gridLayout->addWidget(syncPlot_,shiftGridLayout_++,0);
-    syncPlot_->setWidth(width_);
-    syncPlot_->initGraphSync();
-    syncPlot_->clearData();
+
 
     onUpdateSettings();
     /* set File name to the write data into the file */
@@ -234,6 +229,14 @@ void MainWindow::plotWidgetLayout()
 //    syncPlot_->setWidth(width_);
 //    syncPlot_->initGraphSync();
 //    syncPlot_->clearData();
+
+    shiftGridLayout_ = 0;
+    syncPlot_ = new graphSync(transceiver_sync_);
+    ui->gridLayout->addWidget(syncPlot_,shiftGridLayout_++,0);
+    syncPlot_->setWidth(width_);
+    syncPlot_->initGraphSync();
+    syncPlot_->clearData();
+
     shiftGridLayout_ = 1;   //1 - sync
 
     /* График real-time для подземных модулей */
@@ -357,9 +360,13 @@ void MainWindow::onUpdateSettings()
         resizeNumModules(numDnMod_, numWellsMod_);
         plotWidgetLayout();
 
-        connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
-                    SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+
     }
+
+    transceiver_->clearFlags();
+    transceiver_ground_->clearFlags();
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
 
     timeRecord_ = settingsWidget_->timeRecord();
     countRecord_ = settingsWidget_->countRecord();
@@ -412,10 +419,11 @@ void MainWindow::resizeNumModules(int numDownHoleModules, int numWeelsModules)
     Q_UNUSED(numWeelsModules);
     Q_UNUSED(numDownHoleModules);
 
-//    ui->gridLayout->removeWidget(syncPlot_);
-//    delete syncPlot_;
-
     sizeList_ = listGraphGround.size();
+    if(listGraphDnHole.size()){
+        ui->gridLayout->removeWidget(syncPlot_);
+        delete syncPlot_;
+    }
     for(int i=0; i < sizeList_; i++)
     {
         ui->gridLayout->removeWidget(listGraphGround.at(0));
@@ -1312,6 +1320,17 @@ void MainWindow::selectRadioButton(int id)
     settingsWidget_->chartGraphDownHoleChanged(id);
     resizeNumModules(numDnMod_, numWellsMod_);
     plotWidgetLayout();
+    offset = false;
+    transceiver_->clearFlags();
+    transceiver_ground_->clearFlags();
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+    rangeDownHole_ = settingsWidget_->getrangeGraphDownHoleChanged();
+    rangeUpHole_ = settingsWidget_->getrangeGraphUpHoleChanged();
+    this->rangeGraphDownHoleChanged(rangeDownHole_);
+    this->rangeGraphUpHoleChanged(rangeUpHole_);
+    ui->sliderDownHole->setValue(rangeDownHole_);
+    ui->sliderUpHole->setValue(rangeUpHole_);
 }
 
 
