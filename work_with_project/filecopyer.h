@@ -14,10 +14,11 @@ class FileCopyer : public QObject
     Q_OBJECT
     //explicit FileCopyer();
 public:
-    void setFileName(QString fileName);
     QString meas_file;
 signals:
     void resultReady(bool result);
+public slots:
+    void startThread(QString fileName);
 };
 
 #endif // FILECOPYER_H

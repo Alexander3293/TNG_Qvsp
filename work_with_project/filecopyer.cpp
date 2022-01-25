@@ -4,7 +4,7 @@
 //    meas_file = "";
 //}
 
-void FileCopyer::setFileName(QString fileName)
+void FileCopyer::startThread(QString fileName)
 {
     meas_file = fileName;
 

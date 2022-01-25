@@ -80,6 +80,7 @@ signals:
    void inversChannels(const QMap<int,QVector<bool>>&);
    void dataToZeroOffsetCtrl(pointFromDownHoles point);   
    void setCorrDraw(const QString &);
+   void operateSGD(QString);
 
 private:
    void setGainDnHole(int value);

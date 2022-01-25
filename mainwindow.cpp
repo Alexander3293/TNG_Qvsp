@@ -124,10 +124,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     segd_file_operate_ = new FileCopyer;
     segd_file_operate_->moveToThread(&segd_thread_);
-
+    connect(this, SIGNAL(operateSGD(QString)), segd_file_operate_, SLOT(startThread(QString)));
     connect(&segd_thread_, &QThread::finished, segd_file_operate_, &QObject::deleteLater);
     connect(segd_file_operate_, SIGNAL(resultReady(bool)), this, SLOT(handleResultSEGD(bool)));
-
+    segd_thread_.start();
 //    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
 //                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
 
@@ -1291,10 +1291,7 @@ void MainWindow::on_pbSaveSGD_clicked()
     if(meas_file == "")
         return;
     this->statusBar()->showMessage(tr("Начало Обработки файла"));
-    segd_file_operate_->setFileName(meas_file);
-    segd_thread_.start();
-
-
+    emit operateSGD(meas_file);
 }
 
 void MainWindow::handleResultSEGD(bool status)

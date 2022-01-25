@@ -189,7 +189,7 @@ int project_files::addMeasurement(int countTypeModules, int numDnHole, int numUp
 void project_files::setStopTime()
 {
     meas_.last()->setTimeStop(QTime::currentTime());
-    this->setIsOpened(false);
+    //this->setIsOpened(false);
 }
 void project_files::getDataFromFile(int measId, int idRecord, int typeCorrelation)
 {
