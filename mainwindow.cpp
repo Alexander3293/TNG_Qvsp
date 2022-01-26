@@ -587,11 +587,11 @@ void MainWindow::setGlobalOffset(const int blk_cnt, const pointFromDownHoles &po
 
     numMesGround-=11;                       // 10 задержка
     if(!offset){
-        qDebug() << "tyt";
         syncPlot_->setOffset(numPcktGround, numMesGround, 1);
 
-        for(int i=0; i<listGraphGround.count(); i++)
-            listGraphGround.at(i)->setOffset(numPcktGround, numMesGround, 1);    //or use blk_cnt???
+        for(int i=0; i<listGraphGround.count(); i++){
+                listGraphGround.at(i)->setOffset(numPcktGround, numMesGround-2, 1);    //or use blk_cnt???
+        }
         disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
                     SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
         offset = true;

@@ -19,12 +19,15 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
         checkBLKCount.append(false);
     }
 
+    /* For Errors */
+    for (int numberModule=0; numberModule < 4; numberModule++){
+        dataPointTmpSGD.append (new pointsFromWGrounds);
+        dataPointTmpSGD.at(numberModule)->numModule = numberModule;
+        for(int i =0; i < 256; i++)
+            dataPointTmpSGD.at(numberModule)->data.append(maxValMissPacket);
+    }
     numModule_ = 0;
     isRecording_ = false;
-    dataPointTmp = new(pointsFromWGrounds);
-
-    for(int i =0; i < 256; i++)
-        dataPointTmp->data.append(maxValMissPacket);
 
     for(auto i =0 ; i < 4; i++){
         listCntFileSGD.append(0);
@@ -36,7 +39,7 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
 Transceiver_ground::~Transceiver_ground()
 {
     delete udp_socket;
-    delete dataPointTmp;
+    dataPointTmpSGD.clear();
     for (int i=0; listGroundModules.count(); i++)
         delete listGroundModules.at(0);
 }
@@ -264,11 +267,12 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
                                     listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
 
-                   qDebug() << "Error CRC" << "device_id"<< device_id;
-                   dataPointTmp->error = -1;
-                   dataPointTmp->numPckt = blk_count[device_id];
-                   dataPointTmp->numModule = device_id;
-                   emit dataGroundUpdate(dataPointTmp);
+                   qDebug() << "Error CRC x1" << "device_id"<< device_id;
+
+                   dataPointTmpSGD.at(device_id)->error = -1;
+                   dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
+
+                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
                }
 
                else
@@ -330,20 +334,19 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                    while(blk_count[device_id]!=listGroundModules.at(device_id)->numPckt){
                    qDebug() << "Error Packet Up hole. x1 Device ID:" << device_id
                         << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
-                   dataPointTmp->numPckt = blk_count[device_id];
-                   dataPointTmp->numModule = device_id;
-                   dataPointTmp->error = -2;
+                   dataPointTmpSGD.at(device_id)->numPckt = blk_count[device_id];
+                   dataPointTmpSGD.at(device_id)->error = -2;
 
-                   emit dataGroundUpdate(dataPointTmp);
+                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
 
                    if(isRecording_){
                        QVector<double> data;
-                       for(int i=0; i < dataPointTmp->data.size(); i++)
-                           data.append(dataPointTmp->data.at(i));
+                       for(int i=0; i < dataPointTmpSGD.at(device_id)->data.size(); i++)
+                           data.append(dataPointTmpSGD.at(device_id)->data.at(i));
 
                        /* Сделать смещение */
                        if(listOffset.at(device_id)){
-                           if(dataPointTmp->numPckt ==numPckt_){
+                           if(dataPointTmpSGD.at(device_id)->numPckt ==numPckt_){
                                    for(int i=0; i < numMeasure_; i++)
                                        data.removeFirst();
 
@@ -412,11 +415,15 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                          listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
 
         qDebug() << "Error CRC" << "device_id"<< device_id;
-        dataPointTmp->error = -1;
-        dataPointTmp->numPckt = blk_count[device_id];
-        dataPointTmp->numModule = device_id;
 
-        emit dataGroundUpdate(dataPointTmp);
+        dataPointTmpSGD.at(device_id)->error = -1;
+        dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
+
+//        dataPointTmp->error = -1;
+//        dataPointTmp->numPckt = listGroundModules.at(device_id)->numPckt;
+//        dataPointTmp->numModule = device_id;
+
+        emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
     }
     else
         emit dataGroundUpdate(listGroundModules.at(device_id));

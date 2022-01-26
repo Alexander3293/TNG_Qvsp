@@ -10,18 +10,18 @@ void FileCopyer::startThread(QString fileName)
 
     single_segd_rev2_files* segd_;
 
-    qDebug() << "fileName" << meas_file;
-    qDebug() << "fileName" << meas_file.mid(0, meas_file.lastIndexOf("/"));
+//    qDebug() << "fileName" << meas_file;
+//    qDebug() << "fileName" << meas_file.mid(0, meas_file.lastIndexOf("/"));
     QString dir_meas_file = meas_file.mid(0, meas_file.lastIndexOf("/")+1);
     Measurement* meas_ = new Measurement(meas_file);
     //QTime time_between =meas_->getTimeStop() - meas_->getTimeStart();
 //    int count_measures = QTime(0,0,0).msecsTo(meas_->getTimeStop()) - QTime(0,0,0).msecsTo(meas_->getTimeStart());
 //    qDebug() << "raznost msec" << count_measures;
-    qDebug() << "Time Start" << meas_->getTimeStart();
-    qDebug() << "Time Stop" << meas_->getTimeStop();
+//    qDebug() << "Time Start" << meas_->getTimeStart();
+//    qDebug() << "Time Stop" << meas_->getTimeStop();
 
-    qDebug() << "num Dwnholes" << meas_->getNumDnHoleModules();
-    qDebug() << "num Upholes" << meas_->getNumUpHoleModules();
+//    qDebug() << "num Dwnholes" << meas_->getNumDnHoleModules();
+//    qDebug() << "num Upholes" << meas_->getNumUpHoleModules();
 //    QDate date_tmp = meas_->getDate();
 //    QTime time_tmp = meas_->getTime();
 
@@ -46,7 +46,7 @@ void FileCopyer::startThread(QString fileName)
         lis_file.clear();
         dir.setNameFilters(QStringList(QString::number(number_files) + "*.sgd"));
         lis_file = dir.entryList(QDir::Files, QDir::Name);
-        qDebug() << lis_file.count();
+        //qDebug() << lis_file.count();
         if(lis_file.isEmpty())
             continue;
         segd_ = new single_segd_rev2_files();
@@ -59,7 +59,7 @@ void FileCopyer::startThread(QString fileName)
         for (const auto& filName : qAsConst(lis_file) )
         {
             statusFileData = segd_->checkData(dir_meas_file+filName);
-            qDebug() << filName << statusFileData;
+            //qDebug() << filName << statusFileData;
 
             if(filName.contains("DownnHole_device")){
                 if(statusFileData == false)
@@ -72,7 +72,7 @@ void FileCopyer::startThread(QString fileName)
                     device_UpHoles -= 1;
 
                 else{
-                    qDebug() << "name files UpHole" << filName;
+                    //qDebug() << "name files UpHole" << filName;
                     lis_file_tmp.append(filName);
                 }
             }
@@ -114,7 +114,7 @@ void FileCopyer::startThread(QString fileName)
         segd_->write_general_header_blk2();
 
         if(header_sgd_rev2_1.trace_length_ms > 131070){
-            qDebug() << "trace length" << header_sgd_rev2_1.trace_length_ms;
+            //qDebug() << "trace length" << header_sgd_rev2_1.trace_length_ms;
             header_sgd_rev2_1.trace_length_ms = 131070;
         }
         /* Заполняю Header конечного файла */
@@ -170,7 +170,7 @@ void FileCopyer::startThread(QString fileName)
 
         /* test */
         for (int i=0; i<lis_file_tmp.count(); i++) {
-          qDebug() << "2" << lis_file_tmp.at(i);
+          //qDebug() << "2" << lis_file_tmp.at(i);
            segd_->openFile_test(dir_meas_file +lis_file_tmp.at(i));
         }
 

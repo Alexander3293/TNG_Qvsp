@@ -93,7 +93,7 @@ private:
 
     QList<quint8> blk_count;
     QList<bool> checkBLKCount; //Чтобы первый пакет был равен Pckt Number
-    pointsFromWGrounds* dataPointTmp;
+    QList<pointsFromWGrounds*> dataPointTmpSGD;     //rev2.1
     double maxValMissPacket = 0x7fffff;  //8 388 607 (int24)
     quint32 cntFilesSgd;
 
