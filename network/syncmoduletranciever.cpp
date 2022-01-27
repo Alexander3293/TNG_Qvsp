@@ -652,6 +652,8 @@ void SyncModuleTranciever::update_sgd_files(QString dirFile)
         //listFileSgd.at(1)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
         if(listCntFileSGD[0] > 10)
             listFileSgd.at(1)->setFileName(fileName.replace(cnt-2, 2, QString::number(listCntFileSGD[0])));
+        else if(listCntFileSGD[0] > 100)
+            listFileSgd.at(1)->setFileName(fileName.replace(cnt-3, 3, QString::number(listCntFileSGD[0])));
         else
             listFileSgd.at(1)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[0])));
     }

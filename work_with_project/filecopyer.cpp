@@ -56,8 +56,15 @@ void FileCopyer::startThread(QString fileName)
 
         /* Проверим на наличие данных в файлах измерений и запишем в QStringList lis_file_tmp*/
         bool statusFileData = false;
+        int tmp_number = 0;
         for (const auto& filName : qAsConst(lis_file) )
         {
+            /* Проверка на правильность имени файла */
+            //
+            tmp_number = filName.left(filName.indexOf("_")).toUInt();
+            if(tmp_number != number_files)
+                continue;
+
             statusFileData = segd_->checkData(dir_meas_file+filName);
             //qDebug() << filName << statusFileData;
 

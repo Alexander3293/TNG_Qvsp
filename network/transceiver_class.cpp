@@ -272,10 +272,10 @@ void Transceiver_class::on_udp_data_rx(void)
                 if(isRecording_ && (flagFirst)){
                     if(!frstPcktOffset){
                         quint16 numPcktDownHoles = ntohs(pdata->n_pocket);  //начало пакета с 1 у подземных модулей
-                        if((numPcktDownHoles%256) > 10){
+                        if((numPcktDownHoles%256) > 11){
                             qDebug() << "num Pckt DownHoles" << ntohs(pdata->n_pocket);
                             frstPcktOffset = true;
-                            numPcktDownHoles -= 11;
+                            numPcktDownHoles -= 12;
                             emit newOffsetpckt(numPcktDownHoles);//отослать наземным и синхро номер пакета
                             WriteToFile(*dataPointTmp, sizeFile_);
                         }
@@ -302,10 +302,10 @@ void Transceiver_class::on_udp_data_rx(void)
         if(isRecording_ && (flagFirst)){
             if(!frstPcktOffset){
                 quint16 numPcktDownHoles = ntohs(pdata->n_pocket);  //начало пакета с 1 у подземных модулей
-                if((numPcktDownHoles%256) > 10){
+                if((numPcktDownHoles%256) > 11){
                     qDebug() << "num Pckt DownHoles" << ntohs(pdata->n_pocket);
                     frstPcktOffset = true;
-                    numPcktDownHoles -= 11;
+                    numPcktDownHoles -= 12;
                     emit newOffsetpckt(numPcktDownHoles);//отослать наземным и синхро номер пакета
                     WriteToFile(*dataPoint, sizeFile_);
                 }

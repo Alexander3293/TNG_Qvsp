@@ -234,8 +234,9 @@ void Transceiver_ground::getDataOffsetDownHoles(quint16 numPckt)
         qDebug() << "num Pckt UP holes" << numPckt;
         numPckt_ = numPckt / 256;
         numMeasure_ = numPckt %  256;
-        for (int numberModule=0; numberModule < 4; numberModule++)
+        for (int numberModule=0; numberModule < 4; numberModule++){
             listOffset[numberModule] = true;
+        }
         qDebug() << "I am here" << "numPckt Up" << numPckt_ << "num Meas" << numMeasure_;
 
 }
@@ -287,12 +288,21 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
                    if(listOffset.at(device_id)){
                        if(listGroundModules.at(device_id)->numPckt ==numPckt_){
+                           if(device_id % 2){
                                for(int i=0; i < numMeasure_; i++)
                                    data.removeFirst();
-
                                listOffset[device_id] = false;
                                qDebug() << "смещение" << "device" << device_id+1;
                                listFileSgd.at(device_id)->append_data(data);
+                           }
+                           else{
+                               for(int i=0; i < numMeasure_+1; i++)
+                                   data.removeFirst();
+                               listOffset[device_id] = false;
+                               qDebug() << "смещение" << "device" << device_id+1;
+                               listFileSgd.at(device_id)->append_data(data);
+                           }
+
                        } 
                    }
                    else
@@ -435,8 +445,15 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
         if(listOffset.at(device_id)){
             if(listGroundModules.at(device_id)->numPckt ==numPckt_){
+                if(device_id %2){
                     for(int i=0; i < numMeasure_; i++)
                         data.removeFirst();
+                }
+                else{
+                    for(int i=0; i < numMeasure_+1; i++)
+                        data.removeFirst();
+                }
+
 
                     listOffset[device_id] = false;
                     qDebug() << "смещение" << "device" << device_id+1;

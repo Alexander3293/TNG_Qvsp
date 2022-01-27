@@ -580,17 +580,23 @@ void MainWindow::setGlobalOffset(const int blk_cnt, const pointFromDownHoles &po
     uint16_t numPcktDownHoles = ntohs(point.n_pocket);  //начало пакета с 1 у подземных модулей
     uint8_t numPcktGround = numPcktDownHoles / 256;
     uint8_t numMesGround = numPcktDownHoles %  256;
-    if(numMesGround < 11){
+    if(numMesGround < 12){
         offset_blk_cnt++;
         return;
     }
 
-    numMesGround-=11;                       // 10 задержка
+    numMesGround-=12;                       // 10 задержка
     if(!offset){
-        syncPlot_->setOffset(numPcktGround, numMesGround, 1);
+        syncPlot_->setOffset(numPcktGround, numMesGround+1, 1);
 
         for(int i=0; i<listGraphGround.count(); i++){
-                listGraphGround.at(i)->setOffset(numPcktGround, numMesGround-2, 1);    //or use blk_cnt???
+            if(i%2){
+                listGraphGround.at(i)->setOffset(numPcktGround, numMesGround, 1);    //or use blk_cnt???
+            }
+            else{
+                listGraphGround.at(i)->setOffset(numPcktGround, numMesGround+1, 1);    //or use blk_cnt???
+            }
+
         }
         disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
                     SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать

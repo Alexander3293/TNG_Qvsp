@@ -85,7 +85,7 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
 
     if(!flagFirst) {
         uint16_t numPcktDownHoles = ntohs(point.n_pocket);  //начало пакета с 1 у подземных модулей
-        if((numPcktDownHoles%256) > 10)
+        if((numPcktDownHoles%256) > 11)
         {
             flagFirst = true;
         }
