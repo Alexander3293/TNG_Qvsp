@@ -75,6 +75,10 @@ private slots:
 
     void selectRadioButton(int);
 
+    void on_pBRealTime_clicked();
+
+    void on_pBVibroOn_clicked();
+
 signals:
    void updateSettings();
    void inversChannels(const QMap<int,QVector<bool>>&);
@@ -156,6 +160,9 @@ private:
 
     QButtonGroup *buttonGroup;
     axisPaintLegend rb_widget_;
+
+    uint timeVibro;
+    QTimer timerVibroOn;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;

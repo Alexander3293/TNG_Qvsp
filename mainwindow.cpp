@@ -1517,3 +1517,17 @@ void MainWindow::addMeasurment()
     proj_->onUpdateServiceInfo(measId_ + 1, serviceInfo);
 }
 
+
+void MainWindow::on_pBRealTime_clicked()
+{
+
+}
+
+
+void MainWindow::on_pBVibroOn_clicked()
+{
+    timeVibro = ui->timeVibroEdit->text().toUInt();
+    timerVibroOn.setInterval(timeVibro*1000);
+    //timerVibroOn.singleShot(timeVibro*1000, this, ...)
+}
+
