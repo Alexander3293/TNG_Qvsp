@@ -16,6 +16,7 @@ graphDownHole::graphDownHole(Transceiver_class *transceiver, QWidget *parent) :
     KU_ = 0;
     err_crc_ = 0;
     this->set_lose_crc(err_crc_);
+    realTime = true;
 
 }
 
@@ -26,11 +27,16 @@ graphDownHole::~graphDownHole()
 
 void graphDownHole::plotData()
 {
-    ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyXYZ);
-    ui->customPlot->replot();
-
-    xTime_.clear();
-
+    if(realTime){
+        ui->customPlot->graph(0)->setData(xTimeCpy_, data_cpyXYZ);
+        ui->customPlot->replot();
+    }
+    else{
+        if(data_vector_XYZ.size() < width_){
+            ui->customPlot->graph(0)->addData(xTimeCpy_, data_vector_XYZ);
+            ui->customPlot->replot();
+        }
+    }
 }
 
 void graphDownHole::setModNum(quint8 devCon) {
@@ -120,15 +126,20 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
     mesX = x.x31_0;
     data_vector_XYZ.append(mesX);
 
-//    nowTime_ = QTime(0,0,0).secsTo(QTime::currentTime());
-//    xTime_.append(nowTime_);
+    if(realTime){
+        if ((data_vector_XYZ.count() >= width_)){
+            data_cpyXYZ = data_vector_XYZ;
+            data_vector_XYZ.clear();
 
-    if ((data_vector_XYZ.count() >= width_)){
-        data_cpyXYZ = data_vector_XYZ;
-        data_vector_XYZ.clear();
-
-        emit updateSceneWidth();
+            emit updateSceneWidth();
+        }
     }
+    else
+        emit updateSceneWidth();
+
+
+
+
 
 }
 
@@ -146,6 +157,7 @@ void graphDownHole::clearData()
 void graphDownHole::setWidth(int width)
 {
     width_ = width;
+    data_vector_XYZ.resize(width_);
     data_cpyXYZ.resize(width_);
 }
 
@@ -265,4 +277,18 @@ void graphDownHole::set_state_rele(quint8 rele)
 void graphDownHole::set_lose_crc(quint32 error_crc)
 {
     ui->label_ErrorCRC->setText(QString::number(error_crc));
+}
+
+void graphDownHole::getTimerVibro(uint time)
+{
+    xTimeCpy_.clear();
+    data_cpyXYZ.clear();
+    data_vector_XYZ.clear();
+
+    this->setWidth(time);
+    for(uint i =0; i< time; i++)
+        xTimeCpy_.append(i);
+    ui->customPlot->xAxis->setRange(0, width_);
+
+    realTime = false;
 }

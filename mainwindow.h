@@ -78,6 +78,7 @@ private slots:
     void on_pBRealTime_clicked();
 
     void on_pBVibroOn_clicked();
+    void timerEnd();
 
 signals:
    void updateSettings();

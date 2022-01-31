@@ -15,6 +15,7 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
     error_crc_ = 0;
     error_pckt_ = 0;
+    realTime = true;
     //connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
 
 }
@@ -43,10 +44,18 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
         for(int i=0; i< dataSize_; i++){
             y.append(dataPckt->data[i]);
             if(y.size() >= width_) {
-                ui->customPlot->graph(0)->setData(x, y);
-                //ui->customPlot->rescaleAxes();
-                ui->customPlot->replot();
-                y.clear();
+                if(realTime){
+                    ui->customPlot->graph(0)->setData(x, y);
+                    //ui->customPlot->rescaleAxes();
+                    ui->customPlot->replot();
+                    y.clear();
+                }
+                else{
+                    ui->customPlot->graph(0)->addData(x, y);
+                    //ui->customPlot->rescaleAxes();
+                    ui->customPlot->replot();
+                }
+
             }
         }
     }
@@ -56,6 +65,21 @@ void graphGround::rangeChanged(double axisY)
 {
     ui->customPlot->yAxis->setRange(-axisY, axisY);
     ui->customPlot->replot();
+}
+
+void graphGround::getTimerVibro(uint time)
+{
+    y.clear();
+    y.resize(time);
+    this->setWidth(time);
+    ui->customPlot->xAxis->setRange(0, width_);
+    realTime = false;
+    numPckt_ = -1;
+    numMeasure_ = -1;
+
+    disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+    connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+
 }
 
 /* ЧТобы 1 раз установить offset и все, дальше стандартно */
@@ -75,12 +99,23 @@ void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
 
         }
         ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
-        if(y.size() >= width_) {
-            ui->customPlot->graph(0)->setData(x, y);
-            //ui->customPlot->rescaleAxes();
-            ui->customPlot->replot();
-            y.clear();
+
+        if(realTime){
+            if(y.size() >= width_) {
+                ui->customPlot->graph(0)->setData(x, y);
+                //ui->customPlot->rescaleAxes();
+                ui->customPlot->replot();
+                y.clear();
+            }
         }
+
+        else{
+            if(y.size() < width_){
+                ui->customPlot->graph(0)->addData(x, y);
+                ui->customPlot->replot();
+            }
+        }
+
     }
 }
 
@@ -110,6 +145,7 @@ void graphGround::setWidth(int val)
 {
     width_ = val;
    // y.resize(width_);
+    x.clear();
     for(int i=0; i < width_; i++) x.append(i);
 }
 
@@ -153,3 +189,4 @@ void graphGround::initGraphGround()
     //connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
     connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
 }
+

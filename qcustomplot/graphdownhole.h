@@ -42,6 +42,7 @@ public:
     void initGraphXYZ(init_graph_DownHoles axis);
     void stopPlot();
     void rangeChanged(double axisY);
+    void getTimerVibro(uint time);
 
 public slots:
     void plotData();
@@ -82,6 +83,7 @@ private:
     quint8  KU_;
     \
     quint32 err_crc_;
+    bool realTime;
 
 };
 

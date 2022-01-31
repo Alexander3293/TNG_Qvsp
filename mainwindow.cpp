@@ -3,6 +3,7 @@
 #include <QList>
 #include <QStyleOptionSlider>
 #include <QSlider>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -1520,14 +1521,31 @@ void MainWindow::addMeasurment()
 
 void MainWindow::on_pBRealTime_clicked()
 {
-
+    switch(rb_widget_){
+    case 0:
+        ui->rb_x->click();
+        break;
+    case 1:
+        ui->rb_y->click();
+        break;
+    case 2:
+        ui->rb_z->click();
+        break;
+    }
 }
 
 
 void MainWindow::on_pBVibroOn_clicked()
 {
     timeVibro = ui->timeVibroEdit->text().toUInt();
-    timerVibroOn.setInterval(timeVibro*1000);
-    //timerVibroOn.singleShot(timeVibro*1000, this, ...)
-}
+    connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+    offset = false;
 
+    //timerVibroOn.setInterval(timeVibro*1000);
+    timerVibroOn.singleShot(timeVibro*1000, this, SLOT(timerEnd()));
+}
+void MainWindow::timerEnd()
+{
+
+}

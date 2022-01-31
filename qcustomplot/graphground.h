@@ -22,6 +22,7 @@ public:
     void setWidth(int val);
     void setOffset(uint8_t , uint8_t, const int );
     void rangeChanged(double axisY);
+    void getTimerVibro(uint time);
 
 public slots:
     void plotData(pointsFromWGrounds *dataPckt);
@@ -42,6 +43,7 @@ private:
     uint32_t error_crc_;
     uint32_t error_pckt_;
 
+    bool realTime;
 };
 
 #endif // GRAPHGROUND_H
