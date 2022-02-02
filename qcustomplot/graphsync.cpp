@@ -12,12 +12,14 @@ graphSync::graphSync(SyncModuleTranciever* transceiver, QWidget *parent) :
     numMeasure_ = -1;
     maxAmpl_ = 0x0FFF;
     isVibro_ = true;
-
+    connect(transceiver_sync_, SIGNAL(timeVibroSig(uint)), this, SLOT(getTimerVibro(uint)));
     legendSync = new PaintLegend(this, modOVSP::syncMod);
     ui->grdLayoutPaintLegend->addWidget(legendSync);
-
     error_crc_ = 0;
     error_pckt_ = 0;
+    realTime = true;
+    tmp_dataPckt = new SyncModuleTranciever::pointsFromSync();
+    tmp_dataPckt->numPckt = -1;
     //ui->gridLayout2->addWidget(legendSync);
 }
 
@@ -31,6 +33,7 @@ void graphSync::setWidth(int val)
     width_ = val;
    // y.resize(width_);
     ui->customPlot->xAxis->setRange(-1, width_ + 1);
+    x.clear();
     for(int i=0; i < width_; i++) x.append(i);
 }
 
@@ -101,43 +104,134 @@ void graphSync::frstPlotData(SyncModuleTranciever::pointsFromSync *dataPckt)
         dataTB.clear();
         dataCTB.clear();
 
-        for(int i=numMeasure_; i< dataSize_; i++){
+        if(realTime){
+            for(int i=numMeasure_; i< dataSize_; i++){
 
-            dataADC.append(dataPckt->dataADC[i]);
+                dataADC.append(dataPckt->dataADC[i]);
 
-            if(isVibro_){
-                if(dataPckt->timeBreakVibro[i] == true)
-                    dataTB.append(maxAmpl_);
+                if(isVibro_){
+                    if(dataPckt->timeBreakVibro[i] == true)
+                        dataTB.append(maxAmpl_);
+                    else
+                        dataTB.append(0);
+                }
+                else{
+                    if(dataPckt->timeBreakDetonation[i] == true)
+                        dataTB.append(maxAmpl_);
+                    else
+                        dataTB.append(0);
+                }
+
+                if(dataPckt->timeBreakDetonationConfirm[i] == true)
+                    dataCTB.append(maxAmpl_);
                 else
-                    dataTB.append(0);
+                    dataCTB.append(0);
+
+
+            }
+
+            if(dataADC.size() >= width_) {
+                ui->customPlot->graph(0)->setData(x, dataADC);
+                ui->customPlot->graph(1)->setData(x, dataTB);
+                ui->customPlot->graph(2)->setData(x, dataCTB);
+                ui->customPlot->rescaleAxes();
+                ui->customPlot->yAxis->setRange(-100, 5100);
+                ui->customPlot->replot();
+                dataADC.clear();
+                dataTB.clear();
+                dataCTB.clear();
+
+            }
+        }
+        else{
+            for(int i=numMeasure_; i< dataSize_; i++){
+                ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro, dataPckt->dataADC[i]);
+                if(isVibro_) ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakVibro[i]);
+                else         ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakDetonation[i]);
+                ui->customPlot->graph(2)->addData(cnt_meas_tim_vibro++, dataPckt->timeBreakDetonationConfirm[i]);
+            }
+        }
+    }
+    else if(tmp_dataPckt->numPckt == numPckt_){
+        disconnect(transceiver_sync_, SIGNAL(dataSyncUpdate(SyncModuleTranciever::pointsFromSync*)), this, SLOT(frstPlotData(SyncModuleTranciever::pointsFromSync*)));
+        connect(transceiver_sync_, SIGNAL(dataSyncUpdate(SyncModuleTranciever::pointsFromSync*)), this, SLOT(plotData(SyncModuleTranciever::pointsFromSync*)));
+
+        dataSize_ = tmp_dataPckt->dataADC.size();
+        dataADC.clear();
+        dataTB.clear();
+        dataCTB.clear();
+
+        //ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
+        if(realTime){
+
+            for(int i=numMeasure_; i< dataSize_; i++){
+                dataADC.append(tmp_dataPckt->dataADC[i]);
+                if(isVibro_) dataTB.append(tmp_dataPckt->timeBreakVibro[i]);
+                else         dataTB.append(tmp_dataPckt->timeBreakDetonation[i]);
+                dataCTB.append(tmp_dataPckt->timeBreakDetonationConfirm[i]);
+            }
+
+            if(dataADC.size() >= width_) {
+                ui->customPlot->graph(0)->setData(x, dataADC);
+                ui->customPlot->graph(1)->setData(x, dataTB);
+                ui->customPlot->graph(2)->setData(x, dataCTB);
+                //ui->customPlot->rescaleAxes();
+                ui->customPlot->replot();
+                dataADC.clear();
+                dataTB.clear();
+                dataCTB.clear();
+            }
+        }
+        else{
+            cnt_meas_tim_vibro = 0;
+            for(int i=numMeasure_; i< dataSize_; i++){
+                ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro, tmp_dataPckt->dataADC[i]);
+                if(isVibro_) ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, tmp_dataPckt->timeBreakVibro[i]);
+                else         ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, tmp_dataPckt->timeBreakDetonation[i]);
+                ui->customPlot->graph(2)->addData(cnt_meas_tim_vibro++, tmp_dataPckt->timeBreakDetonationConfirm[i]);
+            }
+            qDebug() << "num Meas Sync" << numMeasure_ << "data Size Sync" << dataSize_;
+        }
+
+        if(tmp_dataPckt->numPckt < dataPckt->numPckt){
+            dataSize_ = dataPckt->dataADC.size();
+
+            if(realTime){
+                for(int i=0; i< dataSize_; i++){
+                    dataADC.append(dataPckt->dataADC[i]);
+                    if(isVibro_) dataTB.append(dataPckt->timeBreakVibro[i]);
+                    else         dataTB.append(dataPckt->timeBreakDetonation[i]);
+                    dataCTB.append(dataPckt->timeBreakDetonationConfirm[i]);
+                }
+
+                if(dataADC.size() >= width_) {
+                    ui->customPlot->graph(0)->setData(x, dataADC);
+                    ui->customPlot->graph(1)->setData(x, dataTB);
+                    ui->customPlot->graph(2)->setData(x, dataCTB);
+                    //ui->customPlot->rescaleAxes();
+                    ui->customPlot->replot();
+                    dataADC.clear();
+                    dataTB.clear();
+                    dataCTB.clear();
+                }
             }
             else{
-                if(dataPckt->timeBreakDetonation[i] == true)
-                    dataTB.append(maxAmpl_);
-                else
-                    dataTB.append(0);
+                for(int i=0; i< dataSize_; i++){
+                    ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro, dataPckt->dataADC[i]);
+                    if(isVibro_) ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakVibro[i]);
+                    else         ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakDetonation[i]);
+                    ui->customPlot->graph(2)->addData(cnt_meas_tim_vibro++, dataPckt->timeBreakDetonationConfirm[i]);
+                }
+
             }
-
-            if(dataPckt->timeBreakDetonationConfirm[i] == true)
-                dataCTB.append(maxAmpl_);
-            else
-                dataCTB.append(0);
-
-
         }
-
-        if(dataADC.size() >= width_) {
-            ui->customPlot->graph(0)->setData(x, dataADC);
-            ui->customPlot->graph(1)->setData(x, dataTB);
-            ui->customPlot->graph(2)->setData(x, dataCTB);
-            ui->customPlot->rescaleAxes();
-            ui->customPlot->yAxis->setRange(-100, 5100);
-            ui->customPlot->replot();
-            dataADC.clear();
-            dataTB.clear();
-            dataCTB.clear();
-
-        }
+    }
+    else{
+        tmp_dataPckt->numPckt = dataPckt->numPckt;
+        tmp_dataPckt->dataADC = dataPckt->dataADC;
+        tmp_dataPckt->timeBreakDetonation = dataPckt->timeBreakDetonation;
+        tmp_dataPckt->timeBreakDetonationConfirm = dataPckt->timeBreakDetonationConfirm;
+        tmp_dataPckt->timeBreakVibro = dataPckt->timeBreakVibro;
     }
 }
 
@@ -157,38 +251,61 @@ void graphSync::plotData(SyncModuleTranciever::pointsFromSync *dataPckt)
         break;
     }
 
-    //y.resize(width_);
-    for(int i=0; i< dataSize_; i++){
-        dataADC.append(dataPckt->dataADC[i]);
-        if(isVibro_){
-            if(dataPckt->timeBreakVibro[i] == true)
-                dataTB.append(maxAmpl_);
-            else
-                dataTB.append(0);
-        }
-        else{
-            if(dataPckt->timeBreakDetonation[i] == true)
-                dataTB.append(maxAmpl_);
-            else
-                dataTB.append(0);
-        }
+    tmp_dataPckt->numPckt = dataPckt->numPckt;
+    tmp_dataPckt->dataADC = dataPckt->dataADC;
+    tmp_dataPckt->timeBreakDetonation = dataPckt->timeBreakDetonation;
+    tmp_dataPckt->timeBreakDetonationConfirm = dataPckt->timeBreakDetonationConfirm;
+    tmp_dataPckt->timeBreakVibro = dataPckt->timeBreakVibro;
 
-        if(dataPckt->timeBreakDetonationConfirm[i] == true)
-            dataCTB.append(maxAmpl_);
-        else
-            dataCTB.append(0);
+    if(realTime){
+        for(int i=0; i< dataSize_; i++){
+            dataADC.append(dataPckt->dataADC[i]);
+            if(isVibro_){
+                if(dataPckt->timeBreakVibro[i] == true)
+                    dataTB.append(maxAmpl_);
+                else
+                    dataTB.append(0);
+            }
+            else{
+                if(dataPckt->timeBreakDetonation[i] == true)
+                    dataTB.append(maxAmpl_);
+                else
+                    dataTB.append(0);
+            }
 
-        if(dataADC.size() >= width_) {
-//            qDebug() << "HERE";
-            ui->customPlot->graph(0)->setData(x, dataADC);
-            ui->customPlot->graph(1)->setData(x, dataTB);
-            ui->customPlot->graph(2)->setData(x, dataCTB);
-            ui->customPlot->rescaleAxes();
-            //ui->customPlot->yAxis->setRange(-100, 1000);
-            ui->customPlot->replot();
-            dataADC.clear();
-            dataTB.clear();
-            dataCTB.clear();
+            if(dataPckt->timeBreakDetonationConfirm[i] == true)
+                dataCTB.append(maxAmpl_);
+            else
+                dataCTB.append(0);
+
+            if(dataADC.size() >= width_) {
+    //            qDebug() << "HERE";
+                ui->customPlot->graph(0)->setData(x, dataADC);
+                ui->customPlot->graph(1)->setData(x, dataTB);
+                ui->customPlot->graph(2)->setData(x, dataCTB);
+                ui->customPlot->rescaleAxes();
+                //ui->customPlot->yAxis->setRange(-100, 1000);
+                ui->customPlot->replot();
+                dataADC.clear();
+                dataTB.clear();
+                dataCTB.clear();
+            }
+        }
+    }
+    else{       /* not real Time */
+        if(cnt_meas_tim_vibro < width_ && cnt_meas_tim_vibro!= 0){
+            for(int i=0; i< dataSize_; i++){
+                //y.append(dataPckt->data[i]);
+                ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro, dataPckt->dataADC[i]);
+                if(isVibro_) ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakVibro[i]);
+                else         ui->customPlot->graph(1)->addData(cnt_meas_tim_vibro, dataPckt->timeBreakDetonation[i]);
+
+                ui->customPlot->graph(2)->addData(cnt_meas_tim_vibro++, dataPckt->timeBreakDetonationConfirm[i]);
+                if(!(cnt_meas_tim_vibro % 1000)){
+                    ui->customPlot->replot();
+                    //y.clear();
+                }
+            }
         }
     }
 
@@ -218,4 +335,29 @@ void graphSync::changeTimeBreakSlot(const QString cmd, const QString chnl)
         ui->customPlot->rescaleAxes();
         ui->customPlot->replot();
     }
+}
+
+void graphSync::getTimerVibro(uint time)
+{
+    dataADC.clear();
+    dataTB.clear();
+    dataCTB.clear();
+
+    dataADC.reserve(time);
+    dataTB.reserve(time);
+    dataCTB.reserve(time);
+
+    this->setWidth(time);
+    //ui->customPlot->xAxis->setRange(-1, width_);
+    realTime = false;
+    numPckt_ = -1;
+    numMeasure_ = -1;
+    cnt_meas_tim_vibro = 0;
+    ui->customPlot->graph(0)->data().data()->clear();
+    ui->customPlot->graph(1)->data().data()->clear();
+    ui->customPlot->graph(2)->data().data()->clear();
+    ui->customPlot->replot();
+
+    disconnect(transceiver_sync_, SIGNAL(dataSyncUpdate(SyncModuleTranciever::pointsFromSync*)), this, SLOT(plotData(SyncModuleTranciever::pointsFromSync*)));
+    connect(transceiver_sync_, SIGNAL(dataSyncUpdate(SyncModuleTranciever::pointsFromSync*)), this, SLOT(frstPlotData(SyncModuleTranciever::pointsFromSync*)));
 }

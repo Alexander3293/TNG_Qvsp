@@ -11,7 +11,6 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
 
         listGroundModules.append(new (pointsFromWGrounds));
         listGroundModules.at(numberModule)->numModule = numberModule;
-        listGroundModules.at(numberModule)->oldPckt = -1;
         listVector.append(new QVector<double>);
         listOffset.append(true);
         //blk_count.append(new unsigned short int);
@@ -143,6 +142,10 @@ void Transceiver_ground::send_cmd(void)
 void Transceiver_ground::setRecord(bool isRecording)
 {
     isRecording_ = isRecording;
+    if(!isRecording_){
+        foreach(single_segd_rev2_files* listSGD , listFileSgd)
+            listSGD->close_data();
+    }
 }
 
 bool Transceiver_ground::getRecord()
@@ -394,8 +397,6 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
                            }
                            else
                                listFileSgd.at(device_id)->append_data(data);
-
-
                        }
                    }
                    blk_count[device_id]++;
@@ -428,10 +429,6 @@ void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
 
         dataPointTmpSGD.at(device_id)->error = -1;
         dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
-
-//        dataPointTmp->error = -1;
-//        dataPointTmp->numPckt = listGroundModules.at(device_id)->numPckt;
-//        dataPointTmp->numModule = device_id;
 
         emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
     }
@@ -523,11 +520,10 @@ void Transceiver_ground::setFileName(int idMeas, QString dirFile)
 //    file_global.write(QString("Devices " + QString::number(numModule_) +'\n' ).toUtf8());
 //    file_global.flush();
 
-    for(auto i =0 ; i < 4; i++){
-        listCntFileSGD[i] = 0;
-    }
 
     for(auto i =0 ; i < 4; i++){
+        listCntFileSGD[i] = 0;
+        listOffset[i] = true;
         listCntMeasSGD[i] = 0;
     }
 
@@ -548,10 +544,16 @@ void Transceiver_ground::update_sgd_files(quint8 numModule, QString dirFile)
             listFileSgd.at(numModule)->setFileName(fileName.replace(cnt-1, 1, QString::number(listCntFileSGD[numModule])));
     }
     else{
+//        listFileSgd.at(numModule)->close_data();
         listFileSgd.at(numModule)->setFileName((dirFile+"/" + QString::number(listCntFileSGD[numModule]) + "_UpHole_device_%1.sgd").arg(numModule+1));
     }
 
     this->setSettings(numModule);
+}
+
+void Transceiver_ground::getTimerVibro(uint time)
+{
+    emit timeVibroSig(time);
 }
 void Transceiver_ground::setSettings(quint8 numModule)
 {

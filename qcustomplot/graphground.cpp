@@ -13,15 +13,19 @@ graphGround::graphGround(Transceiver_ground *transceiver, QWidget *parent) :
     numPckt_ = -1;
     numMeasure_ = -1;
     connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+    connect(transceiver_ground_, SIGNAL(timeVibroSig(uint)), this, SLOT(getTimerVibro(uint)));
     error_crc_ = 0;
     error_pckt_ = 0;
     realTime = true;
     //connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+    tmp_dataPckt = new pointsFromWGrounds();
+    tmp_dataPckt->numPckt = -1;
 
 }
 
 graphGround::~graphGround()
 {
+    delete tmp_dataPckt;
     delete ui;
 }
 
@@ -41,21 +45,30 @@ void graphGround::plotData(pointsFromWGrounds *dataPckt)
             break;
         }
 
-        for(int i=0; i< dataSize_; i++){
-            y.append(dataPckt->data[i]);
-            if(y.size() >= width_) {
-                if(realTime){
+        tmp_dataPckt->numPckt = dataPckt->numPckt;
+        tmp_dataPckt->data = dataPckt->data;
+
+        if(realTime){
+            for(int i=0; i< dataSize_; i++){
+                y.append(dataPckt->data[i]);
+                if(y.size() >= width_) {
                     ui->customPlot->graph(0)->setData(x, y);
-                    //ui->customPlot->rescaleAxes();
                     ui->customPlot->replot();
                     y.clear();
                 }
-                else{
-                    ui->customPlot->graph(0)->addData(x, y);
-                    //ui->customPlot->rescaleAxes();
-                    ui->customPlot->replot();
-                }
+            }
+        }
+        else{
+            if(cnt_meas_tim_vibro < width_ && cnt_meas_tim_vibro!= 0){
+                for(int i=0; i< dataSize_; i++){
+                    //y.append(dataPckt->data[i]);
+                    ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro++, dataPckt->data[i]);
 
+                    if(!(cnt_meas_tim_vibro % 1000)){
+                        ui->customPlot->replot();
+                        //y.clear();
+                    }
+                }
             }
         }
     }
@@ -70,50 +83,106 @@ void graphGround::rangeChanged(double axisY)
 void graphGround::getTimerVibro(uint time)
 {
     y.clear();
-    y.resize(time);
+    y.reserve(time);
     this->setWidth(time);
     ui->customPlot->xAxis->setRange(0, width_);
     realTime = false;
     numPckt_ = -1;
     numMeasure_ = -1;
-
+    cnt_meas_tim_vibro = 0;
+    ui->customPlot->graph(0)->data().data()->clear();
+    ui->customPlot->replot();
     disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
-    connect(transceiver_ground_, SIGNAL(devGroundState(quint8, bool)), this, SLOT(setGroundDevState(quint8, bool)));
+    connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
 
 }
 
 /* ЧТобы 1 раз установить offset и все, дальше стандартно */
 void graphGround::frstPlotData(pointsFromWGrounds *dataPckt)
 {
-    if((dataPckt->numModule == deviceCount) && (numPckt_ == dataPckt->numPckt))  {  //если тот девайс и тот пакет
+    if(dataPckt->numModule == deviceCount){
+        if(numPckt_ == dataPckt->numPckt)  {  //если тот девайс и тот пакет
+            disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
+            connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
 
-        disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
-        connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+            dataSize_ = dataPckt->data.size();
+            y.clear();
 
-        timeMes_ = dataPckt->time;
-        dataSize_ = dataPckt->data.size();
-        y.clear();
+            ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
+            if(realTime){
 
-        for(int i=numMeasure_; i< dataSize_; i++){
-            y.append(dataPckt->data[i]);
+                for(int i=numMeasure_; i< dataSize_; i++){
+                    y.append(dataPckt->data[i]);
+                }
 
+                if(y.size() >= width_) {
+                    ui->customPlot->graph(0)->setData(x, y);
+                    //ui->customPlot->rescaleAxes();
+                    ui->customPlot->replot();
+                    y.clear();
+                }
+            }
+
+            else{
+                for(int i=numMeasure_; i< dataSize_; i++)
+                    ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro++, dataPckt->data[i]);
+            }
         }
-        ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
+        else if(tmp_dataPckt->numPckt == numPckt_){
 
-        if(realTime){
-            if(y.size() >= width_) {
-                ui->customPlot->graph(0)->setData(x, y);
-                //ui->customPlot->rescaleAxes();
-                ui->customPlot->replot();
-                y.clear();
+            disconnect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(frstPlotData(pointsFromWGrounds*)));
+            connect(transceiver_ground_, SIGNAL(dataGroundUpdate(pointsFromWGrounds*)), this, SLOT(plotData(pointsFromWGrounds*)));
+
+            dataSize_ = tmp_dataPckt->data.size();
+            y.clear();
+
+            ui->label_state->setStyleSheet("QLabel { background-color : green; color : black; }");  //device Enable
+            if(realTime){
+
+                for(int i=numMeasure_; i< dataSize_; i++){
+                    y.append(tmp_dataPckt->data[i]);
+                }
+
+                if(y.size() >= width_) {
+                    ui->customPlot->graph(0)->setData(x, y);
+                    //ui->customPlot->rescaleAxes();
+                    ui->customPlot->replot();
+                    y.clear();
+                }
+            }
+            else{
+                cnt_meas_tim_vibro = 0;
+                for(int i=numMeasure_; i< dataSize_; i++)
+                    ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro++, tmp_dataPckt->data[i]);
+                qDebug() << "num Meas" << numMeasure_ << "data Size" << dataSize_ << "dev id" <<deviceCount;
+            }
+
+            if(tmp_dataPckt->numPckt < dataPckt->numPckt){
+                dataSize_ = dataPckt->data.size();
+
+                if(realTime){
+                    for(int i=0; i< dataSize_; i++){
+                        y.append(dataPckt->data[i]);
+                    }
+
+                    if(y.size() >= width_) {
+                        ui->customPlot->graph(0)->setData(x, y);
+                        //ui->customPlot->rescaleAxes();
+                        ui->customPlot->replot();
+                        y.clear();
+                    }
+                }
+                else{
+                    for(int i=0; i< dataSize_; i++)
+                        ui->customPlot->graph(0)->addData(cnt_meas_tim_vibro++, dataPckt->data[i]);
+
+                }
             }
         }
 
         else{
-            if(y.size() < width_){
-                ui->customPlot->graph(0)->addData(x, y);
-                ui->customPlot->replot();
-            }
+            tmp_dataPckt->numPckt = dataPckt->numPckt;
+            tmp_dataPckt->data = dataPckt->data;
         }
 
     }
@@ -134,6 +203,7 @@ void graphGround::setGroundDevState(quint8 numDev, bool state)
 void graphGround::setDevNum(quint8 devCon) {
 
     deviceCount = devCon;
+    tmp_dataPckt->numModule = deviceCount;
     ui->label_num_ground->setText(QString("Наземный %1").arg(deviceCount+1));  //нумерация с 1
 }
 
@@ -152,10 +222,10 @@ void graphGround::setWidth(int val)
 /* задать смещение */
 void graphGround::setOffset(uint8_t numPckt,uint8_t numMeasure, const int blk_cnt)
 {
-    if(blk_cnt == 1){
+//    if(blk_cnt == 1){
         numPckt_ = numPckt;
         numMeasure_ = numMeasure;
-    }
+//    }
 }
 
 void graphGround::initGraphGround()

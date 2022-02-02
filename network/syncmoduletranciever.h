@@ -41,7 +41,7 @@ public:
 
     typedef struct
     {
-        uint8_t numPckt;
+        int numPckt;
         int16_t oldPckt;        //Отлавливать битый пакет
         QVector<double> dataADC;
         QVector<bool> timeBreakVibro;
@@ -174,6 +174,7 @@ signals:
     void sendStopPck();
     void deleteTcpClient();
     void dataSyncUpdate(SyncModuleTranciever::pointsFromSync*);
+    void timeVibroSig(uint time);
 
 public slots:
     void sendCmd(const QString cmdText, const QString channelText, const int timeText);
@@ -185,6 +186,7 @@ public slots:
     void send_Reset(void);
     void getDataOffsetDownHoles(quint16 numPckt);
     void AddToLog(QString strLog);
+    void getTimerVibro(uint time);
 };
 
 QDataStream& operator <<(QDataStream &out, const SyncModuleTranciever::pocket &point);

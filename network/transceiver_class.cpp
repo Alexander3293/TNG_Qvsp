@@ -438,6 +438,11 @@ void Transceiver_class::WriteToFile(pointFromDownHoles &point, uint size)
 void Transceiver_class::setRecord(bool isRecording)
 {
     isRecording_ = isRecording;
+    if(!isRecording_){
+        foreach(auto &list, listFileSgd){
+            list->close_data();
+        }
+    }
 }
 
 bool Transceiver_class::getRecord()
@@ -463,6 +468,7 @@ void Transceiver_class::setFileName(int idMeas, QString dirFile)
 //    }
     cntFileSGD = 0;
     cntMeasSGD = 0;
+    frstPcktOffset = false;
     update_sgd_files(dirFile);
 
 }
@@ -597,4 +603,9 @@ void Transceiver_class::clearFlags()
 {
     flagFirst = false;
     isRecording_ = false;
+}
+
+void Transceiver_class::getTimerVibro(uint time)
+{
+    emit timeVibroSig(time);
 }

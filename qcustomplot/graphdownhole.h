@@ -42,11 +42,12 @@ public:
     void initGraphXYZ(init_graph_DownHoles axis);
     void stopPlot();
     void rangeChanged(double axisY);
-    void getTimerVibro(uint time);
+
 
 public slots:
     void plotData();
     void slot_data_update (const int blk_cnt, const pointFromDownHoles &point);
+    void getTimerVibro(uint time);
 
 signals:
     void updateSceneWidth();
@@ -81,7 +82,7 @@ private:
 
     quint8  trace_XYZ;
     quint8  KU_;
-    \
+    double pointX, pointY;
     quint32 err_crc_;
     bool realTime;
 

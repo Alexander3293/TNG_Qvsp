@@ -102,9 +102,11 @@ signals:
     void connectionClosed();
     void newDepth(int depth);
     void newOffsetpckt(quint16);
+    void timeVibroSig(uint);
 
 public slots:
     void on_udp_data_rx     (void);
+    void getTimerVibro(uint time);
 
 public slots:
     void start();
@@ -139,6 +141,7 @@ public:
     void update_sgd_files(QString dirFile);
 
     void clearFlags();
+
 
 };
 Q_DECLARE_METATYPE(pointFromDownHoles)

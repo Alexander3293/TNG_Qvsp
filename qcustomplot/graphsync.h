@@ -23,6 +23,7 @@ public:
 
 public slots:
     void changeTimeBreakSlot(const QString cmd, const QString chnl);
+    void getTimerVibro(uint time);
 
 private slots:
     void frstPlotData(SyncModuleTranciever::pointsFromSync *dataPckt);
@@ -42,6 +43,9 @@ private:
 
     uint32_t error_crc_;
     uint32_t error_pckt_;
+    int cnt_meas_tim_vibro;
+    bool realTime;
+    SyncModuleTranciever::pointsFromSync* tmp_dataPckt;
 };
 
 #endif // GRAPHSYNC_H

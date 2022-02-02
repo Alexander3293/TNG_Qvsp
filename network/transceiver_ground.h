@@ -30,8 +30,7 @@
 typedef struct
 {
     int time;
-    uint8_t numPckt;
-    int16_t oldPckt;        //Отлавливать битый пакет
+    int numPckt;
     uint8_t	numModule;
     QVector<double> data;
     uint8_t	CRC_MSB;
@@ -110,11 +109,13 @@ public slots:
     void getDataOffsetDownHoles(quint16 numPckt);
     void send_search_devices();
     void update_sgd_files(quint8 numModule, QString dirFile);
+    void getTimerVibro(uint time);
 
 signals:
     void dataGroundUpdate(pointsFromWGrounds *data);
     void message(QString strLog);
     void devGroundState(quint8 numDev, bool state);
+    void timeVibroSig(uint time);
 };
 
 Q_DECLARE_METATYPE(pointsFromWGrounds);

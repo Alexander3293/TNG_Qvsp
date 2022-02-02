@@ -78,6 +78,7 @@ private slots:
     void on_pBRealTime_clicked();
 
     void on_pBVibroOn_clicked();
+    void startTimerVibro();
     void timerEnd();
 
 signals:
@@ -86,6 +87,7 @@ signals:
    void dataToZeroOffsetCtrl(pointFromDownHoles point);   
    void setCorrDraw(const QString &);
    void operateSGD(QString);
+   void timeVibroSig(uint);
 
 private:
    void setGainDnHole(int value);
@@ -94,6 +96,7 @@ private:
    void initSliders();
    void rangeGraphUpHoleChanged(int);
    void rangeGraphDownHoleChanged(int);
+
 private:
     Ui::MainWindow *ui;
     graphSync *syncPlot_;

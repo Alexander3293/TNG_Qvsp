@@ -149,6 +149,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(transceiverThread_, SIGNAL(finished()), transceiverThread_, SLOT(deleteLater()));
     connect(transceiver_, SIGNAL(newDepth(int)), this, SLOT(updateDepth(int)));
 
+    connect(this, SIGNAL(timeVibroSig(uint)), transceiver_, SLOT(getTimerVibro(uint)));
+    connect(this, SIGNAL(timeVibroSig(uint)), transceiver_ground_, SLOT(getTimerVibro(uint)));
+    connect(this, SIGNAL(timeVibroSig(uint)), transceiver_sync_, SLOT(getTimerVibro(uint)));
+
     connect(transceiver_, SIGNAL(newOffsetpckt(quint16)), transceiver_ground_, SLOT(getDataOffsetDownHoles(quint16)));
     connect(transceiver_, SIGNAL(newOffsetpckt(quint16)), transceiver_sync_, SLOT(getDataOffsetDownHoles(quint16)));
 
@@ -1480,6 +1484,8 @@ void MainWindow::newProj(QString name, QString path)
 {
     disconnect(proj_, SIGNAL(projectCreated(QString)), this, SLOT(messageProject(QString)));
     disconnect(proj_, SIGNAL(projectCreatedError(QString)), this, SLOT(messageProject(QString)));
+    disconnect(proj_, SIGNAL(measPath(int, QString)), this, SLOT(setFileName(int, QString)));
+
     connect(proj_, SIGNAL(projectCreated(QString)), this, SLOT(messageProject(QString)));
     connect(proj_, SIGNAL(projectCreatedError(QString)), this, SLOT(messageProject(QString)));
     connect(proj_, SIGNAL(measPath(int, QString)), this, SLOT(setFileName(int, QString)));
@@ -1515,7 +1521,8 @@ void MainWindow::addMeasurment()
     serviceInfo.insert("NumHole", numHole_);
     serviceInfo.insert("NameArea", nameArea_);
     serviceInfo.insert("DistBtwDevices", distBtwDevices_);
-    proj_->onUpdateServiceInfo(measId_ + 1, serviceInfo);
+    //proj_->onUpdateServiceInfo(measId_ + 1, serviceInfo);
+    proj_->onUpdateServiceInfo(measId_, serviceInfo);
 }
 
 
@@ -1537,15 +1544,37 @@ void MainWindow::on_pBRealTime_clicked()
 
 void MainWindow::on_pBVibroOn_clicked()
 {
+    connect(proj_, SIGNAL(projectCreated(QString)), this, SLOT(startTimerVibro()));
+    emit ui->StartButton->clicked();
+
+}
+
+void MainWindow::startTimerVibro()
+{
+    qDebug() << "start";
+    disconnect(proj_, SIGNAL(projectCreated(QString)), this, SLOT(startTimerVibro()));
     timeVibro = ui->timeVibroEdit->text().toUInt();
+    timeVibro *= 1000;
+
+    disconnect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
+                SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+
+    emit timeVibroSig(timeVibro);
     connect(transceiver_, SIGNAL(data_update(int,pointFromDownHoles)),  this,
                 SLOT(setGlobalOffset(int,pointFromDownHoles))); //Первое смещение задать
+
     offset = false;
 
     //timerVibroOn.setInterval(timeVibro*1000);
-    timerVibroOn.singleShot(timeVibro*1000, this, SLOT(timerEnd()));
+    timerVibroOn.singleShot(timeVibro, this, SLOT(timerEnd()));
 }
+
 void MainWindow::timerEnd()
 {
-
+    proj_->setStopTime();
+    transceiver_->setRecord(false);
+    transceiver_sync_->setRecord(false);
+    transceiver_ground_->setRecord(false);
+    qDebug() << "Timer stop";
+    disconnect(proj_, SIGNAL(projectCreated(QString)), this, SLOT(startTimerVibro()));
 }

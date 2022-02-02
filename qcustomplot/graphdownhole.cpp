@@ -11,6 +11,7 @@ graphDownHole::graphDownHole(Transceiver_class *transceiver, QWidget *parent) :
     trace_XYZ = init_graph_DownHoles::graph_axis_X;
 
     connect(this, SIGNAL(updateSceneWidth()), this, SLOT(plotData()));
+    connect(transceiver_, SIGNAL(timeVibroSig(uint)), this, SLOT(getTimerVibro(uint)));
     for(int i =0; i< 500; i++)
         xTimeCpy_.append(i);
     KU_ = 0;
@@ -32,9 +33,11 @@ void graphDownHole::plotData()
         ui->customPlot->replot();
     }
     else{
-        if(data_vector_XYZ.size() < width_){
-            ui->customPlot->graph(0)->addData(xTimeCpy_, data_vector_XYZ);
-            ui->customPlot->replot();
+        if((int)pointX <= width_){
+            //ui->customPlot->graph(0)->addData(xTimeCpy_, data_vector_XYZ);
+            ui->customPlot->graph(0)->addData(pointX, pointY);
+            if(!((int)pointX % 1000))
+                ui->customPlot->replot();
         }
     }
 }
@@ -124,9 +127,9 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
         x.x31_0 = maxValMissPacket;
     }
     mesX = x.x31_0;
-    data_vector_XYZ.append(mesX);
 
     if(realTime){
+        data_vector_XYZ.append(mesX);
         if ((data_vector_XYZ.count() >= width_)){
             data_cpyXYZ = data_vector_XYZ;
             data_vector_XYZ.clear();
@@ -134,8 +137,12 @@ void graphDownHole::slot_data_update (const int blk_cnt, const pointFromDownHole
             emit updateSceneWidth();
         }
     }
-    else
+    else{
+        pointY  = mesX;
+        pointX++;
         emit updateSceneWidth();
+    }
+
 
 
 
@@ -157,8 +164,8 @@ void graphDownHole::clearData()
 void graphDownHole::setWidth(int width)
 {
     width_ = width;
-    data_vector_XYZ.resize(width_);
-    data_cpyXYZ.resize(width_);
+    data_vector_XYZ.reserve(width_);
+    data_cpyXYZ.reserve(width_);
 }
 
 void graphDownHole::initGraphXYZ()
@@ -284,10 +291,13 @@ void graphDownHole::getTimerVibro(uint time)
     xTimeCpy_.clear();
     data_cpyXYZ.clear();
     data_vector_XYZ.clear();
-
+    pointX = 0;
+    pointY = 0;
     this->setWidth(time);
     for(uint i =0; i< time; i++)
         xTimeCpy_.append(i);
+    ui->customPlot->graph(0)->data().data()->clear();
+    ui->customPlot->replot();
     ui->customPlot->xAxis->setRange(0, width_);
 
     realTime = false;

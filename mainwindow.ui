@@ -1092,7 +1092,7 @@ QSlider::handle:horizontal {
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>1380</x>
@@ -1142,7 +1142,7 @@ QSlider::handle:horizontal {
         </font>
        </property>
        <property name="text">
-        <string>8</string>
+        <string>4</string>
        </property>
        <property name="maxLength">
         <number>10</number>
@@ -1208,11 +1208,7 @@ QSlider::handle:horizontal {
    <zorder>pbSaveSGD</zorder>
    <zorder>gridLayoutWidget_2</zorder>
    <zorder>sliderUpHole</zorder>
-   <zorder>timeVibroEdit</zorder>
-   <zorder>label_23</zorder>
-   <zorder>pBVibroOn</zorder>
-   <zorder>pBRealTime</zorder>
-   <zorder></zorder>
+   <zorder>layoutWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

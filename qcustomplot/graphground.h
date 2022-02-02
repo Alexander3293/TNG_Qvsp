@@ -22,12 +22,13 @@ public:
     void setWidth(int val);
     void setOffset(uint8_t , uint8_t, const int );
     void rangeChanged(double axisY);
-    void getTimerVibro(uint time);
+
 
 public slots:
     void plotData(pointsFromWGrounds *dataPckt);
     void frstPlotData(pointsFromWGrounds *dataPckt);
     void setGroundDevState(quint8 numDev, bool state);
+    void getTimerVibro(uint time);
 
 private:
     Ui::graphGround     *ui;
@@ -42,8 +43,9 @@ private:
     int16_t numMeasure_;
     uint32_t error_crc_;
     uint32_t error_pckt_;
-
+    int cnt_meas_tim_vibro;
     bool realTime;
+    pointsFromWGrounds* tmp_dataPckt;
 };
 
 #endif // GRAPHGROUND_H

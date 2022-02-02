@@ -594,6 +594,11 @@ void SyncModuleTranciever::AddToLog(QString strLog)
     emit message(strLog);
 }
 
+void SyncModuleTranciever::getTimerVibro(uint time)
+{
+    emit timeVibroSig(time);
+}
+
 
 void SyncModuleTranciever::WriteToFile(QByteArray data)
 {
