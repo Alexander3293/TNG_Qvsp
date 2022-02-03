@@ -32,7 +32,7 @@ Transceiver_ground::Transceiver_ground(QObject *parent) :
         listCntFileSGD.append(0);
         listCntMeasSGD.append(0);
     }
-
+    tmpData.resize(DATA_LEN);
 }
 
 Transceiver_ground::~Transceiver_ground()
@@ -65,74 +65,118 @@ void Transceiver_ground::on_udp_data_rx(void)
 
     while(udp_socket->hasPendingDatagrams())
     {
-    //datagram.fill(0, _sok_udp->pendingDatagramSize());
-    datagram.resize(udp_socket->pendingDatagramSize());
-    //QHostAddress address;
-    //uint16_t port;
-    //_sok_udp->readDatagram(datagram.data(), datagram.size(), &address, &port);
-    QNetworkDatagram datagram_d = udp_socket->receiveDatagram(-1);
+        datagram.resize(udp_socket->pendingDatagramSize());
+        udp_socket->readDatagram(datagram.data(), datagram.size());
 
-    datagram = datagram_d.data();
-    //QDataStream in(&datagram, QIODevice::ReadOnly);
-    quint64 Byt =  datagram.size() ;
-    /* Если пришла команда настройки */
-    if(Byt < 65){
+        if(datagram.size() < 65){
+            uint8_t shift_data = 0;
+            uint8_t devNum = 0;
+            if(datagram.startsWith((char*)ADC_ENABLE))  //Start of the package
+            {
+                while(shift_data < datagram.size()){
+                    shift_data+=3;  // header packet 3 byte
+                    devNum = datagram.at(shift_data++);
+                    AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum+1));
+                }
 
-        QString tmp_str = datagram.toHex();
-        QString hand_package;
-        hand_package = QString::number(ADC_ENABLE, 16); //define in hex to str
-        //= "dedea0"; //adc enable
-        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))  //Start of the package
-        {
-            qDebug() << "Команда ВКЛ устройств:" << tmp_str;
-            int devNum = tmp_str.mid(6,2).toInt();
-            AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
-            tmp_str.remove(0, 8);
-            while(tmp_str.length()){
-                devNum = tmp_str.mid(6,2).toInt();
-                AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
-                tmp_str.remove(0, 8);
+                return;
             }
-            return;
-        }
-        //hand_package = "dedea5";
-        hand_package = QString::number(ADC_DISABLE, 16);
-        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))
-        {
-            int devNum = tmp_str.mid(6,2).toInt();
-            AddToLog(QString("ОШИБКА Наземного модуля : %1").arg(devNum+1));
-            return;
-        }
+            else if(datagram.startsWith((char*)ADC_DISABLE)){
 
-        //hand_package = "dedeaf"; //search devices
-        hand_package = QString::number(SEARCH_DEV, 16);
-        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))  //Find devices
-        {
-
-            QString message_str = tmp_str;
-            uint8_t tmp_counter = message_str.count(hand_package, Qt::CaseInsensitive);
-            //CounterDevicesReady += tmp_counter; //Подсчет количества девайсов
-            message_str = message_str.remove(hand_package, Qt::CaseInsensitive); //Str without handler
-           // ui->lineEdit->setText(QString::number(CounterDevicesReady));
-
-            int dev_num_tmp = 0;
-            for(uint i=0; i < tmp_counter; i++ ) {
-                //AddToLog("Device " + message_str.mid(2*i,2) + " is ready", Qt::red);
-                dev_num_tmp = message_str.mid(0,2).toInt();
-                qDebug() << "DEvice " << dev_num_tmp;
-                emit devGroundState(dev_num_tmp, true);
+                while(shift_data < datagram.size()){
+                    shift_data+=3;  // header packet 3 byte
+                    devNum = datagram.at(shift_data++);
+                    AddToLog(QString("ОШИБКА Наземного модуля : %1").arg(devNum+1));
+                }
+                return;
             }
-            return;
+            else if(datagram.startsWith((char*)SEARCH_DEV)){
+                while(shift_data < datagram.size()){
+                    shift_data+=3;  // header packet 3 byte
+                    devNum = datagram.at(shift_data++);
+                    AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum+1));
+                    emit devGroundState(devNum, true);
+                }
+                return;
+            }
         }
 
-    }
-
-    dataProcessingModuleGround(datagram);
-
-//    if(isRecording_)
-//        WriteToFile(datagram);
+        dataProcessingModuleGround(datagram);
     }
 }
+
+///* Прием данных */
+//void Transceiver_ground::on_udp_data_rx(void)
+//{
+//    QByteArray datagram;
+
+//    while(udp_socket->hasPendingDatagrams())
+//    {
+//    //datagram.fill(0, _sok_udp->pendingDatagramSize());
+//    datagram.resize(udp_socket->pendingDatagramSize());
+//    //QHostAddress address;
+//    //uint16_t port;
+//    //_sok_udp->readDatagram(datagram.data(), datagram.size(), &address, &port);
+//    QNetworkDatagram datagram_d = udp_socket->receiveDatagram(-1);
+
+//    datagram = datagram_d.data();
+//    //QDataStream in(&datagram, QIODevice::ReadOnly);
+//    quint64 Byt =  datagram.size() ;
+//    /* Если пришла команда настройки */
+//    if(Byt < 65){
+
+//        QString tmp_str = datagram.toHex();
+//        QString hand_package;
+//        hand_package = QString::number(ADC_ENABLE, 16); //define in hex to str
+//        //= "dedea0"; //adc enable
+//        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))  //Start of the package
+//        {
+//            qDebug() << "Команда ВКЛ устройств:" << tmp_str;
+//            int devNum = tmp_str.mid(6,2).toInt();
+//            AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
+//            tmp_str.remove(0, 8);
+//            while(tmp_str.length()){
+//                devNum = tmp_str.mid(6,2).toInt();
+//                AddToLog(QString("Наземный модуль %1 ВКЛ ").arg(devNum));
+//                tmp_str.remove(0, 8);
+//            }
+//            return;
+//        }
+//        //hand_package = "dedea5";
+//        hand_package = QString::number(ADC_DISABLE, 16);
+//        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))
+//        {
+//            int devNum = tmp_str.mid(6,2).toInt();
+//            AddToLog(QString("ОШИБКА Наземного модуля : %1").arg(devNum+1));
+//            return;
+//        }
+
+//        //hand_package = "dedeaf"; //search devices
+//        hand_package = QString::number(SEARCH_DEV, 16);
+//        if(tmp_str.startsWith(hand_package,Qt::CaseInsensitive))  //Find devices
+//        {
+
+//            QString message_str = tmp_str;
+//            uint8_t tmp_counter = message_str.count(hand_package, Qt::CaseInsensitive);
+//            //CounterDevicesReady += tmp_counter; //Подсчет количества девайсов
+//            message_str = message_str.remove(hand_package, Qt::CaseInsensitive); //Str without handler
+//           // ui->lineEdit->setText(QString::number(CounterDevicesReady));
+
+//            int dev_num_tmp = 0;
+//            for(uint i=0; i < tmp_counter; i++ ) {
+//                //AddToLog("Device " + message_str.mid(2*i,2) + " is ready", Qt::red);
+//                dev_num_tmp = message_str.mid(0,2).toInt();
+//                qDebug() << "DEvice " << dev_num_tmp;
+//                emit devGroundState(dev_num_tmp, true);
+//            }
+//            return;
+//        }
+
+//    }
+
+//    dataProcessingModuleGround(datagram);
+//    }
+//}
 
 void Transceiver_ground::send_cmd(void)
 {
@@ -243,254 +287,430 @@ void Transceiver_ground::getDataOffsetDownHoles(quint16 numPckt)
         qDebug() << "I am here" << "numPckt Up" << numPckt_ << "num Meas" << numMeasure_;
 
 }
+
 /* Здесь будет обработка всех данных от коммутаторов ~0.5 сек*/
-void Transceiver_ground::dataProcessingModuleGround (QByteArray data)
+void Transceiver_ground::dataProcessingModuleGround (const QByteArray& data)
 {
-    QString  tmp_str_iVal = "";  //Считываемое String
-    QString  str_iVal = "";
+    //memcpy(tmpData.data(), data.constData(), DATA_LEN);
 
-    dataDatagramlen = data.length()*2;
+    dataDatagramlen = data.size();
+    counterDatagram = dataDatagramlen / (DATA_LEN);
 
-    QString str_data = data.toHex();
-    counterDatagram = 0;
-    device_id = -1;
+    while(counterDatagram < dataDatagramlen){
+        tmpData.replace(counterDatagram, DATA_LEN, data.constData());
 
-//    for(int i=0; i < 8; i++)    {
-//        listGroundModules.at(i)->data.clear();
-//    }
+        if(!tmpData.startsWith((char*)HAND_PACKAGE)){
+            counterDatagram += DATA_LEN;
+            continue;
+        }
+        device_id = tmpData[4];
+        if(device_id >= 9)   qDebug() << "Error, data";
+        listGroundModules.at(device_id)->data.clear();
+        listGroundModules.at(device_id)->numPckt = tmpData[5];          //num Pckt
+        listGroundModules.at(device_id)->CRC_MSB = tmpData[6];
+        listGroundModules.at(device_id)->CRC_LSB = tmpData[7];
 
-    while(counterDatagram < dataDatagramlen) {              // Length Files
-       tmp_str_iVal = str_data.mid(counterDatagram,6);      //read 2 bytes + 2 bytes
-       counterDatagram += 6;
-
-       if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package   0xed00ff
-
-           if(device_id> -1) {
-
-
-               if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
-                                    listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
-
-                   qDebug() << "Error CRC x1" << "device_id"<< device_id;
-
-                   dataPointTmpSGD.at(device_id)->error = -1;
-                   dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
-
-                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
-               }
-
-               else
-                   emit dataGroundUpdate(listGroundModules.at(device_id));
-
-               //listFileSgd.at(device_id)->append_data(*(QVector<float>*)(&listGroundModules.at(device_id)->data));
-
-               if(isRecording_){
-                   QVector<double> data;
-                   for(int i=0; i < listGroundModules.at(device_id)->data.size(); i++)
-                       data.append(listGroundModules.at(device_id)->data.at(i));
-
-                   if(listOffset.at(device_id)){
-                       if(listGroundModules.at(device_id)->numPckt ==numPckt_){
-                           if(device_id % 2){
-                               for(int i=0; i < numMeasure_; i++)
-                                   data.removeFirst();
-                               listOffset[device_id] = false;
-                               qDebug() << "смещение" << "device" << device_id+1;
-                               listFileSgd.at(device_id)->append_data(data);
-                           }
-                           else{
-                               for(int i=0; i < numMeasure_+1; i++)
-                                   data.removeFirst();
-                               listOffset[device_id] = false;
-                               qDebug() << "смещение" << "device" << device_id+1;
-                               listFileSgd.at(device_id)->append_data(data);
-                           }
-
-                       } 
-                   }
-                   else
-                       listFileSgd.at(device_id)->append_data(data);
-
-               }
-//               if(isRecording_)
-//                   listFileSgd.at(device_id)->append_data(listGroundModules.at(device_id)->data);
-           }
-
-           device_id = str_data.mid(counterDatagram,2).toUInt();
-           counterDatagram += 2;
-           if(device_id >= 9)   qDebug() << "Error, data";
-           else if(device_id < 0)   qDebug() << "Error, data";
-
-           listGroundModules.at(device_id)->data.clear();
-
-           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get number packet
-           counterDatagram += 2;
-           listGroundModules.at(device_id)->numPckt = tmp_str_iVal.toInt(&ok,16);
-
-           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc msb
-           counterDatagram += 2;
-           listGroundModules.at(device_id)->CRC_MSB = tmp_str_iVal.toInt(&ok,16);
-
-           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc lsb
-           counterDatagram += 2;
-           listGroundModules.at(device_id)->CRC_LSB = tmp_str_iVal.toInt(&ok,16);
-
-           /* Начнем отсчет и сравнение пакетов */
-           if(!checkBLKCount.at(device_id)){
-               blk_count[device_id] = listGroundModules.at(device_id)->numPckt;
-               checkBLKCount[device_id] = true;
-               blk_count[device_id]++;
-               qDebug() << "blk" << blk_count[device_id] << "num Pckt" << listGroundModules.at(device_id)->numPckt;
-           }
-           else{
-               if(blk_count[device_id] != listGroundModules.at(device_id)->numPckt){
-                   while(blk_count[device_id]!=listGroundModules.at(device_id)->numPckt){
-                   qDebug() << "Error Packet Up hole. x1 Device ID:" << device_id
-                        << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
-                   dataPointTmpSGD.at(device_id)->numPckt = blk_count[device_id];
-                   dataPointTmpSGD.at(device_id)->error = -2;
-
-                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
-
-                   if(isRecording_){
-                       QVector<double> data;
-                       for(int i=0; i < dataPointTmpSGD.at(device_id)->data.size(); i++)
-                           data.append(dataPointTmpSGD.at(device_id)->data.at(i));
-
-                       /* Сделать смещение */
-                       if(listOffset.at(device_id)){
-                           if(dataPointTmpSGD.at(device_id)->numPckt ==numPckt_){
-                                   for(int i=0; i < numMeasure_; i++)
-                                       data.removeFirst();
-
-                                   listOffset[device_id] = false;
-                                   qDebug() << "смещение" << "device" << device_id+1;
-                                   listCntMeasSGD[device_id] += data.size();
-
-                                   if(listCntMeasSGD[device_id] >= max_len_sgd){
-                                       uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
-                                       listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-                                       qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
-                                       listCntFileSGD[device_id]+=1;
-                                       this->update_sgd_files(device_id, "");
-                                       data.remove(0, data.size()-ostatok);
-                                       listCntMeasSGD[device_id] = ostatok;
-                                       listFileSgd.at(device_id)->append_data(data, ostatok);
-                                   }
-                                   else
-                                       listFileSgd.at(device_id)->append_data(data);
-
-                           }
-                       }
-                       else{
-                           listCntMeasSGD[device_id] += data.size();
-                           if(listCntMeasSGD[device_id] >= max_len_sgd){
-
-                               uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;  
-                               int tmp = data.size()-ostatok;
-                               listFileSgd.at(device_id)->append_data(data, tmp);
-                               listCntFileSGD[device_id]+=1;
-                               this->update_sgd_files(device_id, "");
-                               listCntMeasSGD[device_id] = ostatok;
-                               data.remove(0, tmp);
-                               listFileSgd.at(device_id)->append_data(data, ostatok);
-                           }
-                           else
-                               listFileSgd.at(device_id)->append_data(data);
-                       }
-                   }
-                   blk_count[device_id]++;
-               }
-                   blk_count[device_id]--;
-               }
-
-               blk_count[device_id]++;
-           }
-       }
-
-       else {
-           tmpMSB = tmp_str_iVal.left(2).toInt(&ok,16);
-           tmpSSB = tmp_str_iVal.mid(2,2).toInt(&ok,16);
-           tmpLSB = tmp_str_iVal.right(2).toInt(&ok,16);
-
-           //value = (tmp1 << 16) | (tmp2);// & 0x00ffffff;   //24-bit ADC
-           valuePckt = (tmpMSB << 16) |(tmpSSB << 8)| (tmpLSB);// & 0x00ffffff;   //24-bit ADC
-           if(valuePckt & 0x800000){
-               valuePckt |= 0xff000000;
-           }
-
-           listGroundModules.at(device_id)->data.append(valuePckt);
-       }
-    }
-    if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
-                         listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
-
-        qDebug() << "Error CRC" << "device_id"<< device_id;
-
-        dataPointTmpSGD.at(device_id)->error = -1;
-        dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
-
-        emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
-    }
-    else
-        emit dataGroundUpdate(listGroundModules.at(device_id));
-    /* Выставлен offset */
-    if(isRecording_){
-        QVector<double> data;
-        for(int i=0; i < listGroundModules.at(device_id)->data.size(); i++)
-            data.append(listGroundModules.at(device_id)->data.at(i));
-
-        if(listOffset.at(device_id)){
-            if(listGroundModules.at(device_id)->numPckt ==numPckt_){
-                if(device_id %2){
-                    for(int i=0; i < numMeasure_; i++)
-                        data.removeFirst();
-                }
-                else{
-                    for(int i=0; i < numMeasure_+1; i++)
-                        data.removeFirst();
-                }
-
-
-                    listOffset[device_id] = false;
-                    qDebug() << "смещение" << "device" << device_id+1;
-
-                    listCntMeasSGD[device_id] += data.size();
-                    if(listCntMeasSGD[device_id] >= max_len_sgd){
-                        uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
-                        qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
-                        listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-
-                        listCntFileSGD[device_id]+=1;
-                        this->update_sgd_files(device_id, "");
-                        listCntMeasSGD[device_id] = ostatok;
-                        data.remove(0, data.size()-ostatok);
-                        listFileSgd.at(device_id)->append_data(data, ostatok);
-                    }
-                    else
-                        listFileSgd.at(device_id)->append_data(data);
-
-            }
+        /* Начнем отсчет и сравнение пакетов */
+        if(!checkBLKCount.at(device_id)){
+            blk_count[device_id] = listGroundModules.at(device_id)->numPckt;
+            checkBLKCount[device_id] = true;
+            blk_count[device_id]++;
+            qDebug() << "blk" << blk_count[device_id] << "num Pckt" << listGroundModules.at(device_id)->numPckt;
         }
         else{
-            listCntMeasSGD[device_id] += data.size();
-            if(listCntMeasSGD[device_id] >= max_len_sgd){
+            if(blk_count[device_id] != listGroundModules.at(device_id)->numPckt){
+                while(blk_count[device_id]!=listGroundModules.at(device_id)->numPckt){
+                qDebug() << "Error Packet Up hole. x1 Device ID:" << device_id
+                     << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
+                dataPointTmpSGD.at(device_id)->numPckt = blk_count[device_id];
+                dataPointTmpSGD.at(device_id)->error = -2;
 
-                uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
-                listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
-                qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
-                listCntFileSGD[device_id]+=1;
-                this->update_sgd_files(device_id, "");
-                listCntMeasSGD[device_id] = ostatok;
-                data.remove(0, data.size()-ostatok);
-                listFileSgd.at(device_id)->append_data(data, ostatok);
+                emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
+
+                if(isRecording_){
+                    QVector<double> data;
+                    for(int i=0; i < dataPointTmpSGD.at(device_id)->data.size(); i++)
+                        data.append(dataPointTmpSGD.at(device_id)->data.at(i));
+
+                    /* Сделать смещение */
+                    if(listOffset.at(device_id)){
+                        if(dataPointTmpSGD.at(device_id)->numPckt ==numPckt_){
+                                for(int i=0; i < numMeasure_; i++)
+                                    data.removeFirst();
+
+                                listOffset[device_id] = false;
+                                qDebug() << "смещение" << "device" << device_id+1;
+                                listCntMeasSGD[device_id] += data.size();
+
+                                if(listCntMeasSGD[device_id] >= max_len_sgd){
+                                    uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                                    listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+                                    qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+                                    listCntFileSGD[device_id]+=1;
+                                    this->update_sgd_files(device_id, "");
+                                    data.remove(0, data.size()-ostatok);
+                                    listCntMeasSGD[device_id] = ostatok;
+                                    listFileSgd.at(device_id)->append_data(data, ostatok);
+                                }
+                                else
+                                    listFileSgd.at(device_id)->append_data(data);
+
+                        }
+                    }
+                    else{
+                        listCntMeasSGD[device_id] += data.size();
+                        if(listCntMeasSGD[device_id] >= max_len_sgd){
+
+                            uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                            int tmp = data.size()-ostatok;
+                            listFileSgd.at(device_id)->append_data(data, tmp);
+                            listCntFileSGD[device_id]+=1;
+                            this->update_sgd_files(device_id, "");
+                            listCntMeasSGD[device_id] = ostatok;
+                            data.remove(0, tmp);
+                            listFileSgd.at(device_id)->append_data(data, ostatok);
+                        }
+                        else
+                            listFileSgd.at(device_id)->append_data(data);
+                    }
+                }
+                blk_count[device_id]++;
             }
-            else
-                listFileSgd.at(device_id)->append_data(data);
+                blk_count[device_id]--;
+            }
+
+            blk_count[device_id]++;
+        }
+        for(int i = 8; i < DATA_LEN; i+=3){
+            valuePckt = (tmpData[i] << 16) |(tmpData[i+1] << 8)| (tmpData[i+2]);// & 0x00ffffff;   //24-bit ADC
+            if(valuePckt & 0x800000)
+                valuePckt |= 0xff000000;
+            listGroundModules.at(device_id)->data.append(valuePckt);
+        }
+
+        counterDatagram += DATA_LEN;
+
+        if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
+                             listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
+
+            qDebug() << "Error CRC" << "device_id"<< device_id;
+
+            dataPointTmpSGD.at(device_id)->error = -1;
+            dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
+
+            emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
+        }
+        else
+            emit dataGroundUpdate(listGroundModules.at(device_id));
+
+
+
+        /* Выставлен offset */
+        if(isRecording_){
+            QVector<double> data;
+            for(int i=0; i < listGroundModules.at(device_id)->data.size(); i++)
+                data.append(listGroundModules.at(device_id)->data.at(i));
+
+            if(listOffset.at(device_id)){
+                if(listGroundModules.at(device_id)->numPckt ==numPckt_){
+                    if(device_id %2){
+                        for(int i=0; i < numMeasure_; i++)
+                            data.removeFirst();
+                    }
+                    else{
+                        for(int i=0; i < numMeasure_+1; i++)
+                            data.removeFirst();
+                    }
+
+
+                        listOffset[device_id] = false;
+                        qDebug() << "смещение" << "device" << device_id+1;
+
+                        listCntMeasSGD[device_id] += data.size();
+                        if(listCntMeasSGD[device_id] >= max_len_sgd){
+                            uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                            qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+                            listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+
+                            listCntFileSGD[device_id]+=1;
+                            this->update_sgd_files(device_id, "");
+                            listCntMeasSGD[device_id] = ostatok;
+                            data.remove(0, data.size()-ostatok);
+                            listFileSgd.at(device_id)->append_data(data, ostatok);
+                        }
+                        else
+                            listFileSgd.at(device_id)->append_data(data);
+
+                }
+            }
+            else{
+                listCntMeasSGD[device_id] += data.size();
+                if(listCntMeasSGD[device_id] >= max_len_sgd){
+
+                    uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+                    listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+                    qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+                    listCntFileSGD[device_id]+=1;
+                    this->update_sgd_files(device_id, "");
+                    listCntMeasSGD[device_id] = ostatok;
+                    data.remove(0, data.size()-ostatok);
+                    listFileSgd.at(device_id)->append_data(data, ostatok);
+                }
+                else
+                    listFileSgd.at(device_id)->append_data(data);
+            }
         }
     }
-
 }
+
+/////* Здесь будет обработка всех данных от коммутаторов ~0.5 сек*/
+//void Transceiver_ground::dataProcessingModuleGround (const QByteArray& data)
+//{
+//    QString  tmp_str_iVal = "";  //Считываемое String
+//    QString  str_iVal = "";
+
+//    dataDatagramlen = data.length()*2;
+
+//    QString str_data = data.toHex();
+//    counterDatagram = 0;
+//    device_id = -1;
+
+////    for(int i=0; i < 8; i++)    {
+////        listGroundModules.at(i)->data.clear();
+////    }
+
+//    while(counterDatagram < dataDatagramlen) {              // Length Files
+//       tmp_str_iVal = str_data.mid(counterDatagram,6);      //read 2 bytes + 2 bytes
+//       counterDatagram += 6;
+
+//       if(tmp_str_iVal.startsWith(handPackage,Qt::CaseInsensitive)) {  //Start of the package   0xed00ff
+
+//           if(device_id> -1) {
+
+
+//               if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
+//                                    listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
+
+//                   qDebug() << "Error CRC x1" << "device_id"<< device_id;
+
+//                   dataPointTmpSGD.at(device_id)->error = -1;
+//                   dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
+
+//                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
+//               }
+
+//               else
+//                   emit dataGroundUpdate(listGroundModules.at(device_id));
+
+//               //listFileSgd.at(device_id)->append_data(*(QVector<float>*)(&listGroundModules.at(device_id)->data));
+
+//               if(isRecording_){
+//                   QVector<double> data;
+//                   for(int i=0; i < listGroundModules.at(device_id)->data.size(); i++)
+//                       data.append(listGroundModules.at(device_id)->data.at(i));
+
+//                   if(listOffset.at(device_id)){
+//                       if(listGroundModules.at(device_id)->numPckt ==numPckt_){
+//                           if(device_id % 2){
+//                               for(int i=0; i < numMeasure_; i++)
+//                                   data.removeFirst();
+//                               listOffset[device_id] = false;
+//                               qDebug() << "смещение" << "device" << device_id+1;
+//                               listFileSgd.at(device_id)->append_data(data);
+//                           }
+//                           else{
+//                               for(int i=0; i < numMeasure_+1; i++)
+//                                   data.removeFirst();
+//                               listOffset[device_id] = false;
+//                               qDebug() << "смещение" << "device" << device_id+1;
+//                               listFileSgd.at(device_id)->append_data(data);
+//                           }
+
+//                       }
+//                   }
+//                   else
+//                       listFileSgd.at(device_id)->append_data(data);
+
+//               }
+////               if(isRecording_)
+////                   listFileSgd.at(device_id)->append_data(listGroundModules.at(device_id)->data);
+//           }
+
+//           device_id = str_data.mid(counterDatagram,2).toUInt();
+//           counterDatagram += 2;
+//           if(device_id >= 9)   qDebug() << "Error, data";
+//           else if(device_id < 0)   qDebug() << "Error, data";
+
+//           listGroundModules.at(device_id)->data.clear();
+
+//           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get number packet
+//           counterDatagram += 2;
+//           listGroundModules.at(device_id)->numPckt = tmp_str_iVal.toInt(&ok,16);
+
+//           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc msb
+//           counterDatagram += 2;
+//           listGroundModules.at(device_id)->CRC_MSB = tmp_str_iVal.toInt(&ok,16);
+
+//           tmp_str_iVal = str_data.mid(counterDatagram,2);     //get crc lsb
+//           counterDatagram += 2;
+//           listGroundModules.at(device_id)->CRC_LSB = tmp_str_iVal.toInt(&ok,16);
+
+//           /* Начнем отсчет и сравнение пакетов */
+//           if(!checkBLKCount.at(device_id)){
+//               blk_count[device_id] = listGroundModules.at(device_id)->numPckt;
+//               checkBLKCount[device_id] = true;
+//               blk_count[device_id]++;
+//               qDebug() << "blk" << blk_count[device_id] << "num Pckt" << listGroundModules.at(device_id)->numPckt;
+//           }
+//           else{
+//               if(blk_count[device_id] != listGroundModules.at(device_id)->numPckt){
+//                   while(blk_count[device_id]!=listGroundModules.at(device_id)->numPckt){
+//                   qDebug() << "Error Packet Up hole. x1 Device ID:" << device_id
+//                        << "CurrentPckt:" << listGroundModules.at(device_id)->numPckt << "last Pckt : "<< blk_count[device_id];
+//                   dataPointTmpSGD.at(device_id)->numPckt = blk_count[device_id];
+//                   dataPointTmpSGD.at(device_id)->error = -2;
+
+//                   emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
+
+//                   if(isRecording_){
+//                       QVector<double> data;
+//                       for(int i=0; i < dataPointTmpSGD.at(device_id)->data.size(); i++)
+//                           data.append(dataPointTmpSGD.at(device_id)->data.at(i));
+
+//                       /* Сделать смещение */
+//                       if(listOffset.at(device_id)){
+//                           if(dataPointTmpSGD.at(device_id)->numPckt ==numPckt_){
+//                                   for(int i=0; i < numMeasure_; i++)
+//                                       data.removeFirst();
+
+//                                   listOffset[device_id] = false;
+//                                   qDebug() << "смещение" << "device" << device_id+1;
+//                                   listCntMeasSGD[device_id] += data.size();
+
+//                                   if(listCntMeasSGD[device_id] >= max_len_sgd){
+//                                       uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+//                                       listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+//                                       qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+//                                       listCntFileSGD[device_id]+=1;
+//                                       this->update_sgd_files(device_id, "");
+//                                       data.remove(0, data.size()-ostatok);
+//                                       listCntMeasSGD[device_id] = ostatok;
+//                                       listFileSgd.at(device_id)->append_data(data, ostatok);
+//                                   }
+//                                   else
+//                                       listFileSgd.at(device_id)->append_data(data);
+
+//                           }
+//                       }
+//                       else{
+//                           listCntMeasSGD[device_id] += data.size();
+//                           if(listCntMeasSGD[device_id] >= max_len_sgd){
+
+//                               uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+//                               int tmp = data.size()-ostatok;
+//                               listFileSgd.at(device_id)->append_data(data, tmp);
+//                               listCntFileSGD[device_id]+=1;
+//                               this->update_sgd_files(device_id, "");
+//                               listCntMeasSGD[device_id] = ostatok;
+//                               data.remove(0, tmp);
+//                               listFileSgd.at(device_id)->append_data(data, ostatok);
+//                           }
+//                           else
+//                               listFileSgd.at(device_id)->append_data(data);
+//                       }
+//                   }
+//                   blk_count[device_id]++;
+//               }
+//                   blk_count[device_id]--;
+//               }
+
+//               blk_count[device_id]++;
+//           }
+//       }
+
+//       else {
+//           tmpMSB = tmp_str_iVal.left(2).toInt(&ok,16);
+//           tmpSSB = tmp_str_iVal.mid(2,2).toInt(&ok,16);
+//           tmpLSB = tmp_str_iVal.right(2).toInt(&ok,16);
+
+//           //value = (tmp1 << 16) | (tmp2);// & 0x00ffffff;   //24-bit ADC
+//           valuePckt = (tmpMSB << 16) |(tmpSSB << 8)| (tmpLSB);// & 0x00ffffff;   //24-bit ADC
+//           if(valuePckt & 0x800000){
+//               valuePckt |= 0xff000000;
+//           }
+
+//           listGroundModules.at(device_id)->data.append(valuePckt);
+//       }
+//    }
+//    if(!crc_.checkCRC_UpHole(listGroundModules.at(device_id)->data, listGroundModules.at(device_id)->data.length(),
+//                         listGroundModules.at(device_id)->CRC_MSB , listGroundModules.at(device_id)->CRC_LSB)){
+
+//        qDebug() << "Error CRC" << "device_id"<< device_id;
+
+//        dataPointTmpSGD.at(device_id)->error = -1;
+//        dataPointTmpSGD.at(device_id)->numPckt = listGroundModules.at(device_id)->numPckt;
+
+//        emit dataGroundUpdate(dataPointTmpSGD.at(device_id));
+//    }
+//    else
+//        emit dataGroundUpdate(listGroundModules.at(device_id));
+//    /* Выставлен offset */
+//    if(isRecording_){
+//        QVector<double> data;
+//        for(int i=0; i < listGroundModules.at(device_id)->data.size(); i++)
+//            data.append(listGroundModules.at(device_id)->data.at(i));
+
+//        if(listOffset.at(device_id)){
+//            if(listGroundModules.at(device_id)->numPckt ==numPckt_){
+//                if(device_id %2){
+//                    for(int i=0; i < numMeasure_; i++)
+//                        data.removeFirst();
+//                }
+//                else{
+//                    for(int i=0; i < numMeasure_+1; i++)
+//                        data.removeFirst();
+//                }
+
+
+//                    listOffset[device_id] = false;
+//                    qDebug() << "смещение" << "device" << device_id+1;
+
+//                    listCntMeasSGD[device_id] += data.size();
+//                    if(listCntMeasSGD[device_id] >= max_len_sgd){
+//                        uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+//                        qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+//                        listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+
+//                        listCntFileSGD[device_id]+=1;
+//                        this->update_sgd_files(device_id, "");
+//                        listCntMeasSGD[device_id] = ostatok;
+//                        data.remove(0, data.size()-ostatok);
+//                        listFileSgd.at(device_id)->append_data(data, ostatok);
+//                    }
+//                    else
+//                        listFileSgd.at(device_id)->append_data(data);
+
+//            }
+//        }
+//        else{
+//            listCntMeasSGD[device_id] += data.size();
+//            if(listCntMeasSGD[device_id] >= max_len_sgd){
+
+//                uint16_t ostatok = listCntMeasSGD[device_id]  - max_len_sgd;
+//                listFileSgd.at(device_id)->append_data(data, data.size()-ostatok);
+//                qDebug() << "ostatok Uphole" << ostatok << "device_id" << device_id;
+//                listCntFileSGD[device_id]+=1;
+//                this->update_sgd_files(device_id, "");
+//                listCntMeasSGD[device_id] = ostatok;
+//                data.remove(0, data.size()-ostatok);
+//                listFileSgd.at(device_id)->append_data(data, ostatok);
+//            }
+//            else
+//                listFileSgd.at(device_id)->append_data(data);
+//        }
+//    }
+
+//}
 
 void Transceiver_ground::AddToLog(QString strLog)
 {

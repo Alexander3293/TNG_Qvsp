@@ -13,6 +13,7 @@
 #include "checksum.h"
 
 /*--------- CMD ground modules -----------------*/
+#define HAND_PACKAGE            0xed00ff
 #define SEARCH_NUMBER_DEVICES	0xa9
 #define READY_DEVICE            0xaf
 
@@ -23,6 +24,7 @@
 #define ADC_ENABLE              0xdedea0
 #define ADC_DISABLE             0xdede05
 #define SEARCH_DEV              0xdedeaf
+#define DATA_LEN                (256*3 + 3 + 1 + 1 + 2)
 
 
 /*-----------------------------------------------*/
@@ -68,6 +70,7 @@ private:
     int nowTime_;
 
     QString handPackage = "ed00ff";
+
     int32_t tmpMSB;
     int32_t tmpSSB;
     int32_t tmpLSB;
@@ -98,9 +101,11 @@ private:
 
     checksum crc_;
 
+    QByteArray tmpData;
+
 public slots:
     void on_udp_data_rx(void);
-    void dataProcessingModuleGround (QByteArray);
+    void dataProcessingModuleGround (const QByteArray&);
     void start();
     void send_cmd(void);
     void send_Start(void);
