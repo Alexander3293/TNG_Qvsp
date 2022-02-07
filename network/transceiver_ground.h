@@ -24,7 +24,7 @@
 #define ADC_ENABLE              0xdedea0
 #define ADC_DISABLE             0xdede05
 #define SEARCH_DEV              0xdedeaf
-#define DATA_LEN                (256*3 + 3 + 1 + 1 + 2)
+#define DATA_LEN                (775)
 
 
 /*-----------------------------------------------*/
@@ -32,8 +32,8 @@
 typedef struct
 {
     int time;
-    int numPckt;
-    uint8_t	numModule;
+    quint8 numPckt;
+    quint8	numModule;
     QVector<double> data;
     uint8_t	CRC_MSB;
     uint8_t	CRC_LSB;
@@ -71,9 +71,9 @@ private:
 
     QString handPackage = "ed00ff";
 
-    int32_t tmpMSB;
-    int32_t tmpSSB;
-    int32_t tmpLSB;
+    uint8_t tmpMSB;
+    uint8_t tmpSSB;
+    uint8_t tmpLSB;
     int32_t valuePckt;
     uint32_t counterDatagram;
     uint32_t dataDatagramlen;
